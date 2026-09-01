@@ -1,0 +1,162 @@
+@import "tailwindcss";
+
+@layer base {
+  * {
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: none;
+  }
+
+  html, body, #root {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    overscroll-behavior: none;
+    background-color: #050614;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+}
+
+/* 3D Chrome Beveled Glass Frame (as seen in uploaded screenshots) */
+.chrome-glass-bezel {
+  position: relative;
+  background: linear-gradient(145deg, rgba(32, 28, 56, 0.9) 0%, rgba(16, 14, 32, 0.95) 100%);
+  border-radius: 1.15rem;
+  border: 1.5px solid rgba(220, 225, 255, 0.45);
+  box-shadow:
+    inset 0 1px 1px 0 rgba(255, 255, 255, 0.75),
+    inset 0 -2px 4px 0 rgba(0, 0, 0, 0.9),
+    inset 0 0 12px 1px rgba(160, 130, 255, 0.12),
+    0 4px 12px rgba(0, 0, 0, 0.6),
+    0 1px 2px rgba(0, 0, 0, 0.4);
+}
+
+.chrome-glass-bezel::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  padding: 1.5px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.8) 0%, rgba(140, 155, 210, 0.3) 40%, rgba(60, 65, 110, 0.2) 70%, rgba(255, 255, 255, 0.5) 100%);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+/* Neon Dual-Glow Text Effect ("PICK'U PARTY" sign) */
+.neon-picku-title {
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  color: #ff3b9e;
+  text-shadow:
+    0 0 2px #ffffff,
+    0 0 8px #ff1a8c,
+    0 0 16px #ff007f,
+    0 0 28px #ff007f,
+    0 0 45px #3b82f6,
+    0 0 70px #2563eb,
+    0 4px 14px rgba(0, 0, 0, 0.9);
+  -webkit-text-stroke: 1.5px #3b82f6;
+  paint-order: stroke fill;
+}
+
+@supports not (paint-order: stroke fill) {
+  .neon-picku-title {
+    -webkit-text-stroke: 0px transparent;
+  }
+}
+
+/* Neon Pill Badge Border */
+.neon-pill-badge {
+  background: rgba(15, 10, 30, 0.85);
+  border: 1.5px solid #ff2a85;
+  box-shadow:
+    0 0 12px rgba(255, 42, 133, 0.55),
+    inset 0 0 8px rgba(255, 42, 133, 0.25);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes hyperPulse {
+  0% {
+    transform: scale(0.92);
+    filter: brightness(1) drop-shadow(0 0 15px #ff0055);
+  }
+  50% {
+    transform: scale(1.22);
+    filter: brightness(1.7) drop-shadow(0 0 45px #ff0055) drop-shadow(0 0 75px #ff0033);
+  }
+  100% {
+    transform: scale(0.92);
+    filter: brightness(1) drop-shadow(0 0 15px #ff0055);
+  }
+}
+
+.animate-hyperPulse {
+  animation: hyperPulse 0.45s ease-in-out infinite;
+}
+
+@keyframes hyperRing {
+  0% {
+    transform: scale(0.7);
+    opacity: 1;
+    border-width: 6px;
+  }
+  100% {
+    transform: scale(2.2);
+    opacity: 0;
+    border-width: 1px;
+  }
+}
+
+.animate-hyperRing1 {
+  animation: hyperRing 0.8s cubic-bezier(0.1, 0.8, 0.3, 1) infinite;
+}
+
+.animate-hyperRing2 {
+  animation: hyperRing 0.8s cubic-bezier(0.1, 0.8, 0.3, 1) infinite 0.25s;
+}
+
+.animate-hyperRing3 {
+  animation: hyperRing 0.8s cubic-bezier(0.1, 0.8, 0.3, 1) infinite 0.5s;
+}
+
+@keyframes bottlePointingBounce {
+  0% {
+    transform: translateY(0) scale(1);
+  }
+  18% {
+    transform: translateY(-18px) scale(1.025);
+  }
+  38% {
+    transform: translateY(-2px) scale(0.99);
+  }
+  58% {
+    transform: translateY(-10px) scale(1.012);
+  }
+  78% {
+    transform: translateY(-1px) scale(0.998);
+  }
+  100% {
+    transform: translateY(0) scale(1);
+  }
+}
+
+.animate-bottle-point {
+  animation: bottlePointingBounce 0.95s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}

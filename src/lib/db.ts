@@ -1,0 +1,200 @@
+/**
+ * @license
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+import { AppSettings, AppStats, CustomBottleSprite } from '../types';
+
+const DB_NAME = 'NeonPartyHubDB_v1';
+const DB_VERSION = 1;
+
+const DEFAULT_SETTINGS: AppSettings = {
+  minPlayers: 2,
+  targetCount: 1,
+  countdownSeconds: 5,
+  bottleStyle: 'classic_bottle',
+  selectedCustomSpriteId: null,
+  bottleFriction: 0.985,
+  theme: 'cyber-neon',
+  soundEnabled: true,
+  soundVolume: 0.8,
+  hapticsEnabled: true,
+};
+
+const DEFAULT_STATS: AppStats = {
+  totalRouletteRounds: 0,
+  totalBottleSpins: 0,
+  lastPlayedAt: Date.now(),
+};
+
+function openDB(): Promise<IDBDatabase> {
+  return new Promise((resolve, reject) => {
+    if (!window.indexedDB) {
+      reject(new Error('IndexedDB not supported'));
+      return;
+    }
+    const request = indexedDB.open(DB_NAME, DB_VERSION);
+
+    request.onupgradeneeded = (event) => {
+      const db = (event.target as IDBOpenDBRequest).result;
+      if (!db.objectStoreNames.contains('settings')) {
+        db.createObjectStore('settings');
+      }
+      if (!db.objectStoreNames.contains('custom_sprites')) {
+        db.createObjectStore('custom_sprites', { keyPath: 'id' });
+      }
+      if (!db.objectStoreNames.contains('stats')) {
+        db.createObjectStore('stats');
+      }
+    };
+
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = () => reject(request.error);
+  });
+}
+
+export async function getSettings(): Promise<AppSettings> {
+  try {
+    const db = await openDB();
+    return new Promise((resolve) => {
+      const tx = db.transaction('settings', 'readonly');
+      const store = tx.objectStore('settings');
+      const req = store.get('app_settings');
+      req.onsuccess = () => {
+        if (req.result) {
+          resolve({ ...DEFAULT_SETTINGS, ...req.result });
+        } else {
+          // Fallback check localStorage
+          const local = localStorage.getItem('neon_party_settings');
+          if (local) {
+            try {
+              const parsed = JSON.parse(local);
+              resolve({ ...DEFAULT_SETTINGS, ...parsed });
+              return;
+            } catch (e) {}
+          }
+          resolve(DEFAULT_SETTINGS);
+        }
+      };
+      req.onerror = () => resolve(DEFAULT_SETTINGS);
+    });
+  } catch (err) {
+    try {
+      const local = localStorage.getItem('neon_party_settings');
+      if (local) return { ...DEFAULT_SETTINGS, ...JSON.parse(local) };
+    } catch (e) {}
+    return DEFAULT_SETTINGS;
+  }
+}
+
+export async function saveSettings(settings: AppSettings): Promise<void> {
+  try {
+    localStorage.setItem('neon_party_settings', JSON.stringify(settings));
+    const db = await openDB();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction('settings', 'readwrite');
+      const store = tx.objectStore('settings');
+      const req = store.put(settings, 'app_settings');
+      req.onsuccess = () => resolve();
+      req.onerror = () => reject(req.error);
+    });
+  } catch (err) {
+    // Stored in localStorage as fallback
+  }
+}
+
+export async function getStats(): Promise<AppStats> {
+  try {
+    const db = await openDB();
+    return new Promise((resolve) => {
+      const tx = db.transaction('stats', 'readonly');
+      const store = tx.objectStore('stats');
+      const req = store.get('app_stats');
+      req.onsuccess = () => {
+        if (req.result) {
+          resolve({ ...DEFAULT_STATS, ...req.result });
+        } else {
+          const local = localStorage.getItem('neon_party_stats');
+          if (local) {
+            try {
+              resolve({ ...DEFAULT_STATS, ...JSON.parse(local) });
+              return;
+            } catch (e) {}
+          }
+          resolve(DEFAULT_STATS);
+        }
+      };
+      req.onerror = () => resolve(DEFAULT_STATS);
+    });
+  } catch (err) {
+    try {
+      const local = localStorage.getItem('neon_party_stats');
+      if (local) return { ...DEFAULT_STATS, ...JSON.parse(local) };
+    } catch (e) {}
+    return DEFAULT_STATS;
+  }
+}
+
+export async function saveStats(stats: AppStats): Promise<void> {
+  try {
+    localStorage.setItem('neon_party_stats', JSON.stringify(stats));
+    const db = await openDB();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction('stats', 'readwrite');
+      const store = tx.objectStore('stats');
+      const req = store.put(stats, 'app_stats');
+      req.onsuccess = () => resolve();
+      req.onerror = () => reject(req.error);
+    });
+  } catch (err) {}
+}
+
+export async function recordGameEvent(type: 'roulette' | 'bottle'): Promise<AppStats> {
+  const current = await getStats();
+  if (type === 'roulette') current.totalRouletteRounds += 1;
+  else if (type === 'bottle') current.totalBottleSpins += 1;
+  current.lastPlayedAt = Date.now();
+  await saveStats(current);
+  return current;
+}
+
+export async function getAllCustomSprites(): Promise<CustomBottleSprite[]> {
+  try {
+    const db = await openDB();
+    return new Promise((resolve) => {
+      const tx = db.transaction('custom_sprites', 'readonly');
+      const store = tx.objectStore('custom_sprites');
+      const req = store.getAll();
+      req.onsuccess = () => resolve(req.result || []);
+      req.onerror = () => resolve([]);
+    });
+  } catch (err) {
+    return [];
+  }
+}
+
+export async function saveCustomSprite(sprite: CustomBottleSprite): Promise<void> {
+  try {
+    const db = await openDB();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction('custom_sprites', 'readwrite');
+      const store = tx.objectStore('custom_sprites');
+      const req = store.put(sprite);
+      req.onsuccess = () => resolve();
+      req.onerror = () => reject(req.error);
+    });
+  } catch (err) {}
+}
+
+export async function deleteCustomSprite(id: string): Promise<void> {
+  try {
+    const db = await openDB();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction('custom_sprites', 'readwrite');
+      const store = tx.objectStore('custom_sprites');
+      const req = store.delete(id);
+      req.onsuccess = () => resolve();
+      req.onerror = () => reject(req.error);
+    });
+  } catch (err) {}
+}
