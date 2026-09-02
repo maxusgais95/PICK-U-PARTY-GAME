@@ -14,7 +14,7 @@ import { LandingHub } from './components/LandingHub';
 import { FingerRoulette } from './components/FingerRoulette';
 import { BottleSpin } from './components/BottleSpin';
 import { SettingsModal } from './components/SettingsModal';
-import { VideoBackground } from './components/VideoBackground';
+import { PartyBackground } from './components/PartyBackground';
 
 export default function App() {
   const [currentView, setCurrentView] = useState<ScreenView>('hub');
@@ -109,8 +109,8 @@ export default function App() {
     <main
       className="relative w-screen h-screen overflow-hidden select-none touch-none font-sans bg-[#080516]"
     >
-      {/* 1. Main Hub Background: 10s Nightclub Video (.webm with .mp4 fallback, autoplay, loop, muted, no player UI, uncropped) */}
-      {currentView === 'hub' && <VideoBackground />}
+      {/* 1. Main Hub Background: Static Nightclub Atmosphere + 60FPS Upward DJ Lasers & Blurred Bottom Half */}
+      {currentView === 'hub' && <PartyBackground />}
 
       {/* 2. Active Gameplay Backgrounds (Finger Roulette & Spin Bottle only) */}
       {currentView !== 'hub' && (

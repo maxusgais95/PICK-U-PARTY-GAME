@@ -9,12 +9,15 @@ export type ThemeId = 'cyber-neon' | 'synthwave';
 
 export type BottleBuiltinStyle = 'classic_bottle' | 'laser_dart' | 'retro_soda';
 
+export type BottleBlendMode = 'normal' | 'screen' | 'color-dodge' | 'lighten' | 'plus-lighter';
+
 export interface CustomBottleSprite {
   id: string;
   name: string;
   dataUrl: string; // Stored in IndexedDB
   createdAt: number;
   rotationOffset: number; // 0, 90, 180, 270 degrees
+  blendMode?: BottleBlendMode; // screen, color-dodge, lighten, etc.
 }
 
 export interface TouchPlayer {

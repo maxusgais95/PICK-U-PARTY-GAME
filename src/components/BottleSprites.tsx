@@ -22,14 +22,19 @@ export const BottleSpriteRenderer: React.FC<BottleSpriteProps> = ({
   // If custom uploaded sprite exists and selected
   if (styleType === 'custom' && customSprite && customSprite.dataUrl) {
     const customClass = className || 'w-80 h-[36rem] sm:w-[26rem] sm:h-[42rem] max-w-[90vw] max-h-[72vh]';
+    const blendMode = customSprite.blendMode || 'normal';
+    
     return (
       <div className={`relative flex items-center justify-center ${customClass}`}>
         <img
           src={customSprite.dataUrl}
           alt={customSprite.name || 'Custom Bottle'}
-          className="w-full h-full object-contain pointer-events-none filter drop-shadow-[0_0_40px_rgba(0,240,255,0.85)]"
+          className={`w-full h-full object-contain pointer-events-none ${
+            blendMode === 'normal' ? 'filter drop-shadow-[0_0_35px_rgba(0,240,255,0.7)]' : ''
+          }`}
           style={{
             transform: `rotate(${customSprite.rotationOffset || 0}deg)`,
+            mixBlendMode: blendMode,
           }}
         />
       </div>

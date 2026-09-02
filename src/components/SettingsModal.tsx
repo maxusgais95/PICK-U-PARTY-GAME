@@ -15,12 +15,14 @@ import {
   Palette,
   Smartphone,
   Zap,
+  Sparkles,
 } from 'lucide-react';
 import { SpinBottleIcon } from './SpinBottleIcon';
 import {
   AppSettings,
   AppStats,
   BottleBuiltinStyle,
+  BottleBlendMode,
   CustomBottleSprite,
 } from '../types';
 import { THEMES } from '../lib/themes';
@@ -95,6 +97,22 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
     const updated: CustomBottleSprite = {
       ...sprite,
       rotationOffset: ((sprite.rotationOffset || 0) + 90) % 360,
+    };
+    await saveCustomSprite(updated);
+    onRefreshSprites();
+  };
+
+  // Change custom sprite blend mode
+  const handleChangeBlendMode = async (
+    sprite: CustomBottleSprite,
+    mode: BottleBlendMode,
+    e: React.MouseEvent
+  ) => {
+    e.stopPropagation();
+    SoundEngine.playButtonClick();
+    const updated: CustomBottleSprite = {
+      ...sprite,
+      blendMode: mode,
     };
     await saveCustomSprite(updated);
     onRefreshSprites();
@@ -436,11 +454,20 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
                 {/* List of Custom Uploaded Sprites */}
                 {customSprites.length > 0 && (
-                  <div className="space-y-2 max-h-40 overflow-y-auto">
+                  <div className="space-y-3 max-h-64 overflow-y-auto pr-1">
                     {customSprites.map((sprite) => {
                       const isSelected =
                         settings.bottleStyle === 'custom' &&
                         settings.selectedCustomSpriteId === sprite.id;
+                      const activeBlend = sprite.blendMode || 'normal';
+
+                      const BLEND_OPTIONS: { id: BottleBlendMode; label: string; desc: string }[] = [
+                        { id: 'screen', label: 'Screen', desc: 'Hides black background' },
+                        { id: 'color-dodge', label: 'Color Dodge', desc: 'Vibrant neon glow' },
+                        { id: 'lighten', label: 'Lighten', desc: 'Filters out dark areas' },
+                        { id: 'plus-lighter', label: 'Add / Glow', desc: 'Intense luminous pop' },
+                        { id: 'normal', label: 'Normal', desc: 'Original opacity' },
+                      ];
 
                       return (
                         <div
@@ -453,47 +480,90 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                             });
                           }}
                           style={{
-                            backgroundColor: isSelected ? `${currentTheme.primary}22` : 'rgba(255, 255, 255, 0.05)',
+                            backgroundColor: isSelected ? `${currentTheme.primary}18` : 'rgba(255, 255, 255, 0.04)',
                             borderColor: isSelected ? currentTheme.primary : 'rgba(255, 255, 255, 0.1)',
+                            boxShadow: isSelected ? `0 0 14px ${currentTheme.primary}33` : 'none',
                           }}
-                          className="p-2.5 rounded-2xl border flex items-center justify-between cursor-pointer transition-all"
+                          className="p-3 rounded-2xl border flex flex-col gap-2.5 cursor-pointer transition-all"
                         >
-                          <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-xl bg-black/60 border border-white/10 flex items-center justify-center overflow-hidden p-1 shrink-0">
-                              <img
-                                src={sprite.dataUrl}
-                                alt={sprite.name}
-                                className="max-w-full max-h-full object-contain"
-                                style={{
-                                  transform: `rotate(${sprite.rotationOffset || 0}deg)`,
-                                }}
-                              />
+                          {/* Row 1: Sprite Info, Preview & Actions */}
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                              {/* Dark Preview Canvas showing blend effect */}
+                              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-950/80 to-blue-950/80 border border-white/15 flex items-center justify-center overflow-hidden p-1 shrink-0 relative">
+                                <img
+                                  src={sprite.dataUrl}
+                                  alt={sprite.name}
+                                  className="max-w-full max-h-full object-contain"
+                                  style={{
+                                    transform: `rotate(${sprite.rotationOffset || 0}deg)`,
+                                    mixBlendMode: activeBlend,
+                                  }}
+                                />
+                              </div>
+                              <div>
+                                <div className="text-xs font-black text-white truncate max-w-[140px]">
+                                  {sprite.name}
+                                </div>
+                                <div className="text-[10px] text-gray-400 flex items-center gap-1.5 mt-0.5">
+                                  <span>{sprite.rotationOffset || 0}° rotation</span>
+                                  <span>•</span>
+                                  <span className="font-semibold text-cyan-300 capitalize">{activeBlend.replace('-', ' ')}</span>
+                                </div>
+                              </div>
                             </div>
-                            <div>
-                              <div className="text-xs font-bold text-white truncate max-w-[140px]">
-                                {sprite.name}
-                              </div>
-                              <div className="text-[10px] text-gray-400">
-                                {sprite.rotationOffset || 0}° rotation
-                              </div>
+
+                            <div className="flex items-center gap-1.5">
+                              <button
+                                onClick={(e) => handleRotateSprite(sprite, e)}
+                                title="Rotate 90°"
+                                className="p-2 rounded-xl bg-white/10 hover:bg-white/20 text-cyan-300 active:scale-95 transition-all cursor-pointer"
+                              >
+                                <RotateCw className="w-3.5 h-3.5" />
+                              </button>
+                              <button
+                                onClick={(e) => handleDeleteSprite(sprite.id, e)}
+                                title="Delete Sprite"
+                                className="p-2 rounded-xl bg-red-500/20 hover:bg-red-500/30 text-red-400 active:scale-95 transition-all cursor-pointer"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </button>
                             </div>
                           </div>
 
-                          <div className="flex items-center gap-1.5">
-                            <button
-                              onClick={(e) => handleRotateSprite(sprite, e)}
-                              title="Rotate 90°"
-                              className="p-2 rounded-xl bg-white/10 hover:bg-white/20 text-cyan-300 cursor-pointer"
-                            >
-                              <RotateCw className="w-3.5 h-3.5" />
-                            </button>
-                            <button
-                              onClick={(e) => handleDeleteSprite(sprite.id, e)}
-                              title="Delete Sprite"
-                              className="p-2 rounded-xl bg-red-500/20 hover:bg-red-500/30 text-red-400 cursor-pointer"
-                            >
-                              <Trash2 className="w-3.5 h-3.5" />
-                            </button>
+                          {/* Row 2: Blending Modes (Screen, Color Dodge, Lighten, etc.) for black background removal */}
+                          <div className="pt-2 border-t border-white/10" onClick={(e) => e.stopPropagation()}>
+                            <div className="flex items-center justify-between mb-1.5">
+                              <span className="text-[10px] font-black uppercase tracking-wider text-gray-400 flex items-center gap-1">
+                                <Sparkles className="w-3 h-3 text-pink-400" />
+                                <span>Blend Mode (Black BG)</span>
+                              </span>
+                            </div>
+
+                            <div className="grid grid-cols-3 sm:grid-cols-5 gap-1">
+                              {BLEND_OPTIONS.map((opt) => {
+                                const isBlendActive = activeBlend === opt.id;
+                                return (
+                                  <button
+                                    key={opt.id}
+                                    onClick={(e) => handleChangeBlendMode(sprite, opt.id, e)}
+                                    title={opt.desc}
+                                    style={{
+                                      backgroundColor: isBlendActive
+                                        ? 'rgba(0, 240, 255, 0.25)'
+                                        : 'rgba(255, 255, 255, 0.05)',
+                                      borderColor: isBlendActive
+                                        ? '#00f0ff'
+                                        : 'rgba(255, 255, 255, 0.08)',
+                                      color: isBlendActive ? '#00f0ff' : '#9ca3af',
+                                    }}
+                                    className="py-1 px-1 rounded-lg border text-[10px] font-bold text-center transition-all cursor-pointer active:scale-95 hover:text-white"
+                                  >
+                                    {opt.label}
+                                  </button>
+                                );
+                              })}
+                            </div>
                           </div>
                         </div>
                       );
