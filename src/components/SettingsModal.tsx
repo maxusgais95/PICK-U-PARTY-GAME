@@ -13,6 +13,8 @@ import {
   Volume2,
   Check,
   Palette,
+  Smartphone,
+  Zap,
 } from 'lucide-react';
 import { SpinBottleIcon } from './SpinBottleIcon';
 import {
@@ -22,7 +24,7 @@ import {
   CustomBottleSprite,
 } from '../types';
 import { THEMES } from '../lib/themes';
-import { SoundEngine } from '../lib/audio';
+import { SoundEngine, Haptics } from '../lib/audio';
 import { saveCustomSprite, deleteCustomSprite, saveStats } from '../lib/db';
 
 interface SettingsModalProps {
@@ -170,7 +172,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             }}
             className="flex-1 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all flex items-center justify-center gap-1.5 border"
           >
-            <SpinBottleIcon className="w-4 h-4" glow={false} />
+            <SpinBottleIcon className="w-4.5 h-4.5" glow={false} />
             <span>Bottle</span>
           </button>
 
@@ -324,6 +326,69 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   }}
                   className="w-full h-2 bg-gray-800 rounded-lg appearance-none cursor-pointer accent-cyan-400"
                 />
+              </div>
+
+              {/* Haptic Feedback & Tactile Pulse Profiles */}
+              <div className="p-3.5 rounded-2xl bg-white/5 border border-white/10 space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Smartphone className="w-4 h-4 text-[#ff6e28]" />
+                    <div>
+                      <div className="text-xs font-extrabold uppercase tracking-wide text-white">
+                        Vibration & Haptics
+                      </div>
+                      <div className="text-[11px] text-gray-400">Tactile pulses for targets & bottle stop</div>
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={() => {
+                      const nextVal = !settings.hapticsEnabled;
+                      onUpdateSettings({ hapticsEnabled: nextVal });
+                      SoundEngine.updateConfig(settings.soundEnabled, settings.soundVolume, nextVal);
+                      if (nextVal) {
+                        Haptics.buttonClick();
+                      }
+                    }}
+                    className="relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none"
+                    style={{
+                      backgroundColor: settings.hapticsEnabled ? '#ff6e28' : 'rgba(255, 255, 255, 0.15)',
+                      boxShadow: settings.hapticsEnabled ? '0 0 10px rgba(255, 110, 40, 0.6)' : 'none',
+                    }}
+                  >
+                    <span
+                      className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out ${
+                        settings.hapticsEnabled ? 'translate-x-5' : 'translate-x-0'
+                      }`}
+                    />
+                  </button>
+                </div>
+
+                {/* Haptic Pulse Pattern Testers */}
+                {settings.hapticsEnabled && (
+                  <div className="pt-1 grid grid-cols-2 gap-2">
+                    <button
+                      onClick={() => {
+                        Haptics.targetSelected();
+                        SoundEngine.playTargetImpact();
+                      }}
+                      className="px-2.5 py-2 rounded-xl bg-pink-500/10 hover:bg-pink-500/20 border border-pink-500/30 text-pink-300 text-[11px] font-bold flex items-center justify-center gap-1.5 cursor-pointer active:scale-95 transition-all"
+                    >
+                      <Zap className="w-3 h-3 text-pink-400" />
+                      <span>Test Target Pulse</span>
+                    </button>
+                    <button
+                      onClick={() => {
+                        Haptics.bottleSettled();
+                        SoundEngine.playBottleSettle();
+                      }}
+                      className="px-2.5 py-2 rounded-xl bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/30 text-cyan-300 text-[11px] font-bold flex items-center justify-center gap-1.5 cursor-pointer active:scale-95 transition-all"
+                    >
+                      <RotateCw className="w-3 h-3 text-cyan-400" />
+                      <span>Test Bottle Stop</span>
+                    </button>
+                  </div>
+                )}
               </div>
 
               {/* Color Theme (2 Harmonized Palettes) */}

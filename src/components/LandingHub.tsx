@@ -61,21 +61,25 @@ export const LandingHub: React.FC<LandingHubProps> = ({
         <div className="absolute top-0 left-0 right-0 h-48 opacity-35 bg-[radial-gradient(ellipse_at_top,rgba(0,212,255,0.25),transparent_70%)]" />
       </div>
 
-      {/* Header Branding (Matches IMG_0612) */}
-      <div className="text-center my-auto flex flex-col items-center select-none">
-        {/* Neon Pill Badge */}
-        <div className="neon-pill-badge inline-flex items-center gap-1.5 px-4 py-1 rounded-full text-[11px] font-black uppercase tracking-[0.2em] mb-2.5 text-pink-300">
-          Party Roulette
+      {/* Header Branding (Subtitle above Title to prevent glow overlap) */}
+      <div className="text-center my-auto flex flex-col items-center select-none pt-2">
+        {/* Neon Pill Badge: "NEON ROULETTE" */}
+        <div className="neon-pill-badge inline-flex items-center gap-1.5 px-4 py-1 rounded-full text-[11px] mb-1.5">
+          NEON ROULETTE
         </div>
 
-        {/* Clean Single-Layer Cyberpunk Neon Sign: "PICK'U PARTY" */}
-        <h1 className="neon-picku-title text-4xl sm:text-5xl my-1 select-none whitespace-nowrap">
+        {/* Top Subtitle Text */}
+        <p className="neon-subtitle text-[11px] sm:text-xs tracking-wider mb-2 font-bold uppercase">
+          Touch Decider & Bottle Spinner
+        </p>
+
+        {/* Dual-Glow Cyberpunk Neon Glass Tube Sign: "PICK'U PARTY" */}
+        <h1
+          data-text="PICK'U PARTY"
+          className="neon-picku-title text-4xl sm:text-5xl my-0.5 select-none whitespace-nowrap"
+        >
           PICK'U PARTY
         </h1>
-
-        <p className="text-xs font-semibold text-pink-200/90 tracking-wide mt-1 drop-shadow-[0_0_8px_rgba(255,100,200,0.5)]">
-          Touch decider & bottle spinner
-        </p>
       </div>
 
       {/* Main Game Mode Cards */}
@@ -207,12 +211,12 @@ export const LandingHub: React.FC<LandingHubProps> = ({
           <div className="flex items-center gap-3.5">
             {/* 3D Chrome Squircle Icon Tile (Exact match to IMG_0613) */}
             <div
-              className="chrome-glass-bezel w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 p-1"
+              className="chrome-glass-bezel w-16 h-16 rounded-2xl flex items-center justify-center shrink-0 p-1"
               style={{
                 boxShadow: '0 8px 24px -2px rgba(255, 42, 133, 0.55), inset 0 1px 1px rgba(255,255,255,0.8), inset 0 -2px 4px rgba(0,0,0,0.9)',
               }}
             >
-              <SpinBottleIcon className="w-9 h-9" />
+              <SpinBottleIcon className="w-11 h-11" />
             </div>
 
             <div className="flex-1 min-w-0">
@@ -237,7 +241,7 @@ export const LandingHub: React.FC<LandingHubProps> = ({
             }}
             className="w-full mt-3 py-2.5 rounded-2xl font-black text-xs uppercase tracking-widest text-white flex items-center justify-center gap-2 active:scale-95 transition-all cursor-pointer border border-white/40"
           >
-            <SpinBottleIcon className="w-4.5 h-4.5" glow={false} />
+            <SpinBottleIcon className="w-5 h-5" glow={false} />
             <span>Spin Bottle</span>
           </button>
         </div>

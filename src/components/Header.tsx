@@ -125,7 +125,7 @@ export const Header: React.FC<HeaderProps> = ({
   };
 
   return (
-    <header className="absolute top-0 left-0 right-0 z-40 flex items-center justify-between px-4 pt-[max(1rem,env(safe-area-inset-top))] pb-2 pointer-events-none">
+    <header className="absolute top-0 left-0 right-0 z-40 flex items-center justify-between px-4 pt-[max(1.5rem,calc(env(safe-area-inset-top)+0.8rem))] pb-2 pointer-events-none">
       {/* Left Action Buttons */}
       <div className="flex items-center gap-2.5 pointer-events-auto">
         {currentView !== 'hub' && (

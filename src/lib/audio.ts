@@ -3,6 +3,10 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import { Haptics } from './haptics';
+
+export { Haptics };
+
 // Procedural Web Audio API sound synthesizer
 let audioCtx: AudioContext | null = null;
 
@@ -36,10 +40,8 @@ export function getAudioContext(): AudioContext | null {
 }
 
 export function triggerHaptic(pattern: number | number[], enabled: boolean = true) {
-  if (!enabled || typeof navigator === 'undefined' || !navigator.vibrate) return;
-  try {
-    navigator.vibrate(pattern);
-  } catch (e) {}
+  if (!enabled) return;
+  Haptics.vibrate(pattern);
 }
 
 export class SoundEngine {
@@ -51,11 +53,12 @@ export class SoundEngine {
     this.soundEnabled = soundEnabled;
     this.masterVolume = Math.max(0, Math.min(1, volume));
     this.hapticsEnabled = hapticsEnabled;
+    Haptics.setEnabled(hapticsEnabled);
   }
 
   // 1. Touch Placed: Musical rising note + sub-harmonic tap
   public static playTouchDown(touchIndex: number = 0) {
-    triggerHaptic(18, this.hapticsEnabled);
+    Haptics.touchDown();
     if (!this.soundEnabled) return;
     const ctx = getAudioContext();
     if (!ctx) return;
@@ -97,7 +100,7 @@ export class SoundEngine {
 
   // 2. Touch Released: Soft release blip
   public static playTouchUp() {
-    triggerHaptic(8, this.hapticsEnabled);
+    Haptics.touchUp();
     if (!this.soundEnabled) return;
     const ctx = getAudioContext();
     if (!ctx) return;
@@ -122,13 +125,13 @@ export class SoundEngine {
 
   // 3. Countdown Tick: Tension builder ramping in pitch and brightness
   public static playCountdownTick(remainingSeconds: number, totalSeconds: number) {
-    const urgency = 1 - Math.max(0, remainingSeconds / (totalSeconds || 5));
-    triggerHaptic([30, 20], this.hapticsEnabled);
+    Haptics.countdownTick(remainingSeconds, totalSeconds);
     if (!this.soundEnabled) return;
     const ctx = getAudioContext();
     if (!ctx) return;
 
     try {
+      const urgency = 1 - Math.max(0, remainingSeconds / (totalSeconds || 5));
       const now = ctx.currentTime;
       const baseFreq = 400 + urgency * 450; // Pitch rises from 400Hz to 850Hz
 
@@ -159,7 +162,7 @@ export class SoundEngine {
 
   // 4. Decision Drop / Loser Impact: Deep 808 sub kick + shockwave sweep
   public static playTargetImpact() {
-    triggerHaptic([120, 40, 150, 40, 300], this.hapticsEnabled);
+    Haptics.targetSelected();
     if (!this.soundEnabled) return;
     const ctx = getAudioContext();
     if (!ctx) return;
@@ -207,7 +210,7 @@ export class SoundEngine {
 
   // 5. Team Division Complete: Harmonic futuristic synth fanfare
   public static playTeamDivisionChime() {
-    triggerHaptic([70, 30, 90, 30, 180], this.hapticsEnabled);
+    Haptics.teamDivision();
     if (!this.soundEnabled) return;
     const ctx = getAudioContext();
     if (!ctx) return;
@@ -237,13 +240,13 @@ export class SoundEngine {
 
   // 6. Bottle Flick / Launch: Wind whoosh & momentum whoosh
   public static playBottleFlick(velocity: number) {
-    const intensity = Math.min(1.5, Math.max(0.4, Math.abs(velocity) / 15));
-    triggerHaptic([40, 20, 60], this.hapticsEnabled);
+    Haptics.bottleFlick(velocity);
     if (!this.soundEnabled) return;
     const ctx = getAudioContext();
     if (!ctx) return;
 
     try {
+      const intensity = Math.min(1.5, Math.max(0.4, Math.abs(velocity) / 15));
       const now = ctx.currentTime;
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
@@ -263,6 +266,7 @@ export class SoundEngine {
 
   // 7. Bottle Spin Ratchet / Bearing Tick: Subtle mechanical tick per revolution slice
   public static playBottleTick(angularVelocity: number) {
+    Haptics.bottleTick(angularVelocity);
     if (!this.soundEnabled) return;
     const ctx = getAudioContext();
     if (!ctx) return;
@@ -289,7 +293,7 @@ export class SoundEngine {
 
   // 8. Bottle Settled: Final landing bell chime
   public static playBottleSettle() {
-    triggerHaptic([80, 40, 160], this.hapticsEnabled);
+    Haptics.bottleSettled();
     if (!this.soundEnabled) return;
     const ctx = getAudioContext();
     if (!ctx) return;
@@ -314,7 +318,7 @@ export class SoundEngine {
 
   // 9. UI Button Click
   public static playButtonClick() {
-    triggerHaptic(15, this.hapticsEnabled);
+    Haptics.buttonClick();
     if (!this.soundEnabled) return;
     const ctx = getAudioContext();
     if (!ctx) return;
