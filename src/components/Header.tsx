@@ -135,57 +135,57 @@ export const Header: React.FC<HeaderProps> = ({
               onNavigate('hub');
             }}
             aria-label="Return to Hub"
-            className="chrome-glass-bezel w-11 h-11 flex items-center justify-center text-cyan-300 active:scale-90 transition-all cursor-pointer group"
+            className="bubble-toggle-btn group"
             style={{
-              boxShadow: '0 6px 18px -2px rgba(0, 212, 255, 0.5), inset 0 1px 1px rgba(255,255,255,0.7), inset 0 -2px 4px rgba(0,0,0,0.8)',
+              boxShadow: '0 8px 20px -2px rgba(0, 212, 255, 0.5), inset 0 2px 3px rgba(255,255,255,0.8), inset 0 -2px 4px rgba(0,0,0,0.8)',
             }}
           >
-            <Home className="w-4.5 h-4.5 drop-shadow-[0_0_8px_rgba(0,212,255,0.9)] stroke-[2.2]" />
+            <Home className="w-5 h-5 text-cyan-300 drop-shadow-[0_0_8px_rgba(0,212,255,0.9)] stroke-[2.2] relative z-10" />
           </button>
         )}
 
-        {/* Audio Button - Pink Neon (as seen in IMG_0610) */}
+        {/* Audio Button - Pink Bubble Neon (as seen in IMG_0610) */}
         <button
           onClick={() => {
             SoundEngine.playButtonClick();
             onToggleSound();
           }}
           aria-label={settings.soundEnabled ? 'Mute Sound' : 'Enable Sound'}
-          className="chrome-glass-bezel w-11 h-11 flex items-center justify-center active:scale-90 transition-all cursor-pointer group"
+          className="bubble-toggle-btn group"
           style={{
             boxShadow: settings.soundEnabled
-              ? '0 8px 20px -2px rgba(255, 42, 133, 0.65), 0 0 10px rgba(255, 42, 133, 0.35), inset 0 1px 1px rgba(255,255,255,0.7), inset 0 -2px 4px rgba(0,0,0,0.8)'
-              : '0 4px 10px rgba(0,0,0,0.6), inset 0 1px 1px rgba(255,255,255,0.4), inset 0 -2px 4px rgba(0,0,0,0.8)',
-            borderColor: settings.soundEnabled ? 'rgba(255, 120, 180, 0.6)' : 'rgba(180, 180, 210, 0.3)',
+              ? '0 8px 24px -2px rgba(255, 20, 147, 0.65), 0 0 12px rgba(255, 20, 147, 0.35), inset 0 2px 3px rgba(255,255,255,0.8), inset 0 -2px 4px rgba(0,0,0,0.8)'
+              : '0 4px 12px rgba(0,0,0,0.6), inset 0 2px 3px rgba(255,255,255,0.4), inset 0 -2px 4px rgba(0,0,0,0.8)',
+            borderColor: settings.soundEnabled ? 'rgba(255, 100, 180, 0.55)' : 'rgba(255, 255, 255, 0.2)',
           }}
         >
           {settings.soundEnabled ? (
-            <Volume2 className="w-4.5 h-4.5 text-[#ff2a85] drop-shadow-[0_0_8px_#ff2a85] stroke-[2.4]" />
+            <Volume2 className="w-5 h-5 text-[#ff2a85] drop-shadow-[0_0_10px_#ff007f] stroke-[2.4] relative z-10" />
           ) : (
-            <VolumeX className="w-4.5 h-4.5 text-gray-500 stroke-[2]" />
+            <VolumeX className="w-5 h-5 text-gray-400 stroke-[2] relative z-10" />
           )}
         </button>
 
-        {/* Haptics Button - Orange Neon (as seen in IMG_0610) */}
+        {/* Haptics Button - Orange Bubble Neon (as seen in IMG_0610) */}
         <button
           onClick={() => {
             SoundEngine.playButtonClick();
             onToggleHaptics();
           }}
           aria-label={settings.hapticsEnabled ? 'Disable Haptics' : 'Enable Haptics'}
-          className="chrome-glass-bezel w-11 h-11 flex items-center justify-center active:scale-90 transition-all cursor-pointer group"
+          className="bubble-toggle-btn group"
           style={{
             boxShadow: settings.hapticsEnabled
-              ? '0 8px 20px -2px rgba(255, 110, 40, 0.65), 0 0 10px rgba(255, 110, 40, 0.35), inset 0 1px 1px rgba(255,255,255,0.7), inset 0 -2px 4px rgba(0,0,0,0.8)'
-              : '0 4px 10px rgba(0,0,0,0.6), inset 0 1px 1px rgba(255,255,255,0.4), inset 0 -2px 4px rgba(0,0,0,0.8)',
-            borderColor: settings.hapticsEnabled ? 'rgba(255, 160, 100, 0.6)' : 'rgba(180, 180, 210, 0.3)',
+              ? '0 8px 24px -2px rgba(255, 110, 40, 0.65), 0 0 12px rgba(255, 110, 40, 0.35), inset 0 2px 3px rgba(255,255,255,0.8), inset 0 -2px 4px rgba(0,0,0,0.8)'
+              : '0 4px 12px rgba(0,0,0,0.6), inset 0 2px 3px rgba(255,255,255,0.4), inset 0 -2px 4px rgba(0,0,0,0.8)',
+            borderColor: settings.hapticsEnabled ? 'rgba(255, 160, 80, 0.55)' : 'rgba(255, 255, 255, 0.2)',
           }}
         >
           <Smartphone
-            className={`w-4.5 h-4.5 stroke-[2.4] transition-all ${
+            className={`w-5 h-5 stroke-[2.4] relative z-10 transition-all ${
               settings.hapticsEnabled
-                ? 'text-[#ff6e28] drop-shadow-[0_0_8px_#ff6e28]'
-                : 'text-gray-500'
+                ? 'text-[#ff6e28] drop-shadow-[0_0_10px_#ff6e28]'
+                : 'text-gray-400'
             }`}
           />
         </button>
@@ -197,33 +197,33 @@ export const Header: React.FC<HeaderProps> = ({
           <button
             onClick={toggleFullscreen}
             aria-label="Toggle Fullscreen"
-            className="chrome-glass-bezel w-11 h-11 flex items-center justify-center text-purple-300 active:scale-90 transition-all cursor-pointer group"
+            className="bubble-toggle-btn group"
             style={{
-              boxShadow: '0 6px 18px -2px rgba(168, 85, 247, 0.45), inset 0 1px 1px rgba(255,255,255,0.7), inset 0 -2px 4px rgba(0,0,0,0.8)',
+              boxShadow: '0 8px 20px -2px rgba(168, 85, 247, 0.45), inset 0 2px 3px rgba(255,255,255,0.8), inset 0 -2px 4px rgba(0,0,0,0.8)',
             }}
           >
             {isFullscreen ? (
-              <Minimize className="w-4.5 h-4.5 drop-shadow-[0_0_8px_rgba(168,85,247,0.8)] stroke-[2.2]" />
+              <Minimize className="w-5 h-5 text-purple-300 drop-shadow-[0_0_8px_rgba(168,85,247,0.8)] stroke-[2.2] relative z-10" />
             ) : (
-              <Maximize className="w-4.5 h-4.5 drop-shadow-[0_0_8px_rgba(168,85,247,0.8)] stroke-[2.2]" />
+              <Maximize className="w-5 h-5 text-purple-300 drop-shadow-[0_0_8px_rgba(168,85,247,0.8)] stroke-[2.2] relative z-10" />
             )}
           </button>
         )}
 
-        {/* Settings Button - Orange / Amber Neon (as seen in IMG_0610) */}
+        {/* Settings Button - Orange / Amber Bubble Neon (as seen in IMG_0610) */}
         <button
           onClick={() => {
             SoundEngine.playButtonClick();
             onOpenSettings();
           }}
           aria-label="Open Settings"
-          className="chrome-glass-bezel w-11 h-11 flex items-center justify-center active:scale-90 transition-all cursor-pointer group"
+          className="bubble-toggle-btn group"
           style={{
-            boxShadow: '0 8px 20px -2px rgba(255, 110, 40, 0.65), 0 0 10px rgba(255, 110, 40, 0.35), inset 0 1px 1px rgba(255,255,255,0.7), inset 0 -2px 4px rgba(0,0,0,0.8)',
-            borderColor: 'rgba(255, 160, 100, 0.6)',
+            boxShadow: '0 8px 24px -2px rgba(255, 120, 40, 0.65), 0 0 12px rgba(255, 120, 40, 0.35), inset 0 2px 3px rgba(255,255,255,0.8), inset 0 -2px 4px rgba(0,0,0,0.8)',
+            borderColor: 'rgba(255, 160, 80, 0.55)',
           }}
         >
-          <Settings className="w-4.5 h-4.5 text-[#ff6e28] drop-shadow-[0_0_8px_#ff6e28] stroke-[2.4]" />
+          <Settings className="w-5 h-5 text-[#ff7700] drop-shadow-[0_0_10px_#ff7700] stroke-[2.4] relative z-10" />
         </button>
       </div>
     </header>

@@ -120,14 +120,11 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
     { id: 'retro_soda', name: 'Retro Soda' },
   ];
 
-  const maxTargets = Math.max(1, settings.minPlayers - 1);
-  const targetOptions = Array.from({ length: maxTargets }, (_, i) => i + 1);
-
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-xl animate-fadeIn">
-      <div className="chrome-glass-bezel relative w-full max-w-md max-h-[88vh] flex flex-col overflow-hidden shadow-2xl"
+      <div className="glass-panel relative w-full max-w-md max-h-[88vh] flex flex-col overflow-hidden shadow-2xl"
         style={{
-          boxShadow: '0 20px 60px -10px rgba(0, 0, 0, 0.9), 0 0 30px rgba(255, 42, 133, 0.2), inset 0 1px 1px rgba(255,255,255,0.7), inset 0 -2px 4px rgba(0,0,0,0.9)',
+          boxShadow: '0 24px 60px -10px rgba(0, 0, 0, 0.95), 0 0 30px rgba(255, 42, 133, 0.25)',
         }}
       >
         {/* Modal Header without Close 'X' Button (Done button in footer only) */}
@@ -199,75 +196,6 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
           {/* TAB 1: GAME RULES */}
           {activeTab === 'game' && (
             <div className="space-y-3.5">
-              {/* Player Count */}
-              <div className="flex items-center justify-between p-3.5 rounded-2xl bg-white/5 border border-white/10">
-                <div>
-                  <div className="text-xs font-extrabold uppercase tracking-wide text-white">
-                    Player Count
-                  </div>
-                  <div className="text-[11px] text-gray-400">Players required (2 to 5)</div>
-                </div>
-
-                <div className="flex items-center gap-1.5">
-                  {[2, 3, 4, 5].map((num) => {
-                    const isSelected = settings.minPlayers === num;
-                    return (
-                      <button
-                        key={num}
-                        onClick={() => {
-                          SoundEngine.playButtonClick();
-                          const newTarget = Math.min(settings.targetCount, num - 1);
-                          onUpdateSettings({ minPlayers: num, targetCount: newTarget });
-                        }}
-                        style={{
-                          backgroundColor: isSelected ? currentTheme.primary : 'rgba(255, 255, 255, 0.05)',
-                          color: isSelected ? '#030712' : '#d1d5db',
-                          borderColor: isSelected ? currentTheme.primary : 'rgba(255, 255, 255, 0.1)',
-                          boxShadow: isSelected ? `0 0 10px ${currentTheme.primary}66` : 'none',
-                        }}
-                        className="w-8 h-8 rounded-xl font-black text-xs transition-all border flex items-center justify-center cursor-pointer active:scale-95"
-                      >
-                        {num}P
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-
-              {/* Target Count (1 to minPlayers - 1) */}
-              <div className="flex items-center justify-between p-3.5 rounded-2xl bg-white/5 border border-white/10">
-                <div>
-                  <div className="text-xs font-extrabold uppercase tracking-wide text-white">
-                    Target Count
-                  </div>
-                  <div className="text-[11px] text-gray-400">Losers picked (max {maxTargets})</div>
-                </div>
-
-                <div className="flex items-center gap-1.5">
-                  {targetOptions.map((num) => {
-                    const isSelected = settings.targetCount === num;
-                    return (
-                      <button
-                        key={num}
-                        onClick={() => {
-                          SoundEngine.playButtonClick();
-                          onUpdateSettings({ targetCount: num });
-                        }}
-                        style={{
-                          backgroundColor: isSelected ? '#ff0055' : 'rgba(255, 255, 255, 0.05)',
-                          color: isSelected ? '#ffffff' : '#d1d5db',
-                          borderColor: isSelected ? '#ff0055' : 'rgba(255, 255, 255, 0.1)',
-                          boxShadow: isSelected ? '0 0 10px rgba(255, 0, 85, 0.5)' : 'none',
-                        }}
-                        className="w-8 h-8 rounded-xl font-black text-xs transition-all border flex items-center justify-center cursor-pointer active:scale-95"
-                      >
-                        {num}
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-
               {/* Countdown Duration */}
               <div className="flex items-center justify-between p-3.5 rounded-2xl bg-white/5 border border-white/10">
                 <div>
@@ -629,14 +557,11 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               SoundEngine.playButtonClick();
               onClose();
             }}
-            style={{
-              background: `linear-gradient(135deg, ${currentTheme.primary}, ${currentTheme.secondary})`,
-              boxShadow: `0 0 25px ${currentTheme.primary}66`,
-              color: '#030712',
-            }}
-            className="w-full py-3.5 rounded-2xl font-black text-sm uppercase tracking-widest active:scale-98 transition-all cursor-pointer border border-white/40"
+            className="gloss-jelly-btn btn-play-roulette"
           >
-            Done
+            <span className="relative z-10 text-sm font-black tracking-widest text-black">
+              DONE
+            </span>
           </button>
         </div>
       </div>

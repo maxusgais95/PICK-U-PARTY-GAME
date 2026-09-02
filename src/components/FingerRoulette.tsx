@@ -316,18 +316,17 @@ export const FingerRoulette: React.FC<FingerRouletteProps> = ({
       {/* Top Floating Controls: Player Count & Target Count in 2 distinct rows */}
       {onUpdateSettings && (
         <div
-          className="absolute top-[max(4.2rem,calc(env(safe-area-inset-top)+3.2rem))] left-1/2 -translate-x-1/2 z-30 flex flex-col gap-1.5 p-2 rounded-2xl bg-gray-950/85 backdrop-blur-2xl border border-white/15 shadow-2xl"
+          className="absolute top-[max(4.2rem,calc(env(safe-area-inset-top)+3.2rem))] left-1/2 -translate-x-1/2 z-30 flex flex-col gap-2 p-2.5 rounded-2xl glass-panel shadow-2xl min-w-[260px]"
           data-interactive="true"
         >
           {/* Row 1: Players */}
           <div className="flex items-center justify-between gap-2.5">
             <span
-              className="text-[10px] font-black uppercase tracking-wider pl-1 flex items-center gap-1"
-              style={{ color: currentTheme.primary }}
+              className="text-[10px] font-black uppercase tracking-wider pl-1 flex items-center gap-1 text-pink-400 drop-shadow-[0_0_6px_rgba(255,42,133,0.5)]"
             >
               <Users className="w-3 h-3" /> Players:
             </span>
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-1.5">
               {[2, 3, 4, 5].map((cnt) => {
                 const isSelected = settings.minPlayers === cnt;
                 return (
@@ -341,15 +340,11 @@ export const FingerRoulette: React.FC<FingerRouletteProps> = ({
                       onUpdateSettings({ minPlayers: cnt, targetCount: newTarget });
                       resetRound();
                     }}
-                    style={{
-                      backgroundColor: isSelected ? currentTheme.primary : 'rgba(255, 255, 255, 0.06)',
-                      color: isSelected ? '#030712' : '#9ca3af',
-                      borderColor: isSelected ? currentTheme.primary : 'rgba(255, 255, 255, 0.12)',
-                      boxShadow: isSelected ? `0 0 10px ${currentTheme.primary}88` : 'none',
-                    }}
-                    className="w-7 h-7 rounded-xl text-[11px] font-black transition-all border flex items-center justify-center active:scale-90 cursor-pointer"
+                    className={`pill-count-btn w-8 h-7 text-[11px] font-black ${
+                      isSelected ? 'pill-count-selected-pink' : ''
+                    }`}
                   >
-                    {cnt}P
+                    <span>{cnt}P</span>
                   </button>
                 );
               })}
@@ -358,10 +353,10 @@ export const FingerRoulette: React.FC<FingerRouletteProps> = ({
 
           {/* Row 2: Target (Losers) */}
           <div className="flex items-center justify-between gap-2.5 pt-1.5 border-t border-white/10">
-            <span className="text-[10px] font-black uppercase tracking-wider text-pink-400 pl-1 flex items-center gap-1">
+            <span className="text-[10px] font-black uppercase tracking-wider text-pink-400 pl-1 flex items-center gap-1 drop-shadow-[0_0_6px_rgba(255,42,133,0.5)]">
               <Target className="w-3 h-3 text-pink-400" /> Target:
             </span>
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-1.5">
               {targetOptions.map((tgt) => {
                 const isSelected = settings.targetCount === tgt;
                 return (
@@ -374,15 +369,11 @@ export const FingerRoulette: React.FC<FingerRouletteProps> = ({
                       onUpdateSettings({ targetCount: tgt });
                       resetRound();
                     }}
-                    style={{
-                      backgroundColor: isSelected ? '#ff0055' : 'rgba(255, 255, 255, 0.06)',
-                      color: isSelected ? '#ffffff' : '#9ca3af',
-                      borderColor: isSelected ? '#ff0055' : 'rgba(255, 255, 255, 0.12)',
-                      boxShadow: isSelected ? '0 0 10px rgba(255, 0, 85, 0.6)' : 'none',
-                    }}
-                    className="w-7 h-7 rounded-xl text-[11px] font-black transition-all border flex items-center justify-center active:scale-90 cursor-pointer"
+                    className={`pill-count-btn w-8 h-7 text-[11px] font-black ${
+                      isSelected ? 'pill-count-selected-pink' : ''
+                    }`}
                   >
-                    {tgt}
+                    <span>{tgt}</span>
                   </button>
                 );
               })}

@@ -14,6 +14,7 @@ import { LandingHub } from './components/LandingHub';
 import { FingerRoulette } from './components/FingerRoulette';
 import { BottleSpin } from './components/BottleSpin';
 import { SettingsModal } from './components/SettingsModal';
+import { VideoBackground } from './components/VideoBackground';
 
 export default function App() {
   const [currentView, setCurrentView] = useState<ScreenView>('hub');
@@ -106,40 +107,58 @@ export default function App() {
 
   return (
     <main
-      className="relative w-screen h-screen overflow-hidden select-none touch-none font-sans"
-      style={{
-        background: currentTheme.bgGrad,
-      }}
+      className="relative w-screen h-screen overflow-hidden select-none touch-none font-sans bg-[#080516]"
     >
-      {/* Background Cyber Grid */}
-      <div
-        className="absolute inset-0 pointer-events-none opacity-20 z-0"
-        style={{
-          backgroundImage: `
-            linear-gradient(rgba(255, 255, 255, 0.08) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(255, 255, 255, 0.08) 1px, transparent 1px)
-          `,
-          backgroundSize: '40px 40px',
-        }}
-      />
+      {/* 1. Main Hub Background: 10s Nightclub Video (.webm with .mp4 fallback, autoplay, loop, muted, no player UI, uncropped) */}
+      {currentView === 'hub' && <VideoBackground />}
 
-      {/* Ambient Radial Glow Orbs */}
-      <div
-        className="absolute w-96 h-96 rounded-full blur-3xl opacity-30 pointer-events-none -top-20 -left-20 animate-pulse"
-        style={{
-          backgroundColor: currentTheme.primary,
-          animationDuration: '6s',
-        }}
-      />
-      <div
-        className="absolute w-96 h-96 rounded-full blur-3xl opacity-25 pointer-events-none -bottom-20 -right-20 animate-pulse"
-        style={{
-          backgroundColor: currentTheme.accent,
-          animationDuration: '8s',
-        }}
-      />
+      {/* 2. Active Gameplay Backgrounds (Finger Roulette & Spin Bottle only) */}
+      {currentView !== 'hub' && (
+        <>
+          {/* Dynamic Moving Animated Neon Gradient */}
+          <div className="absolute inset-0 pointer-events-none z-0 moving-gradient-layer opacity-75" />
 
-      {/* 60FPS Background Particle & Shockwave Canvas */}
+          {/* Sweeping Dynamic Laser Beams */}
+          <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden">
+            <div
+              className="absolute -top-1/4 -left-1/4 w-[150%] h-[90px] bg-gradient-to-r from-transparent via-cyan-400 to-transparent blur-md animate-laser-sweep1 pointer-events-none"
+              style={{ mixBlendMode: 'screen' }}
+            />
+            <div
+              className="absolute -bottom-1/4 -right-1/4 w-[150%] h-[80px] bg-gradient-to-r from-transparent via-pink-500 to-transparent blur-md animate-laser-sweep2 pointer-events-none"
+              style={{ mixBlendMode: 'screen' }}
+            />
+            <div
+              className="absolute w-96 h-96 rounded-full blur-3xl opacity-35 pointer-events-none -top-10 -left-10 animate-orb-drift1"
+              style={{
+                backgroundColor: currentTheme.primary,
+                mixBlendMode: 'screen',
+              }}
+            />
+            <div
+              className="absolute w-96 h-96 rounded-full blur-3xl opacity-30 pointer-events-none -bottom-10 -right-10 animate-orb-drift2"
+              style={{
+                backgroundColor: currentTheme.accent,
+                mixBlendMode: 'screen',
+              }}
+            />
+          </div>
+
+          {/* Subtle Cyber Digital Grid */}
+          <div
+            className="absolute inset-0 pointer-events-none opacity-20 z-0"
+            style={{
+              backgroundImage: `
+                linear-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.1) 1px, transparent 1px)
+              `,
+              backgroundSize: '40px 40px',
+            }}
+          />
+        </>
+      )}
+
+      {/* 3. 60FPS Background Particle & Shockwave Canvas */}
       <BackgroundCanvas
         theme={settings.theme}
         touches={currentTouches}
