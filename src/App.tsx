@@ -6,8 +6,9 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { AppSettings, AppStats, CustomBottleSprite, ScreenView, TouchPlayer } from './types';
 import { THEMES } from './lib/themes';
-import { getSettings, saveSettings, getStats, getAllCustomSprites } from './lib/db';
+import { getSettings, saveSettings, getStats, getAllCustomSprites, saveCustomSprite } from './lib/db';
 import { SoundEngine } from './lib/audio';
+import { processSpriteImage } from './lib/imageProcessing';
 import { BackgroundCanvas } from './components/BackgroundCanvas';
 import { Header } from './components/Header';
 import { LandingHub } from './components/LandingHub';
@@ -25,7 +26,7 @@ export default function App() {
     countdownSeconds: 5,
     bottleStyle: 'classic_bottle',
     selectedCustomSpriteId: null,
-    bottleFriction: 0.985,
+    bottleFriction: 0.992,
     theme: 'cyber-neon',
     soundEnabled: true,
     soundVolume: 0.8,
@@ -52,7 +53,26 @@ export default function App() {
       const loadedSprites = await getAllCustomSprites();
       setSettings(loadedSettings);
       setStats(loadedStats);
-      setCustomSprites(loadedSprites);
+
+      // Auto-upgrade any existing custom sprites to ensure transparency & correct sizing
+      const upgradedSprites = await Promise.all(
+        loadedSprites.map(async (sprite) => {
+          if (!sprite.originalDataUrl) {
+            sprite.originalDataUrl = sprite.dataUrl;
+            if (sprite.blendMode && sprite.blendMode !== 'normal') {
+              sprite.dataUrl = await processSpriteImage(
+                sprite.originalDataUrl,
+                sprite.blendMode,
+                sprite.rotationOffset || 0
+              );
+              await saveCustomSprite(sprite);
+            }
+          }
+          return sprite;
+        })
+      );
+      setCustomSprites(upgradedSprites);
+
       SoundEngine.updateConfig(
         loadedSettings.soundEnabled,
         loadedSettings.soundVolume,

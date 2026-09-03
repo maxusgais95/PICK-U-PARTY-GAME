@@ -14,8 +14,8 @@ export class BottlePhysicsController {
   public isDragging: boolean = false;
   public isSpinning: boolean = false;
   
-  private friction: number = 0.985;
-  private minVelocityThreshold: number = 0.04;
+  private friction: number = 0.992;
+  private minVelocityThreshold: number = 0.035;
   private lastTickAngle: number = 0;
   private tickIntervalDegrees: number = 24;
   
@@ -26,15 +26,15 @@ export class BottlePhysicsController {
   public onTick?: (velocity: number) => void;
   public onSettle?: (finalAngle: number) => void;
 
-  constructor(initialAngle: number = 0, friction: number = 0.985) {
+  constructor(initialAngle: number = 0, friction: number = 0.992) {
     this.angle = initialAngle % 360;
     if (this.angle < 0) this.angle += 360;
     this.lastTickAngle = this.angle;
-    this.friction = friction;
+    this.friction = Math.max(0.988, Math.min(0.995, friction));
   }
 
   public setFriction(friction: number) {
-    this.friction = Math.max(0.96, Math.min(0.995, friction));
+    this.friction = Math.max(0.988, Math.min(0.995, friction));
   }
 
   // Calculate angle of point (x, y) relative to center (cx, cy) in radians
@@ -102,8 +102,8 @@ export class BottlePhysicsController {
       const newest = this.dragHistory[this.dragHistory.length - 1];
       const dt = (newest.time - oldest.time) / 1000; // in seconds
       
-      // If the last movement was within 100ms
-      if (dt > 0.015 && dt < 0.2 && (now - newest.time) < 100) {
+      // If movement occurred recently
+      if (dt > 0.015 && dt < 0.3 && (now - newest.time) < 180) {
         let dRad = newest.angle - oldest.angle;
         while (dRad > Math.PI) dRad -= Math.PI * 2;
         while (dRad < -Math.PI) dRad += Math.PI * 2;
@@ -114,30 +114,26 @@ export class BottlePhysicsController {
       }
     }
     
-    const dragDuration = now - this.dragStartTime;
-    const isQuickTap = dragDuration < 200 && Math.abs(flickVelocity) < 1.0;
-
-    if (Math.abs(flickVelocity) > 0.8) {
-      // Natural flick speed limit
-      const maxVel = 42;
-      this.angularVelocity = Math.max(-maxVel, Math.min(maxVel, flickVelocity * 1.3));
-      this.isSpinning = true;
-    } else if (isQuickTap) {
-      // Tap triggers a natural full spin
-      this.triggerRandomSpin(4, 7);
-    } else {
-      this.angularVelocity = 0;
-      this.isSpinning = false;
-      if (this.onSettle) this.onSettle(this.getNormalizedAngle());
-    }
+    // Requirement: "Please make bottle spin more longer. Short flink should not be available."
+    // Any flick, drag release, or tap guarantees a high-momentum long dramatic spin. Short flicks are disabled.
+    const dir = Math.sign(flickVelocity) !== 0 ? Math.sign(flickVelocity) : (Math.random() > 0.5 ? 1 : -1);
     
+    // High minimum speed floor guarantees 8-15+ full rotations with slow cinematic deceleration
+    const minSpeed = 28 + Math.random() * 6; // 28 - 34 deg/frame minimum
+    const maxSpeed = 48;
+    
+    const userSpeed = Math.abs(flickVelocity) * 1.6;
+    const finalSpeed = Math.min(maxSpeed, Math.max(minSpeed, userSpeed));
+    
+    this.angularVelocity = dir * finalSpeed;
+    this.isSpinning = true;
     return this.angularVelocity;
   }
 
   // Trigger programmed natural spin (for taps or quick play)
-  public triggerRandomSpin(minRotations: number = 4, maxRotations: number = 7) {
+  public triggerRandomSpin(minRotations: number = 8, maxRotations: number = 14) {
     const direction = Math.random() > 0.5 ? 1 : -1;
-    const baseSpeed = (Math.random() * (maxRotations - minRotations) + minRotations) * 4.8;
+    const baseSpeed = 28 + Math.random() * 12;
     this.angularVelocity = direction * baseSpeed;
     this.isSpinning = true;
     this.isDragging = false;
@@ -150,11 +146,11 @@ export class BottlePhysicsController {
     this.angle = (this.angle + this.angularVelocity) % 360;
     if (this.angle < 0) this.angle += 360;
     
-    // Smooth deceleration curve: exponential decay + subtle linear floor
+    // Smooth deceleration curve: exponential decay with micro linear deceleration at very low speeds
     this.angularVelocity *= this.friction;
-    if (Math.abs(this.angularVelocity) < 1.5) {
+    if (Math.abs(this.angularVelocity) < 1.0) {
       const sign = Math.sign(this.angularVelocity);
-      this.angularVelocity = sign * Math.max(0, Math.abs(this.angularVelocity) - 0.018);
+      this.angularVelocity = sign * Math.max(0, Math.abs(this.angularVelocity) - 0.008);
     }
     
     // Tick sound check

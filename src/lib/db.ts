@@ -14,12 +14,23 @@ const DEFAULT_SETTINGS: AppSettings = {
   countdownSeconds: 5,
   bottleStyle: 'classic_bottle',
   selectedCustomSpriteId: null,
-  bottleFriction: 0.985,
+  bottleFriction: 0.992,
   theme: 'cyber-neon',
   soundEnabled: true,
   soundVolume: 0.8,
   hapticsEnabled: true,
 };
+
+function normalizeSettings(data: Partial<AppSettings>): AppSettings {
+  const merged: AppSettings = { ...DEFAULT_SETTINGS, ...data };
+  if ((merged.bottleStyle as string) === 'laser_dart') {
+    merged.bottleStyle = 'classic_bottle';
+  }
+  if (!merged.bottleFriction || merged.bottleFriction < 0.990) {
+    merged.bottleFriction = 0.992;
+  }
+  return merged;
+}
 
 const DEFAULT_STATS: AppStats = {
   totalRouletteRounds: 0,
@@ -62,14 +73,14 @@ export async function getSettings(): Promise<AppSettings> {
       const req = store.get('app_settings');
       req.onsuccess = () => {
         if (req.result) {
-          resolve({ ...DEFAULT_SETTINGS, ...req.result });
+          resolve(normalizeSettings(req.result));
         } else {
           // Fallback check localStorage
           const local = localStorage.getItem('neon_party_settings');
           if (local) {
             try {
               const parsed = JSON.parse(local);
-              resolve({ ...DEFAULT_SETTINGS, ...parsed });
+              resolve(normalizeSettings(parsed));
               return;
             } catch (e) {}
           }
@@ -81,7 +92,7 @@ export async function getSettings(): Promise<AppSettings> {
   } catch (err) {
     try {
       const local = localStorage.getItem('neon_party_settings');
-      if (local) return { ...DEFAULT_SETTINGS, ...JSON.parse(local) };
+      if (local) return normalizeSettings(JSON.parse(local));
     } catch (e) {}
     return DEFAULT_SETTINGS;
   }

@@ -8,6 +8,19 @@
     touch-action: none;
   }
 
+  .overflow-y-auto,
+  .overflow-y-auto *,
+  .overflow-auto,
+  .overflow-auto *,
+  [data-scrollable="true"],
+  [data-scrollable="true"] *,
+  .scrollable-panel,
+  .scrollable-panel *,
+  input,
+  button {
+    touch-action: pan-y;
+  }
+
   html, body, #root {
     width: 100%;
     height: 100%;
@@ -16,6 +29,39 @@
     background-color: #050614;
     font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   }
+}
+
+/* Custom Sleek Neon Scrollbar for Modal Panels */
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 42, 133, 0.45) rgba(255, 255, 255, 0.04);
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 9999px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(255, 42, 133, 0.45);
+  border-radius: 9999px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 42, 133, 0.75);
+}
+
+.scrollable-panel {
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
 }
 
 /* 3D Chrome Beveled Glass Frame (as seen in uploaded screenshots) */
@@ -209,6 +255,56 @@
 }
 
 /* Play Roulette Button (IMG_0637: Hot Magenta/Pink to Warm Orange) */
+.btn-play-roulette-scanner {
+  background: linear-gradient(90deg, #00f0ff 0%, #0077fe 26%, #7928ca 55%, #ff0080 82%, #ff2a85 100%);
+  color: #ffffff;
+  font-family: 'Outfit', -apple-system, sans-serif;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.btn-play-roulette-scanner:hover {
+  filter: brightness(1.06);
+  box-shadow: 0 10px 28px -2px rgba(0, 0, 0, 0.7), 0 0 24px rgba(0, 240, 255, 0.6), 0 0 30px rgba(255, 42, 133, 0.5) !important;
+}
+
+.btn-play-roulette-scanner:active {
+  transform: scale(0.97);
+  filter: brightness(0.95);
+}
+
+@keyframes scannerLaserSweepVertical {
+  0% {
+    transform: translateY(-100%);
+  }
+  50% {
+    transform: translateY(380%);
+  }
+  100% {
+    transform: translateY(-100%);
+  }
+}
+
+.animate-scanner-laser {
+  animation: scannerLaserSweepVertical 2.4s ease-in-out infinite;
+}
+
+@keyframes scannerRadarPulse {
+  0%, 100% {
+    opacity: 0.4;
+    transform: scale(0.96);
+  }
+  50% {
+    opacity: 0.85;
+    transform: scale(1.04);
+  }
+}
+
+.animate-scanner-pulse {
+  animation: scannerRadarPulse 2.2s ease-in-out infinite;
+}
+
 .btn-play-roulette {
   background: linear-gradient(90deg, #ff057c 0%, #ff1493 25%, #ff5e36 75%, #ff8a00 100%);
   box-shadow:
@@ -223,7 +319,26 @@
   text-transform: uppercase;
 }
 
-/* Spin Bottle Button (IMG_0636: Warm Orange to Electric Purple) */
+/* Spin Bottle Button (IMG_0657: Warm Orange to Electric Purple Swirl Vortex) */
+.btn-spin-bottle-swirl {
+  background: linear-gradient(90deg, #ff5e00 0%, #ff8a00 22%, #ff2a7a 45%, #b526e6 70%, #8b5cf6 85%, #6d28d9 100%);
+  color: #ffffff;
+  font-family: 'Outfit', -apple-system, sans-serif;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.btn-spin-bottle-swirl:hover {
+  filter: brightness(1.06);
+  box-shadow: 0 10px 28px -2px rgba(0, 0, 0, 0.7), 0 0 22px rgba(168, 85, 247, 0.55), 0 0 30px rgba(255, 106, 0, 0.45) !important;
+}
+
+.btn-spin-bottle-swirl:active {
+  transform: scale(0.97);
+  filter: brightness(0.95);
+}
+
 .btn-spin-bottle {
   background: linear-gradient(90deg, #ff6a00 0%, #ff5533 30%, #b829e6 75%, #a855f7 100%);
   box-shadow:
@@ -300,6 +415,17 @@
     0 0 20px rgba(255, 42, 133, 0.75),
     0 0 35px rgba(255, 42, 133, 0.45) !important;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.pill-count-selected-cyan {
+  background: #00d4ff !important;
+  color: #050614 !important;
+  font-weight: 800 !important;
+  border-color: #00d4ff !important;
+  box-shadow:
+    0 0 20px rgba(0, 212, 255, 0.75),
+    0 0 35px rgba(0, 212, 255, 0.45) !important;
+  text-shadow: none;
 }
 
 @keyframes pulseNeonRing {

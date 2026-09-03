@@ -4,10 +4,11 @@
  */
 
 import React from 'react';
-import { Users, Target, Palette, Play, RotateCw } from 'lucide-react';
+import { Users, Target, Play, RotateCw } from 'lucide-react';
 import { FingerprintIcon } from './FingerprintIcon';
 import { SpinBottleIcon } from './SpinBottleIcon';
-import { AppSettings, ThemeId } from '../types';
+import { SwirlVortexCanvas } from './SwirlVortexCanvas';
+import { AppSettings } from '../types';
 import { THEMES } from '../lib/themes';
 import { SoundEngine } from '../lib/audio';
 
@@ -37,13 +38,6 @@ export const LandingHub: React.FC<LandingHubProps> = ({
     e.stopPropagation();
     SoundEngine.playButtonClick();
     onUpdateSettings({ targetCount: target });
-  };
-
-  const cycleTheme = () => {
-    SoundEngine.playButtonClick();
-    const themesList: ThemeId[] = ['cyber-neon', 'synthwave'];
-    const nextIdx = (themesList.indexOf(settings.theme) + 1) % themesList.length;
-    onUpdateSettings({ theme: themesList[nextIdx] });
   };
 
   const maxTargets = Math.max(1, settings.minPlayers - 1);
@@ -141,7 +135,8 @@ export const LandingHub: React.FC<LandingHubProps> = ({
                 Max {maxTargets}
               </span>
             </div>
-            <div className="grid grid-cols-4 gap-2">
+            {/* Target Count Pill-Bar - Sleek segmented capsule fitting full width */}
+            <div className="w-full flex rounded-full overflow-hidden border border-white/80 divide-x divide-white/70 bg-black/40 shadow-[0_2px_10px_rgba(0,0,0,0.3)]">
               {targetOptions.map((tgt) => {
                 const isSelected = settings.targetCount === tgt;
                 return (
@@ -149,8 +144,10 @@ export const LandingHub: React.FC<LandingHubProps> = ({
                     key={tgt}
                     type="button"
                     onClick={(e) => handleTargetCountSelect(e, tgt)}
-                    className={`pill-count-btn ${
-                      isSelected ? 'pill-count-selected-pink' : ''
+                    className={`flex-1 min-w-0 h-8 flex items-center justify-center text-xs sm:text-sm font-black transition-all active:scale-[0.98] select-none ${
+                      isSelected
+                        ? 'bg-[#ff2a85] text-white shadow-[0_0_18px_rgba(255,42,133,0.85)]'
+                        : 'bg-[#ff2a85]/20 text-pink-100 hover:bg-[#ff2a85]/35 hover:text-white'
                     }`}
                   >
                     <span>{tgt}</span>
@@ -160,18 +157,120 @@ export const LandingHub: React.FC<LandingHubProps> = ({
             </div>
           </div>
 
-          {/* Start Button: 3D Gloss Jelly Capsule (IMG_0637) */}
+          {/* Start Button: 3D Scanner Capsule with Scanning Laser Effect (Matches IMG_0657 pill style) */}
           <button
-            onClick={() => {
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
               SoundEngine.playButtonClick();
               onSelectRoulette();
             }}
-            className="gloss-jelly-btn btn-play-roulette mt-3.5"
+            className="btn-play-roulette-scanner relative w-full h-11 sm:h-12 mt-3.5 rounded-full overflow-hidden flex items-center justify-center gap-2 px-5 cursor-pointer active:scale-[0.97] transition-all select-none group"
+            style={{
+              boxShadow:
+                '0 8px 24px -2px rgba(0, 0, 0, 0.6), 0 0 16px rgba(0, 240, 255, 0.45), 0 0 24px rgba(255, 42, 133, 0.4)',
+            }}
           >
-            <Play className="w-4 h-4 fill-black text-black shrink-0 relative z-10 ml-0.5" />
-            <span className="relative z-10 text-xs sm:text-sm font-black tracking-wider text-black">
-              PLAY ROULETTE
-            </span>
+            {/* Holographic Biometric Scanner Background */}
+            <svg
+              className="absolute inset-0 w-full h-full pointer-events-none rounded-full"
+              viewBox="0 0 400 48"
+              preserveAspectRatio="none"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <defs>
+                {/* Horizontal flow: Electric Cyan -> Azure Blue -> Violet -> Neon Magenta */}
+                <linearGradient id="scan-base-flow" x1="0%" y1="50%" x2="100%" y2="50%">
+                  <stop offset="0%" stopColor="#00f0ff" />
+                  <stop offset="25%" stopColor="#0077fe" />
+                  <stop offset="55%" stopColor="#7928ca" />
+                  <stop offset="82%" stopColor="#ff0080" />
+                  <stop offset="100%" stopColor="#ff2a85" />
+                </linearGradient>
+
+                <linearGradient id="scan-grid-flow" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stopColor="#00f5ff" stopOpacity="0.4" />
+                  <stop offset="50%" stopColor="#d946ef" stopOpacity="0.25" />
+                  <stop offset="100%" stopColor="#ff007f" stopOpacity="0.4" />
+                </linearGradient>
+
+                <filter id="scan-glow" x="-20%" y="-20%" width="140%" height="140%">
+                  <feGaussianBlur stdDeviation="2.5" />
+                </filter>
+              </defs>
+
+              {/* Base Gradient Fill */}
+              <rect width="400" height="48" fill="url(#scan-base-flow)" rx="24" />
+
+              {/* Concentric Biometric Radar Rings & Scanner Arcs */}
+              <g opacity="0.45" stroke="url(#scan-grid-flow)" strokeWidth="1.2">
+                <circle cx="200" cy="24" r="16" strokeDasharray="3 3" />
+                <circle cx="200" cy="24" r="32" />
+                <circle cx="200" cy="24" r="54" strokeDasharray="4 4" />
+                <circle cx="200" cy="24" r="85" />
+                <circle cx="200" cy="24" r="120" strokeDasharray="5 5" />
+                <circle cx="200" cy="24" r="165" />
+              </g>
+
+              {/* Horizontal Holographic Scan Gridlines */}
+              <g opacity="0.2" stroke="#ffffff" strokeWidth="0.8">
+                <line x1="0" y1="8" x2="400" y2="8" strokeDasharray="4 6" />
+                <line x1="0" y1="16" x2="400" y2="16" />
+                <line x1="0" y1="24" x2="400" y2="24" strokeDasharray="6 6" />
+                <line x1="0" y1="32" x2="400" y2="32" />
+                <line x1="0" y1="40" x2="400" y2="40" strokeDasharray="4 6" />
+              </g>
+
+              {/* Ambient Biometric Target Crosshairs */}
+              <g opacity="0.35" stroke="#ffffff" strokeWidth="1">
+                <line x1="180" y1="24" x2="192" y2="24" />
+                <line x1="208" y1="24" x2="220" y2="24" />
+                <line x1="200" y1="6" x2="200" y2="16" />
+                <line x1="200" y1="32" x2="200" y2="42" />
+              </g>
+            </svg>
+
+            {/* Dynamic Sweeping Laser Scanner Beam (Top to Bottom and Back) */}
+            <div className="absolute inset-0 pointer-events-none overflow-hidden rounded-full z-10">
+              <div className="animate-scanner-laser w-full h-3 flex flex-col items-center justify-center">
+                {/* Holographic cyan flare tail */}
+                <div className="w-full h-full bg-gradient-to-b from-transparent via-cyan-300/40 to-transparent blur-[2px]" />
+                {/* Crisp neon laser blade */}
+                <div className="absolute w-full h-[1.5px] bg-white shadow-[0_0_8px_#ffffff,0_0_16px_#00f5ff,0_0_24px_#00d4ff]" />
+                {/* Secondary bright horizontal flare highlight */}
+                <div className="absolute w-full h-2 bg-gradient-to-b from-transparent via-white/30 to-transparent" />
+              </div>
+            </div>
+
+            {/* Top Gloss Specular Sheen (Curved glass highlight matching IMG_0657) */}
+            <div
+              className="absolute top-[2px] inset-x-3 h-[46%] rounded-[9999px_9999px_120px_120px] pointer-events-none z-15"
+              style={{
+                background:
+                  'linear-gradient(180deg, rgba(255, 255, 255, 0.75) 0%, rgba(255, 255, 255, 0.25) 50%, rgba(255, 255, 255, 0) 100%)',
+              }}
+            />
+
+            {/* Bottom Subtle Glass Specular Rim */}
+            <div
+              className="absolute bottom-[2px] inset-x-4 h-[25%] rounded-[120px_120px_9999px_9999px] pointer-events-none z-15"
+              style={{
+                background:
+                  'linear-gradient(0deg, rgba(255, 255, 255, 0.28) 0%, rgba(255, 255, 255, 0) 100%)',
+              }}
+            />
+
+            {/* Translucent Glass Capsule Rim (Matching IMG_0657's lavender/white edge) */}
+            <div className="absolute inset-0 rounded-full border-[1.5px] border-white/75 pointer-events-none z-20 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),inset_0_-1.5px_2px_rgba(0,0,0,0.35)]" />
+
+            {/* Centered Button Content: Play Arrow + Bold White Text */}
+            <div className="relative z-30 flex items-center justify-center gap-2">
+              <Play className="w-4 h-4 sm:w-4.5 sm:h-4.5 fill-white text-white shrink-0 stroke-[1.2] ml-0.5 drop-shadow-[0_1px_3px_rgba(0,0,0,0.8)]" />
+              <span className="text-xs sm:text-sm font-black tracking-wider text-white uppercase drop-shadow-[0_1px_3px_rgba(0,0,0,0.8)]">
+                PLAY ROULETTE
+              </span>
+            </div>
           </button>
         </div>
 
@@ -204,31 +303,53 @@ export const LandingHub: React.FC<LandingHubProps> = ({
             </div>
           </div>
 
-          {/* Start Button: 3D Gloss Jelly Capsule (IMG_0636) */}
+          {/* Start Button: 3D Swirl Vortex Jelly Capsule (Exact match to IMG_0657) */}
           <button
-            onClick={() => {
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
               SoundEngine.playButtonClick();
               onSelectBottle();
             }}
-            className="gloss-jelly-btn btn-spin-bottle mt-3.5"
+            className="btn-spin-bottle-swirl relative w-full h-11 sm:h-12 mt-3.5 rounded-full overflow-hidden flex items-center justify-center gap-2 px-5 cursor-pointer active:scale-[0.97] transition-all select-none group"
+            style={{
+              boxShadow:
+                '0 8px 24px -2px rgba(0, 0, 0, 0.6), 0 0 16px rgba(168, 85, 247, 0.4), 0 0 24px rgba(255, 106, 0, 0.35)',
+            }}
           >
-            <RotateCw className="w-4 h-4 text-white shrink-0 stroke-[2.8] relative z-10" />
-            <span className="relative z-10 text-xs sm:text-sm font-black tracking-wider text-white">
-              SPIN BOTTLE
-            </span>
+            {/* Swirling 3D Vortex Canvas matching IMG_0657 */}
+            <SwirlVortexCanvas />
+
+            {/* Top Gloss Specular Sheen (Curved glass highlight) */}
+            <div
+              className="absolute top-[2px] inset-x-3 h-[46%] rounded-[9999px_9999px_120px_120px] pointer-events-none z-10"
+              style={{
+                background:
+                  'linear-gradient(180deg, rgba(255, 255, 255, 0.75) 0%, rgba(255, 255, 255, 0.25) 50%, rgba(255, 255, 255, 0) 100%)',
+              }}
+            />
+
+            {/* Bottom Subtle Glass Specular Rim */}
+            <div
+              className="absolute bottom-[2px] inset-x-4 h-[25%] rounded-[120px_120px_9999px_9999px] pointer-events-none z-10"
+              style={{
+                background:
+                  'linear-gradient(0deg, rgba(255, 255, 255, 0.28) 0%, rgba(255, 255, 255, 0) 100%)',
+              }}
+            />
+
+            {/* Translucent Glass Capsule Rim (Matching IMG_0657's lavender/white edge) */}
+            <div className="absolute inset-0 rounded-full border-[1.5px] border-white/75 pointer-events-none z-20 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),inset_0_-1.5px_2px_rgba(0,0,0,0.35)]" />
+
+            {/* Centered Button Content: Rotate Arrow + Bold White Text */}
+            <div className="relative z-30 flex items-center justify-center gap-2">
+              <RotateCw className="w-4 h-4 sm:w-4.5 sm:h-4.5 text-white shrink-0 stroke-[2.4] drop-shadow-[0_1px_3px_rgba(0,0,0,0.7)]" />
+              <span className="text-xs sm:text-sm font-black tracking-wider text-white uppercase drop-shadow-[0_1px_3px_rgba(0,0,0,0.8)]">
+                SPIN BOTTLE
+              </span>
+            </div>
           </button>
         </div>
-      </div>
-
-      {/* Bottom Quick Controls & Theme Pill (IMG_0638) */}
-      <div className="w-full max-w-sm flex items-center justify-center mt-auto pt-2">
-        <button
-          onClick={cycleTheme}
-          className="glass-palette-pill w-full flex items-center justify-center gap-2 py-2.5 px-4 text-xs font-bold text-white cursor-pointer active:scale-95 transition-all"
-        >
-          <Palette className="w-4 h-4 text-pink-400 shrink-0" />
-          <span className="tracking-wide">Palette: {currentTheme.name}</span>
-        </button>
       </div>
     </div>
   );

@@ -28,6 +28,7 @@ import {
 import { THEMES } from '../lib/themes';
 import { SoundEngine, Haptics } from '../lib/audio';
 import { saveCustomSprite, deleteCustomSprite, saveStats } from '../lib/db';
+import { processSpriteImage } from '../lib/imageProcessing';
 
 interface SettingsModalProps {
   isOpen: boolean;
@@ -50,15 +51,16 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   onRefreshSprites,
   onRefreshStats,
 }) => {
-  const [activeTab, setActiveTab] = useState<'game' | 'bottle' | 'stats'>('game');
+  const [activeTab, setActiveTab] = useState<'game' | 'bottle' | 'palette' | 'stats'>('game');
   const [isUploading, setIsUploading] = useState<boolean>(false);
+  const [uploadBlendMode, setUploadBlendMode] = useState<BottleBlendMode>('screen');
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   if (!isOpen) return null;
 
   const currentTheme = THEMES[settings.theme] || THEMES['cyber-neon'];
 
-  // Handle Custom Sprite Image Upload
+  // Handle Custom Sprite Image Upload with selected blend mode
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -66,14 +68,17 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
     setIsUploading(true);
     const reader = new FileReader();
     reader.onload = async (event) => {
-      const dataUrl = event.target?.result as string;
-      if (dataUrl) {
+      const rawDataUrl = event.target?.result as string;
+      if (rawDataUrl) {
+        const processedDataUrl = await processSpriteImage(rawDataUrl, uploadBlendMode, 0);
         const newSprite: CustomBottleSprite = {
           id: `sprite-${Date.now()}`,
           name: file.name.replace(/\.[^/.]+$/, '').slice(0, 16),
-          dataUrl,
+          dataUrl: processedDataUrl,
+          originalDataUrl: rawDataUrl,
           createdAt: Date.now(),
           rotationOffset: 0,
+          blendMode: uploadBlendMode,
         };
 
         await saveCustomSprite(newSprite);
@@ -94,9 +99,14 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   const handleRotateSprite = async (sprite: CustomBottleSprite, e: React.MouseEvent) => {
     e.stopPropagation();
     SoundEngine.playButtonClick();
+    const newRot = ((sprite.rotationOffset || 0) + 90) % 360;
+    const baseSource = sprite.originalDataUrl || sprite.dataUrl;
+    const processed = await processSpriteImage(baseSource, sprite.blendMode || 'normal', newRot);
     const updated: CustomBottleSprite = {
       ...sprite,
-      rotationOffset: ((sprite.rotationOffset || 0) + 90) % 360,
+      dataUrl: processed,
+      originalDataUrl: baseSource,
+      rotationOffset: newRot,
     };
     await saveCustomSprite(updated);
     onRefreshSprites();
@@ -110,8 +120,12 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   ) => {
     e.stopPropagation();
     SoundEngine.playButtonClick();
+    const baseSource = sprite.originalDataUrl || sprite.dataUrl;
+    const processed = await processSpriteImage(baseSource, mode, sprite.rotationOffset || 0);
     const updated: CustomBottleSprite = {
       ...sprite,
+      dataUrl: processed,
+      originalDataUrl: baseSource,
       blendMode: mode,
     };
     await saveCustomSprite(updated);
@@ -134,7 +148,6 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
   const BUILTIN_STYLES: { id: BottleBuiltinStyle; name: string }[] = [
     { id: 'classic_bottle', name: 'Classic Bottle' },
-    { id: 'laser_dart', name: 'Laser Dart' },
     { id: 'retro_soda', name: 'Retro Soda' },
   ];
 
@@ -155,8 +168,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
           </div>
         </div>
 
-        {/* Tab Navigation (Theme tab removed) */}
-        <div className="flex items-center gap-1.5 p-1.5 mx-4 mt-3 bg-white/5 rounded-2xl border border-white/10 shrink-0">
+        {/* Tab Navigation (Rules, Bottle, Palette, Stats) */}
+        <div className="grid grid-cols-4 gap-1 p-1.5 mx-3 sm:mx-4 mt-3 bg-white/5 rounded-2xl border border-white/10 shrink-0">
           <button
             onClick={() => {
               SoundEngine.playButtonClick();
@@ -168,7 +181,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               borderColor: activeTab === 'game' ? '#00d4ff' : 'transparent',
               boxShadow: activeTab === 'game' ? '0 0 10px rgba(0, 212, 255, 0.4)' : 'none',
             }}
-            className="flex-1 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all flex items-center justify-center gap-1.5 border"
+            className="py-2 rounded-xl text-[11px] sm:text-xs font-black uppercase tracking-wider transition-all flex flex-col sm:flex-row items-center justify-center gap-1 border cursor-pointer"
           >
             <Sliders className="w-3.5 h-3.5" />
             <span>Rules</span>
@@ -185,10 +198,27 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               borderColor: activeTab === 'bottle' ? '#ff2a85' : 'transparent',
               boxShadow: activeTab === 'bottle' ? '0 0 10px rgba(255, 42, 133, 0.4)' : 'none',
             }}
-            className="flex-1 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all flex items-center justify-center gap-1.5 border"
+            className="py-2 rounded-xl text-[11px] sm:text-xs font-black uppercase tracking-wider transition-all flex flex-col sm:flex-row items-center justify-center gap-1 border cursor-pointer"
           >
-            <SpinBottleIcon className="w-4.5 h-4.5" glow={false} />
+            <SpinBottleIcon className="w-3.5 h-3.5" glow={false} />
             <span>Bottle</span>
+          </button>
+
+          <button
+            onClick={() => {
+              SoundEngine.playButtonClick();
+              setActiveTab('palette');
+            }}
+            style={{
+              backgroundColor: activeTab === 'palette' ? 'rgba(168, 85, 247, 0.25)' : 'transparent',
+              color: activeTab === 'palette' ? '#c084fc' : '#9ca3af',
+              borderColor: activeTab === 'palette' ? '#c084fc' : 'transparent',
+              boxShadow: activeTab === 'palette' ? '0 0 10px rgba(168, 85, 247, 0.4)' : 'none',
+            }}
+            className="py-2 rounded-xl text-[11px] sm:text-xs font-black uppercase tracking-wider transition-all flex flex-col sm:flex-row items-center justify-center gap-1 border cursor-pointer"
+          >
+            <Palette className="w-3.5 h-3.5" />
+            <span>Palette</span>
           </button>
 
           <button
@@ -202,7 +232,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               borderColor: activeTab === 'stats' ? '#ff6e28' : 'transparent',
               boxShadow: activeTab === 'stats' ? '0 0 10px rgba(255, 110, 40, 0.4)' : 'none',
             }}
-            className="flex-1 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all flex items-center justify-center gap-1.5 border"
+            className="py-2 rounded-xl text-[11px] sm:text-xs font-black uppercase tracking-wider transition-all flex flex-col sm:flex-row items-center justify-center gap-1 border cursor-pointer"
           >
             <BarChart2 className="w-3.5 h-3.5" />
             <span>Stats</span>
@@ -210,7 +240,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
         </div>
 
         {/* Scrollable Tab Content */}
-        <div className="flex-1 overflow-y-auto p-5 space-y-4">
+        <div
+          data-scrollable="true"
+          className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden p-4 sm:p-5 space-y-4 w-full min-w-0 custom-scrollbar scrollable-panel"
+        >
           {/* TAB 1: GAME RULES */}
           {activeTab === 'game' && (
             <div className="space-y-3.5">
@@ -336,65 +369,24 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   </div>
                 )}
               </div>
-
-              {/* Color Theme (2 Harmonized Palettes) */}
-              <div className="p-3.5 rounded-2xl bg-white/5 border border-white/10 space-y-2">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2 text-xs font-extrabold uppercase tracking-wide text-white">
-                    <Palette className="w-4 h-4 text-pink-400" />
-                    <span>Color Palette</span>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-2 pt-1">
-                  {(['cyber-neon', 'synthwave'] as const).map((thmId) => {
-                    const thm = THEMES[thmId];
-                    const isSelected = settings.theme === thmId;
-                    return (
-                      <button
-                        key={thmId}
-                        onClick={() => {
-                          SoundEngine.playButtonClick();
-                          onUpdateSettings({ theme: thmId });
-                        }}
-                        style={{
-                          backgroundColor: isSelected ? 'rgba(255, 255, 255, 0.12)' : 'rgba(255, 255, 255, 0.04)',
-                          borderColor: isSelected ? thm.primary : 'rgba(255, 255, 255, 0.12)',
-                          boxShadow: isSelected ? `0 0 14px ${thm.primary}66` : 'none',
-                        }}
-                        className="p-2.5 rounded-xl border flex flex-col items-start gap-1.5 cursor-pointer transition-all active:scale-95"
-                      >
-                        <div className="flex items-center justify-between w-full">
-                          <span className="text-xs font-black text-white">{thm.name}</span>
-                          {isSelected && <Check className="w-3.5 h-3.5" style={{ color: thm.primary }} />}
-                        </div>
-                        <div className="flex items-center gap-1 w-full mt-1">
-                          <div className="w-4 h-4 rounded-full" style={{ backgroundColor: thm.primary }} />
-                          <div className="w-4 h-4 rounded-full" style={{ backgroundColor: thm.secondary }} />
-                          <div className="w-4 h-4 rounded-full" style={{ backgroundColor: thm.accent }} />
-                        </div>
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
             </div>
           )}
 
           {/* TAB 2: BOTTLE SPRITES & UPLOAD */}
           {activeTab === 'bottle' && (
-            <div className="space-y-4">
-              {/* Built-in Skins (Classic, Dart, Soda only) */}
-              <div>
+            <div data-scrollable="true" className="space-y-4 w-full min-w-0 scrollable-panel">
+              {/* Built-in Skins */}
+              <div className="w-full min-w-0">
                 <label className="block text-xs font-extrabold uppercase tracking-wider text-gray-400 mb-2">
                   Bottle Style
                 </label>
-                <div className="grid grid-cols-1 gap-2">
+                <div className="grid grid-cols-1 gap-2 w-full min-w-0">
                   {BUILTIN_STYLES.map((style) => {
                     const isSelected = settings.bottleStyle === style.id;
                     return (
                       <button
                         key={style.id}
+                        type="button"
                         onClick={() => {
                           SoundEngine.playButtonClick();
                           onUpdateSettings({
@@ -407,10 +399,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                           borderColor: isSelected ? currentTheme.primary : 'rgba(255, 255, 255, 0.1)',
                           boxShadow: isSelected ? `0 0 12px ${currentTheme.primary}33` : 'none',
                         }}
-                        className="p-3.5 rounded-2xl border text-left flex items-center justify-between transition-all cursor-pointer"
+                        className="p-3.5 rounded-2xl border text-left flex items-center justify-between transition-all cursor-pointer w-full min-w-0"
                       >
-                        <span className="text-xs font-bold text-white">{style.name}</span>
-                        {isSelected && <Check className="w-4 h-4" style={{ color: currentTheme.primary }} />}
+                        <span className="text-xs font-bold text-white truncate">{style.name}</span>
+                        {isSelected && <Check className="w-4 h-4 shrink-0 ml-2" style={{ color: currentTheme.primary }} />}
                       </button>
                     );
                   })}
@@ -418,14 +410,58 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               </div>
 
               {/* Upload Custom Sprite Section */}
-              <div className="pt-3 border-t border-white/10">
-                <div className="flex items-center justify-between mb-2">
-                  <label className="text-xs font-extrabold uppercase tracking-wider text-gray-400">
+              <div className="pt-3 border-t border-white/10 space-y-2.5 w-full min-w-0">
+                <div className="flex items-center justify-between w-full min-w-0">
+                  <label className="text-xs font-extrabold uppercase tracking-wider text-gray-400 truncate">
                     Custom Uploaded Bottles
                   </label>
-                  <span className="text-[10px] font-bold" style={{ color: currentTheme.primary }}>
+                  <span className="text-[10px] font-bold shrink-0 ml-2" style={{ color: currentTheme.primary }}>
                     {customSprites.length} Saved
                   </span>
+                </div>
+
+                {/* Upload Blend Mode Options (Screen, Dodge, Lighten, Multiply, Normal) */}
+                <div className="p-2.5 rounded-xl bg-white/5 border border-white/10 space-y-1.5 w-full min-w-0 box-border overflow-hidden">
+                  <div className="flex items-center justify-between w-full min-w-0">
+                    <span className="text-[11px] font-bold text-gray-200 flex items-center gap-1.5 truncate">
+                      <Sparkles className="w-3.5 h-3.5 text-pink-400 shrink-0" />
+                      <span className="truncate">Upload Blend Mode (Black BG)</span>
+                    </span>
+                    <span className="text-[10px] font-semibold text-cyan-300 capitalize shrink-0 ml-1">
+                      {uploadBlendMode.replace('-', ' ')}
+                    </span>
+                  </div>
+                  <p className="text-[10px] text-gray-400 leading-tight">
+                    Select mode for new uploads (Screen drops black backgrounds automatically):
+                  </p>
+                  <div className="grid grid-cols-3 gap-1.5 pt-1 w-full min-w-0">
+                    {[
+                      { id: 'normal' as BottleBlendMode, label: 'Normal', desc: 'Solid original opacity' },
+                      { id: 'screen' as BottleBlendMode, label: 'Screen', desc: 'Drops black background' },
+                      { id: 'color-dodge' as BottleBlendMode, label: 'Dodge', desc: 'Neon luminous glow' },
+                    ].map((opt) => {
+                      const isActive = uploadBlendMode === opt.id;
+                      return (
+                        <button
+                          key={opt.id}
+                          type="button"
+                          onClick={() => {
+                            SoundEngine.playButtonClick();
+                            setUploadBlendMode(opt.id);
+                          }}
+                          title={opt.desc}
+                          style={{
+                            backgroundColor: isActive ? 'rgba(0, 240, 255, 0.25)' : 'rgba(255, 255, 255, 0.04)',
+                            borderColor: isActive ? '#00f0ff' : 'rgba(255, 255, 255, 0.1)',
+                            color: isActive ? '#00f0ff' : '#9ca3af',
+                          }}
+                          className="py-1 px-1 rounded-lg border text-[10px] font-bold text-center transition-all cursor-pointer active:scale-95 truncate w-full min-w-0"
+                        >
+                          {opt.label}
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
 
                 {/* Upload Button */}
@@ -437,6 +473,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   className="hidden"
                 />
                 <button
+                  type="button"
                   onClick={() => {
                     SoundEngine.playButtonClick();
                     fileInputRef.current?.click();
@@ -446,15 +483,18 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                     borderColor: `${currentTheme.primary}66`,
                     color: currentTheme.primary,
                   }}
-                  className="w-full py-3.5 px-4 rounded-2xl border-2 border-dashed bg-white/5 font-extrabold text-xs uppercase tracking-wider flex items-center justify-center gap-2 active:scale-98 transition-all mb-3 cursor-pointer"
+                  className="w-full py-3 px-3 rounded-2xl border-2 border-dashed bg-white/5 font-extrabold text-xs uppercase tracking-wider flex items-center justify-center gap-2 active:scale-98 transition-all mb-3 cursor-pointer min-w-0"
                 >
-                  <Upload className="w-4 h-4" />
-                  <span>{isUploading ? 'Saving...' : '+ Upload Custom Bottle / Photo'}</span>
+                  <Upload className="w-4 h-4 shrink-0" />
+                  <span className="truncate">{isUploading ? 'Saving...' : '+ Upload Custom Bottle'}</span>
                 </button>
 
                 {/* List of Custom Uploaded Sprites */}
                 {customSprites.length > 0 && (
-                  <div className="space-y-3 max-h-64 overflow-y-auto pr-1">
+                  <div
+                    data-scrollable="true"
+                    className="space-y-3 w-full min-w-0 max-h-[380px] overflow-y-auto overflow-x-hidden custom-scrollbar scrollable-panel pr-1"
+                  >
                     {customSprites.map((sprite) => {
                       const isSelected =
                         settings.bottleStyle === 'custom' &&
@@ -462,11 +502,9 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                       const activeBlend = sprite.blendMode || 'normal';
 
                       const BLEND_OPTIONS: { id: BottleBlendMode; label: string; desc: string }[] = [
-                        { id: 'screen', label: 'Screen', desc: 'Hides black background' },
-                        { id: 'color-dodge', label: 'Color Dodge', desc: 'Vibrant neon glow' },
-                        { id: 'lighten', label: 'Lighten', desc: 'Filters out dark areas' },
-                        { id: 'plus-lighter', label: 'Add / Glow', desc: 'Intense luminous pop' },
                         { id: 'normal', label: 'Normal', desc: 'Original opacity' },
+                        { id: 'screen', label: 'Screen', desc: 'Drops black background' },
+                        { id: 'color-dodge', label: 'Dodge', desc: 'Vibrant neon glow' },
                       ];
 
                       return (
@@ -484,37 +522,40 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                             borderColor: isSelected ? currentTheme.primary : 'rgba(255, 255, 255, 0.1)',
                             boxShadow: isSelected ? `0 0 14px ${currentTheme.primary}33` : 'none',
                           }}
-                          className="p-3 rounded-2xl border flex flex-col gap-2.5 cursor-pointer transition-all"
+                          className="p-3 rounded-2xl border flex flex-col gap-2.5 cursor-pointer transition-all w-full min-w-0 overflow-hidden box-border"
                         >
                           {/* Row 1: Sprite Info, Preview & Actions */}
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-3">
+                          <div className="flex items-center justify-between w-full min-w-0 gap-2">
+                            <div className="flex items-center gap-2.5 min-w-0 flex-1">
                               {/* Dark Preview Canvas showing blend effect */}
-                              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-950/80 to-blue-950/80 border border-white/15 flex items-center justify-center overflow-hidden p-1 shrink-0 relative">
+                              <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-purple-950/80 to-blue-950/80 border border-white/15 flex items-center justify-center overflow-hidden p-1 shrink-0 relative">
                                 <img
                                   src={sprite.dataUrl}
                                   alt={sprite.name}
                                   className="max-w-full max-h-full object-contain"
                                   style={{
-                                    transform: `rotate(${sprite.rotationOffset || 0}deg)`,
-                                    mixBlendMode: activeBlend,
+                                    transform: (!sprite.originalDataUrl && sprite.rotationOffset)
+                                      ? `rotate(${sprite.rotationOffset}deg)`
+                                      : undefined,
+                                    mixBlendMode: activeBlend !== 'normal' ? (activeBlend as any) : undefined,
                                   }}
                                 />
                               </div>
-                              <div>
-                                <div className="text-xs font-black text-white truncate max-w-[140px]">
+                              <div className="min-w-0 flex-1">
+                                <div className="text-xs font-black text-white truncate">
                                   {sprite.name}
                                 </div>
-                                <div className="text-[10px] text-gray-400 flex items-center gap-1.5 mt-0.5">
-                                  <span>{sprite.rotationOffset || 0}° rotation</span>
-                                  <span>•</span>
-                                  <span className="font-semibold text-cyan-300 capitalize">{activeBlend.replace('-', ' ')}</span>
+                                <div className="text-[10px] text-gray-400 flex items-center gap-1.5 mt-0.5 truncate">
+                                  <span className="shrink-0">{sprite.rotationOffset || 0}°</span>
+                                  <span className="shrink-0">•</span>
+                                  <span className="font-semibold text-cyan-300 capitalize truncate">{activeBlend.replace('-', ' ')}</span>
                                 </div>
                               </div>
                             </div>
 
-                            <div className="flex items-center gap-1.5">
+                            <div className="flex items-center gap-1.5 shrink-0">
                               <button
+                                type="button"
                                 onClick={(e) => handleRotateSprite(sprite, e)}
                                 title="Rotate 90°"
                                 className="p-2 rounded-xl bg-white/10 hover:bg-white/20 text-cyan-300 active:scale-95 transition-all cursor-pointer"
@@ -522,6 +563,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                                 <RotateCw className="w-3.5 h-3.5" />
                               </button>
                               <button
+                                type="button"
                                 onClick={(e) => handleDeleteSprite(sprite.id, e)}
                                 title="Delete Sprite"
                                 className="p-2 rounded-xl bg-red-500/20 hover:bg-red-500/30 text-red-400 active:scale-95 transition-all cursor-pointer"
@@ -531,21 +573,22 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                             </div>
                           </div>
 
-                          {/* Row 2: Blending Modes (Screen, Color Dodge, Lighten, etc.) for black background removal */}
-                          <div className="pt-2 border-t border-white/10" onClick={(e) => e.stopPropagation()}>
-                            <div className="flex items-center justify-between mb-1.5">
-                              <span className="text-[10px] font-black uppercase tracking-wider text-gray-400 flex items-center gap-1">
-                                <Sparkles className="w-3 h-3 text-pink-400" />
-                                <span>Blend Mode (Black BG)</span>
+                          {/* Row 2: Blending Modes (Screen, Color Dodge, Lighten, Multiply, etc.) */}
+                          <div className="pt-2 border-t border-white/10 w-full min-w-0" onClick={(e) => e.stopPropagation()}>
+                            <div className="flex items-center justify-between mb-1.5 w-full min-w-0">
+                              <span className="text-[10px] font-black uppercase tracking-wider text-gray-400 flex items-center gap-1 truncate">
+                                <Sparkles className="w-3 h-3 text-pink-400 shrink-0" />
+                                <span>CSS Blend Mode</span>
                               </span>
                             </div>
 
-                            <div className="grid grid-cols-3 sm:grid-cols-5 gap-1">
+                            <div className="grid grid-cols-3 gap-1.5 w-full min-w-0">
                               {BLEND_OPTIONS.map((opt) => {
                                 const isBlendActive = activeBlend === opt.id;
                                 return (
                                   <button
                                     key={opt.id}
+                                    type="button"
                                     onClick={(e) => handleChangeBlendMode(sprite, opt.id, e)}
                                     title={opt.desc}
                                     style={{
@@ -557,7 +600,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                                         : 'rgba(255, 255, 255, 0.08)',
                                       color: isBlendActive ? '#00f0ff' : '#9ca3af',
                                     }}
-                                    className="py-1 px-1 rounded-lg border text-[10px] font-bold text-center transition-all cursor-pointer active:scale-95 hover:text-white"
+                                    className="py-1 px-1 rounded-lg border text-[10px] font-bold text-center transition-all cursor-pointer active:scale-95 hover:text-white truncate w-full min-w-0"
                                   >
                                     {opt.label}
                                   </button>
@@ -574,7 +617,88 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             </div>
           )}
 
-          {/* TAB 3: STATS */}
+          {/* TAB 3: COLOR PALETTE */}
+          {activeTab === 'palette' && (
+            <div className="space-y-3.5 w-full min-w-0">
+              <div className="p-3.5 rounded-2xl bg-white/5 border border-white/10 space-y-3 w-full min-w-0 overflow-hidden box-border">
+                <div className="flex items-center justify-between w-full min-w-0">
+                  <div className="flex items-center gap-2 text-xs font-extrabold uppercase tracking-wide text-white truncate">
+                    <Palette className="w-4 h-4 text-pink-400 shrink-0" />
+                    <span className="truncate">Color Palette & Themes</span>
+                  </div>
+                  <span className="text-[10px] text-gray-400 shrink-0 ml-1">Harmonized</span>
+                </div>
+                <p className="text-xs text-gray-300 leading-relaxed">
+                  Choose the ambient nightclub lighting, laser accents, and touch rings colorway:
+                </p>
+
+                <div className="grid grid-cols-1 gap-2.5 pt-1 w-full min-w-0">
+                  {(['cyber-neon', 'synthwave'] as const).map((thmId) => {
+                    const thm = THEMES[thmId];
+                    const isSelected = settings.theme === thmId;
+                    return (
+                      <button
+                        key={thmId}
+                        type="button"
+                        onClick={() => {
+                          SoundEngine.playButtonClick();
+                          onUpdateSettings({ theme: thmId });
+                        }}
+                        style={{
+                          backgroundColor: isSelected ? 'rgba(255, 255, 255, 0.12)' : 'rgba(255, 255, 255, 0.04)',
+                          borderColor: isSelected ? thm.primary : 'rgba(255, 255, 255, 0.12)',
+                          boxShadow: isSelected ? `0 0 16px ${thm.primary}66` : 'none',
+                        }}
+                        className="p-3.5 rounded-2xl border flex flex-col items-start gap-2.5 cursor-pointer transition-all active:scale-[0.98] w-full min-w-0 overflow-hidden text-left box-border"
+                      >
+                        <div className="flex items-center justify-between w-full min-w-0">
+                          <div className="flex items-center gap-2 min-w-0">
+                            <div
+                              className="w-3.5 h-3.5 rounded-full shrink-0"
+                              style={{ backgroundColor: thm.primary, boxShadow: `0 0 8px ${thm.primary}` }}
+                            />
+                            <span className="text-sm font-black text-white tracking-wide truncate">{thm.name}</span>
+                          </div>
+                          {isSelected && (
+                            <div className="flex items-center gap-1 text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-white/15 shrink-0 ml-2" style={{ color: thm.primary }}>
+                              <Check className="w-3.5 h-3.5" />
+                              <span>Active</span>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Theme Color Swatches */}
+                        <div className="flex items-center gap-2 w-full min-w-0">
+                          <div className="flex items-center gap-1.5 flex-1 min-w-0">
+                            <div className="flex-1 h-3.5 rounded-md min-w-0" style={{ backgroundColor: thm.primary }} title="Primary" />
+                            <div className="flex-1 h-3.5 rounded-md min-w-0" style={{ backgroundColor: thm.secondary }} title="Secondary" />
+                            <div className="flex-1 h-3.5 rounded-md min-w-0" style={{ backgroundColor: thm.accent }} title="Accent" />
+                          </div>
+                        </div>
+
+                        {/* Touch Finger Rings Preview */}
+                        <div className="flex items-center gap-2 w-full min-w-0 pt-1.5 border-t border-white/10 flex-wrap">
+                          <span className="text-[10px] text-gray-400 font-medium shrink-0">Touch Rings:</span>
+                          <div className="flex items-center gap-1.5 flex-wrap min-w-0">
+                            {thm.playerPalettes.map((p, idx) => (
+                              <div
+                                key={idx}
+                                className="w-3 h-3 rounded-full shrink-0"
+                                style={{ backgroundColor: p.solid, boxShadow: `0 0 4px ${p.solid}` }}
+                                title={`P${idx + 1}`}
+                              />
+                            ))}
+                          </div>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* TAB 4: STATS */}
           {activeTab === 'stats' && (
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-3">

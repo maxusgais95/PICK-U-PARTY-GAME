@@ -7,17 +7,18 @@ export type ScreenView = 'hub' | 'roulette' | 'bottle' | 'settings';
 
 export type ThemeId = 'cyber-neon' | 'synthwave';
 
-export type BottleBuiltinStyle = 'classic_bottle' | 'laser_dart' | 'retro_soda';
+export type BottleBuiltinStyle = 'classic_bottle' | 'retro_soda';
 
-export type BottleBlendMode = 'normal' | 'screen' | 'color-dodge' | 'lighten' | 'plus-lighter';
+export type BottleBlendMode = 'normal' | 'screen' | 'color-dodge';
 
 export interface CustomBottleSprite {
   id: string;
   name: string;
-  dataUrl: string; // Stored in IndexedDB
+  dataUrl: string; // Stored in IndexedDB (processed transparent sprite)
+  originalDataUrl?: string; // Raw original uploaded image file
   createdAt: number;
   rotationOffset: number; // 0, 90, 180, 270 degrees
-  blendMode?: BottleBlendMode; // screen, color-dodge, lighten, etc.
+  blendMode?: BottleBlendMode; // normal, screen, color-dodge
 }
 
 export interface TouchPlayer {

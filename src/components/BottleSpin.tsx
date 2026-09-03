@@ -31,7 +31,7 @@ export const BottleSpin: React.FC<BottleSpinProps> = ({
 
   const containerRef = useRef<HTMLDivElement | null>(null);
   const physicsRef = useRef<BottlePhysicsController>(
-    new BottlePhysicsController(Math.random() * 360, settings.bottleFriction || 0.984)
+    new BottlePhysicsController(Math.random() * 360, settings.bottleFriction || 0.992)
   );
   const animFrameRef = useRef<number | null>(null);
   const cooldownTimerRef = useRef<number | null>(null);
@@ -41,7 +41,7 @@ export const BottleSpin: React.FC<BottleSpinProps> = ({
   // Setup tick and settle callbacks
   useEffect(() => {
     const physics = physicsRef.current;
-    physics.setFriction(settings.bottleFriction || 0.984);
+    physics.setFriction(settings.bottleFriction || 0.992);
 
     physics.onTick = (vel: number) => {
       SoundEngine.playBottleTick(vel);
@@ -146,7 +146,7 @@ export const BottleSpin: React.FC<BottleSpinProps> = ({
     setIsDragging(false);
 
     const flickVelocity = physicsRef.current.endDrag();
-    if (Math.abs(flickVelocity) > 1.2 || physicsRef.current.isSpinning) {
+    if (physicsRef.current.isSpinning) {
       setIsPointingBounce(false);
       setIsSpinning(true);
       if (onSpinStateChangeRef.current) {
@@ -178,7 +178,7 @@ export const BottleSpin: React.FC<BottleSpinProps> = ({
     if (!isDragging || e.pointerType === 'touch') return;
     setIsDragging(false);
     const flickVel = physicsRef.current.endDrag();
-    if (Math.abs(flickVel) > 1.2 || physicsRef.current.isSpinning) {
+    if (physicsRef.current.isSpinning) {
       setIsPointingBounce(false);
       setIsSpinning(true);
       if (onSpinStateChangeRef.current) {
@@ -204,11 +204,11 @@ export const BottleSpin: React.FC<BottleSpinProps> = ({
         isLocked ? 'cursor-not-allowed' : 'cursor-grab active:cursor-grabbing'
       }`}
     >
-      {/* Soft Radial Ambient Spotlight Aura */}
+      {/* Ambient Neon Pink Spotlight Aura */}
       <div
-        className="absolute w-96 h-96 sm:w-[32rem] sm:h-[32rem] rounded-full blur-3xl pointer-events-none opacity-25"
+        className="absolute w-[32rem] h-[32rem] sm:w-[42rem] sm:h-[42rem] rounded-full blur-3xl pointer-events-none opacity-30"
         style={{
-          background: `radial-gradient(circle, ${currentTheme.primary} 0%, ${currentTheme.secondary} 45%, transparent 75%)`,
+          background: 'radial-gradient(circle, rgba(255, 42, 133, 0.8) 0%, rgba(255, 0, 128, 0.35) 45%, transparent 75%)',
         }}
       />
 
@@ -229,8 +229,8 @@ export const BottleSpin: React.FC<BottleSpinProps> = ({
             themeColors={currentTheme}
             className={
               settings.bottleStyle === 'custom'
-                ? 'w-80 h-[36rem] sm:w-[26rem] sm:h-[42rem] max-w-[90vw] max-h-[72vh]'
-                : 'w-48 h-96 sm:w-60 sm:h-[28rem] max-w-[85vw] max-h-[65vh]'
+                ? 'w-[min(90vw,85vh)] h-[min(90vw,85vh)] max-w-[740px] max-h-[880px]'
+                : 'h-[min(90vw,85vh)] w-auto max-h-[820px] max-w-[min(90vw,480px)]'
             }
           />
         </div>
