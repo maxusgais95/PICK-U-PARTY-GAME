@@ -5,7 +5,11 @@
 
 export type ScreenView = 'hub' | 'roulette' | 'bottle' | 'settings';
 
-export type ThemeId = 'cyber-neon' | 'synthwave';
+export type ThemeId =
+  | 'cyber-neon'
+  | 'synthwave'
+  | 'solar-flare'
+  | 'midnight-aurora';
 
 export type BottleBuiltinStyle = 'classic_bottle' | 'retro_soda';
 
@@ -26,18 +30,47 @@ export interface TouchPlayer {
   x: number;
   y: number;
   colorIndex: number;
+  teamIndex?: number;
   isTarget?: boolean;
   playerLabel: string;
+}
+
+export interface SwirlColorStop {
+  r: number;
+  g: number;
+  b: number;
+  hex: string;
 }
 
 export interface ThemeColors {
   id: ThemeId;
   name: string;
+  tagline?: string;
   primary: string;
   secondary: string;
   accent: string;
+  bgBase: string;
   bgGrad: string;
+  // Button Gradients
+  btnRouletteGrad: string;
+  btnRouletteShadow: string;
+  btnBottleGrad: string;
+  btnBottleShadow: string;
+  // Stage Lighting & Lasers
+  laserColors: string[];
+  // 3D Swirl Shader Color Palette (5 stops for WebGL / Canvas)
+  swirlStops: [SwirlColorStop, SwirlColorStop, SwirlColorStop, SwirlColorStop, SwirlColorStop];
+  // Scanner Laser Blade & Glow
+  scannerLaserColor: string;
+  scannerLaserGlow: string;
   playerPalettes: {
+    gradient: string;
+    glow: string;
+    text: string;
+    border: string;
+    solid: string;
+  }[];
+  teamPalettes?: {
     gradient: string;
     glow: string;
     text: string;

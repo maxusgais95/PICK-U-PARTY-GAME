@@ -522,15 +522,15 @@
 .moving-gradient-layer {
   background: linear-gradient(
     -45deg,
-    rgba(255, 0, 128, 0.45),
-    rgba(0, 212, 255, 0.4),
-    rgba(168, 85, 247, 0.45),
-    rgba(255, 110, 0, 0.4),
-    rgba(0, 240, 255, 0.45)
+    rgba(255, 0, 128, 0.22),
+    rgba(0, 212, 255, 0.18),
+    rgba(168, 85, 247, 0.2),
+    rgba(255, 110, 0, 0.15),
+    rgba(0, 240, 255, 0.18)
   );
   background-size: 250% 250%;
-  animation: movingGradientShift 8s ease-in-out infinite;
-  mix-blend-mode: color-dodge;
+  animation: movingGradientShift 12s ease-in-out infinite;
+  mix-blend-mode: screen;
 }
 
 @keyframes fadeIn {

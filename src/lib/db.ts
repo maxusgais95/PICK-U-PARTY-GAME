@@ -26,6 +26,9 @@ function normalizeSettings(data: Partial<AppSettings>): AppSettings {
   if ((merged.bottleStyle as string) === 'laser_dart') {
     merged.bottleStyle = 'classic_bottle';
   }
+  if ((merged.theme as string) === 'emerald-matrix') {
+    merged.theme = 'cyber-neon';
+  }
   if (!merged.bottleFriction || merged.bottleFriction < 0.990) {
     merged.bottleFriction = 0.992;
   }

@@ -4,7 +4,7 @@
  */
 
 import React from 'react';
-import { Users, Target, Play, RotateCw } from 'lucide-react';
+import { Users, Target } from 'lucide-react';
 import { FingerprintIcon } from './FingerprintIcon';
 import { SpinBottleIcon } from './SpinBottleIcon';
 import { SwirlVortexCanvas } from './SwirlVortexCanvas';
@@ -45,21 +45,38 @@ export const LandingHub: React.FC<LandingHubProps> = ({
 
   return (
     <div className="relative w-full h-full flex flex-col justify-between items-center px-4 pt-[max(4.2rem,calc(env(safe-area-inset-top)+3.2rem))] pb-[max(1.5rem,env(safe-area-inset-bottom))] overflow-y-auto">
-      {/* Header Branding (Title elevated with clean separation and top z-index) */}
+      {/* Header Branding (Title dynamically styled with theme colors) */}
       <div className="text-center mt-0 mb-2 flex flex-col items-center select-none relative z-20">
         {/* Neon Pill Badge: "NEON ROULETTE" */}
-        <div className="neon-pill-badge inline-flex items-center justify-center px-4 py-1 rounded-full text-[11px] mb-1.5 shadow-lg relative z-30">
+        <div
+          className="neon-pill-badge inline-flex items-center justify-center px-4 py-1 rounded-full text-[11px] mb-1.5 shadow-lg relative z-30 transition-all duration-300"
+          style={{
+            borderColor: currentTheme.secondary,
+            color: currentTheme.primary,
+            boxShadow: `0 0 12px ${currentTheme.secondary}aa, inset 0 0 8px ${currentTheme.secondary}44, 0 4px 10px rgba(0,0,0,0.6)`,
+            textShadow: `0 0 8px ${currentTheme.primary}`,
+          }}
+        >
           NEON ROULETTE
         </div>
 
         {/* Clean Subtitle */}
-        <p className="neon-subtitle text-xs sm:text-sm font-semibold tracking-wider mb-1 relative z-30">
+        <p
+          className="neon-subtitle text-xs sm:text-sm font-semibold tracking-wider mb-1 relative z-30 transition-all duration-300"
+          style={{
+            textShadow: `0 0 8px ${currentTheme.secondary}88, 0 2px 4px rgba(0,0,0,0.9)`,
+          }}
+        >
           Touch Decider & Bottle Spinner
         </p>
 
         {/* Crisp Neon Arcade Sign: "PICK'U PARTY" */}
         <h1
-          className="neon-picku-title text-4xl sm:text-5xl my-0 select-none whitespace-nowrap relative z-10"
+          className="neon-picku-title text-4xl sm:text-5xl my-0 select-none whitespace-nowrap relative z-10 transition-all duration-300"
+          style={{
+            WebkitTextStroke: `1.5px ${currentTheme.primary}`,
+            textShadow: `0 0 4px ${currentTheme.primary}, 0 0 14px ${currentTheme.primary}cc, 0 0 26px ${currentTheme.secondary}99, 0 4px 10px rgba(0,0,0,0.9)`,
+          }}
         >
           PICK'U PARTY
         </h1>
@@ -76,11 +93,11 @@ export const LandingHub: React.FC<LandingHubProps> = ({
           className="glass-panel relative p-4 cursor-pointer transition-all active:scale-[0.985] group"
         >
           <div className="flex items-center gap-3.5">
-            {/* 3D Chrome Icon Tile (Squircle with gradient & emboss) */}
+            {/* 3D Chrome Icon Tile (Squircle with dynamic theme shadow) */}
             <div
-              className="chrome-glass-bezel w-16 h-16 rounded-2xl flex items-center justify-center shrink-0 p-1"
+              className="chrome-glass-bezel w-16 h-16 rounded-2xl flex items-center justify-center shrink-0 p-1 transition-all duration-300"
               style={{
-                boxShadow: '0 8px 24px -2px rgba(0, 212, 255, 0.55), inset 0 1px 1px rgba(255,255,255,0.8), inset 0 -2px 4px rgba(0,0,0,0.9)',
+                boxShadow: `0 8px 24px -2px ${currentTheme.primary}77, inset 0 1px 1px rgba(255,255,255,0.8), inset 0 -2px 4px rgba(0,0,0,0.9)`,
               }}
             >
               <FingerprintIcon className="w-11 h-11" />
@@ -90,16 +107,25 @@ export const LandingHub: React.FC<LandingHubProps> = ({
               <h2 className="text-base font-black uppercase tracking-wide text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]">
                 Finger Roulette
               </h2>
-              <p className="text-xs text-cyan-200/80 font-medium">
+              <p
+                className="text-xs font-medium transition-colors duration-300"
+                style={{ color: `${currentTheme.primary}cc` }}
+              >
                 Hold fingers & select targets
               </p>
             </div>
           </div>
 
-          {/* Row 1: Player Count Selection (IMG_0642: Sleek Rounded Pills) */}
+          {/* Row 1: Player Count Selection */}
           <div className="mt-3.5 pt-3 border-t border-white/10" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-2">
-              <span className="text-[11px] font-extrabold uppercase tracking-wider text-pink-400 flex items-center gap-1.5 drop-shadow-[0_0_6px_rgba(255,42,133,0.5)]">
+              <span
+                className="text-[11px] font-extrabold uppercase tracking-wider flex items-center gap-1.5 transition-all duration-300"
+                style={{
+                  color: currentTheme.secondary,
+                  filter: `drop-shadow(0 0 6px ${currentTheme.secondary}88)`,
+                }}
+              >
                 <Users className="w-3.5 h-3.5" /> PLAYERS
               </span>
               <span className="text-[10px] text-gray-300/90 font-medium">
@@ -114,9 +140,18 @@ export const LandingHub: React.FC<LandingHubProps> = ({
                     key={count}
                     type="button"
                     onClick={(e) => handlePlayerCountSelect(e, count)}
-                    className={`pill-count-btn ${
-                      isSelected ? 'pill-count-selected-pink' : ''
-                    }`}
+                    className="pill-count-btn transition-all duration-300"
+                    style={
+                      isSelected
+                        ? {
+                            backgroundColor: currentTheme.secondary,
+                            borderColor: currentTheme.secondary,
+                            color: '#ffffff',
+                            boxShadow: `0 0 20px ${currentTheme.secondary}cc, 0 0 32px ${currentTheme.secondary}66`,
+                            textShadow: '0 1px 2px rgba(0,0,0,0.4)',
+                          }
+                        : {}
+                    }
                   >
                     <span>{count}P</span>
                   </button>
@@ -125,18 +160,26 @@ export const LandingHub: React.FC<LandingHubProps> = ({
             </div>
           </div>
 
-          {/* Row 2: Target Count Selection (IMG_0642: Sleek Rounded Pills) */}
+          {/* Row 2: Target Count Selection */}
           <div className="mt-3 pt-2.5 border-t border-white/10" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-2">
-              <span className="text-[11px] font-extrabold uppercase tracking-wider text-pink-400 flex items-center gap-1.5 drop-shadow-[0_0_6px_rgba(255,42,133,0.5)]">
+              <span
+                className="text-[11px] font-extrabold uppercase tracking-wider flex items-center gap-1.5 transition-all duration-300"
+                style={{
+                  color: currentTheme.secondary,
+                  filter: `drop-shadow(0 0 6px ${currentTheme.secondary}88)`,
+                }}
+              >
                 <Target className="w-3.5 h-3.5" /> TARGETS (LOSERS)
               </span>
               <span className="text-[10px] text-gray-300/90 font-medium">
                 Max {maxTargets}
               </span>
             </div>
-            {/* Target Count Pill-Bar - Sleek segmented capsule fitting full width */}
-            <div className="w-full flex rounded-full overflow-hidden border border-white/80 divide-x divide-white/70 bg-black/40 shadow-[0_2px_10px_rgba(0,0,0,0.3)]">
+            {/* Target Count Pill-Bar - Sleek segmented capsule */}
+            <div
+              className="w-full flex rounded-full overflow-hidden border border-white/80 divide-x divide-white/40 bg-black/40 shadow-[0_2px_10px_rgba(0,0,0,0.3)] transition-all duration-300"
+            >
               {targetOptions.map((tgt) => {
                 const isSelected = settings.targetCount === tgt;
                 return (
@@ -144,11 +187,19 @@ export const LandingHub: React.FC<LandingHubProps> = ({
                     key={tgt}
                     type="button"
                     onClick={(e) => handleTargetCountSelect(e, tgt)}
-                    className={`flex-1 min-w-0 h-8 flex items-center justify-center text-xs sm:text-sm font-black transition-all active:scale-[0.98] select-none ${
+                    className="flex-1 min-w-0 h-8 flex items-center justify-center text-xs sm:text-sm font-black transition-all duration-300 active:scale-[0.98] select-none"
+                    style={
                       isSelected
-                        ? 'bg-[#ff2a85] text-white shadow-[0_0_18px_rgba(255,42,133,0.85)]'
-                        : 'bg-[#ff2a85]/20 text-pink-100 hover:bg-[#ff2a85]/35 hover:text-white'
-                    }`}
+                        ? {
+                            backgroundColor: currentTheme.secondary,
+                            color: '#ffffff',
+                            boxShadow: `0 0 18px ${currentTheme.secondary}dd`,
+                          }
+                        : {
+                            backgroundColor: `${currentTheme.secondary}26`,
+                            color: '#f8fafc',
+                          }
+                    }
                   >
                     <span>{tgt}</span>
                   </button>
@@ -157,7 +208,7 @@ export const LandingHub: React.FC<LandingHubProps> = ({
             </div>
           </div>
 
-          {/* Start Button: 3D Scanner Capsule with Scanning Laser Effect (Matches IMG_0657 pill style) */}
+          {/* Start Button: 3D Scanner Capsule with Dynamic Theme Palette */}
           <button
             type="button"
             onClick={(e) => {
@@ -167,11 +218,11 @@ export const LandingHub: React.FC<LandingHubProps> = ({
             }}
             className="btn-play-roulette-scanner relative w-full h-11 sm:h-12 mt-3.5 rounded-full overflow-hidden flex items-center justify-center gap-2 px-5 cursor-pointer active:scale-[0.97] transition-all select-none group"
             style={{
-              boxShadow:
-                '0 8px 24px -2px rgba(0, 0, 0, 0.6), 0 0 16px rgba(0, 240, 255, 0.45), 0 0 24px rgba(255, 42, 133, 0.4)',
+              background: currentTheme.btnRouletteGrad,
+              boxShadow: currentTheme.btnRouletteShadow,
             }}
           >
-            {/* Holographic Biometric Scanner Background */}
+            {/* Holographic Biometric Scanner Background with Theme-Derived Flow */}
             <svg
               className="absolute inset-0 w-full h-full pointer-events-none rounded-full"
               viewBox="0 0 400 48"
@@ -180,24 +231,20 @@ export const LandingHub: React.FC<LandingHubProps> = ({
               xmlns="http://www.w3.org/2000/svg"
             >
               <defs>
-                {/* Horizontal flow: Electric Cyan -> Azure Blue -> Violet -> Neon Magenta */}
+                {/* Dynamic horizontal flow mapped to active theme */}
                 <linearGradient id="scan-base-flow" x1="0%" y1="50%" x2="100%" y2="50%">
-                  <stop offset="0%" stopColor="#00f0ff" />
-                  <stop offset="25%" stopColor="#0077fe" />
-                  <stop offset="55%" stopColor="#7928ca" />
-                  <stop offset="82%" stopColor="#ff0080" />
-                  <stop offset="100%" stopColor="#ff2a85" />
+                  <stop offset="0%" stopColor={currentTheme.swirlStops[0].hex} />
+                  <stop offset="25%" stopColor={currentTheme.swirlStops[1].hex} />
+                  <stop offset="55%" stopColor={currentTheme.swirlStops[2].hex} />
+                  <stop offset="82%" stopColor={currentTheme.swirlStops[3].hex} />
+                  <stop offset="100%" stopColor={currentTheme.swirlStops[4].hex} />
                 </linearGradient>
 
                 <linearGradient id="scan-grid-flow" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stopColor="#00f5ff" stopOpacity="0.4" />
-                  <stop offset="50%" stopColor="#d946ef" stopOpacity="0.25" />
-                  <stop offset="100%" stopColor="#ff007f" stopOpacity="0.4" />
+                  <stop offset="0%" stopColor={currentTheme.primary} stopOpacity="0.45" />
+                  <stop offset="50%" stopColor={currentTheme.accent} stopOpacity="0.3" />
+                  <stop offset="100%" stopColor={currentTheme.secondary} stopOpacity="0.45" />
                 </linearGradient>
-
-                <filter id="scan-glow" x="-20%" y="-20%" width="140%" height="140%">
-                  <feGaussianBlur stdDeviation="2.5" />
-                </filter>
               </defs>
 
               {/* Base Gradient Fill */}
@@ -231,13 +278,23 @@ export const LandingHub: React.FC<LandingHubProps> = ({
               </g>
             </svg>
 
-            {/* Dynamic Sweeping Laser Scanner Beam (Top to Bottom and Back) */}
+            {/* Dynamic Sweeping Laser Scanner Beam (Top to Bottom and Back) with Theme Colors */}
             <div className="absolute inset-0 pointer-events-none overflow-hidden rounded-full z-10">
               <div className="animate-scanner-laser w-full h-3 flex flex-col items-center justify-center">
-                {/* Holographic cyan flare tail */}
-                <div className="w-full h-full bg-gradient-to-b from-transparent via-cyan-300/40 to-transparent blur-[2px]" />
+                {/* Holographic dynamic flare tail */}
+                <div
+                  className="w-full h-full blur-[2px]"
+                  style={{
+                    background: `linear-gradient(to bottom, transparent, ${currentTheme.scannerLaserColor}66, transparent)`,
+                  }}
+                />
                 {/* Crisp neon laser blade */}
-                <div className="absolute w-full h-[1.5px] bg-white shadow-[0_0_8px_#ffffff,0_0_16px_#00f5ff,0_0_24px_#00d4ff]" />
+                <div
+                  className="absolute w-full h-[1.5px] bg-white"
+                  style={{
+                    boxShadow: `0 0 8px #ffffff, 0 0 16px ${currentTheme.scannerLaserColor}, 0 0 24px ${currentTheme.scannerLaserGlow}`,
+                  }}
+                />
                 {/* Secondary bright horizontal flare highlight */}
                 <div className="absolute w-full h-2 bg-gradient-to-b from-transparent via-white/30 to-transparent" />
               </div>
@@ -261,12 +318,11 @@ export const LandingHub: React.FC<LandingHubProps> = ({
               }}
             />
 
-            {/* Translucent Glass Capsule Rim (Matching IMG_0657's lavender/white edge) */}
+            {/* Translucent Glass Capsule Rim */}
             <div className="absolute inset-0 rounded-full border-[1.5px] border-white/75 pointer-events-none z-20 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),inset_0_-1.5px_2px_rgba(0,0,0,0.35)]" />
 
-            {/* Centered Button Content: Play Arrow + Bold White Text */}
-            <div className="relative z-30 flex items-center justify-center gap-2">
-              <Play className="w-4 h-4 sm:w-4.5 sm:h-4.5 fill-white text-white shrink-0 stroke-[1.2] ml-0.5 drop-shadow-[0_1px_3px_rgba(0,0,0,0.8)]" />
+            {/* Centered Button Content: Bold White Text */}
+            <div className="relative z-30 flex items-center justify-center">
               <span className="text-xs sm:text-sm font-black tracking-wider text-white uppercase drop-shadow-[0_1px_3px_rgba(0,0,0,0.8)]">
                 PLAY ROULETTE
               </span>
@@ -274,7 +330,7 @@ export const LandingHub: React.FC<LandingHubProps> = ({
           </button>
         </div>
 
-        {/* Card 2: Spin the Bottle (Matches IMG_0613) */}
+        {/* Card 2: Spin the Bottle */}
         <div
           onClick={() => {
             SoundEngine.playButtonClick();
@@ -283,11 +339,11 @@ export const LandingHub: React.FC<LandingHubProps> = ({
           className="glass-panel relative p-4 cursor-pointer transition-all active:scale-[0.985] group"
         >
           <div className="flex items-center gap-3.5">
-            {/* 3D Chrome Squircle Icon Tile (Exact match to IMG_0613) */}
+            {/* 3D Chrome Squircle Icon Tile with Dynamic Theme Glow */}
             <div
-              className="chrome-glass-bezel w-16 h-16 rounded-2xl flex items-center justify-center shrink-0 p-1"
+              className="chrome-glass-bezel w-16 h-16 rounded-2xl flex items-center justify-center shrink-0 p-1 transition-all duration-300"
               style={{
-                boxShadow: '0 8px 24px -2px rgba(255, 42, 133, 0.55), inset 0 1px 1px rgba(255,255,255,0.8), inset 0 -2px 4px rgba(0,0,0,0.9)',
+                boxShadow: `0 8px 24px -2px ${currentTheme.secondary}77, inset 0 1px 1px rgba(255,255,255,0.8), inset 0 -2px 4px rgba(0,0,0,0.9)`,
               }}
             >
               <SpinBottleIcon className="w-11 h-11" />
@@ -297,13 +353,16 @@ export const LandingHub: React.FC<LandingHubProps> = ({
               <h2 className="text-base font-black uppercase tracking-wide text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]">
                 Spin the Bottle
               </h2>
-              <p className="text-xs text-pink-200/80 font-medium">
+              <p
+                className="text-xs font-medium transition-colors duration-300"
+                style={{ color: `${currentTheme.secondary}cc` }}
+              >
                 Physics swipe & flick
               </p>
             </div>
           </div>
 
-          {/* Start Button: 3D Swirl Vortex Jelly Capsule (Exact match to IMG_0657) */}
+          {/* Start Button: 3D Swirl Vortex Jelly Capsule with Dynamic Theme Palette */}
           <button
             type="button"
             onClick={(e) => {
@@ -313,12 +372,12 @@ export const LandingHub: React.FC<LandingHubProps> = ({
             }}
             className="btn-spin-bottle-swirl relative w-full h-11 sm:h-12 mt-3.5 rounded-full overflow-hidden flex items-center justify-center gap-2 px-5 cursor-pointer active:scale-[0.97] transition-all select-none group"
             style={{
-              boxShadow:
-                '0 8px 24px -2px rgba(0, 0, 0, 0.6), 0 0 16px rgba(168, 85, 247, 0.4), 0 0 24px rgba(255, 106, 0, 0.35)',
+              background: currentTheme.btnBottleGrad,
+              boxShadow: currentTheme.btnBottleShadow,
             }}
           >
-            {/* Swirling 3D Vortex Canvas matching IMG_0657 */}
-            <SwirlVortexCanvas />
+            {/* Swirling 3D Vortex Canvas dynamically receiving active theme palette */}
+            <SwirlVortexCanvas theme={currentTheme} />
 
             {/* Top Gloss Specular Sheen (Curved glass highlight) */}
             <div
@@ -338,12 +397,11 @@ export const LandingHub: React.FC<LandingHubProps> = ({
               }}
             />
 
-            {/* Translucent Glass Capsule Rim (Matching IMG_0657's lavender/white edge) */}
+            {/* Translucent Glass Capsule Rim */}
             <div className="absolute inset-0 rounded-full border-[1.5px] border-white/75 pointer-events-none z-20 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),inset_0_-1.5px_2px_rgba(0,0,0,0.35)]" />
 
-            {/* Centered Button Content: Rotate Arrow + Bold White Text */}
-            <div className="relative z-30 flex items-center justify-center gap-2">
-              <RotateCw className="w-4 h-4 sm:w-4.5 sm:h-4.5 text-white shrink-0 stroke-[2.4] drop-shadow-[0_1px_3px_rgba(0,0,0,0.7)]" />
+            {/* Centered Button Content: Bold White Text */}
+            <div className="relative z-30 flex items-center justify-center">
               <span className="text-xs sm:text-sm font-black tracking-wider text-white uppercase drop-shadow-[0_1px_3px_rgba(0,0,0,0.8)]">
                 SPIN BOTTLE
               </span>
@@ -354,4 +412,3 @@ export const LandingHub: React.FC<LandingHubProps> = ({
     </div>
   );
 };
-

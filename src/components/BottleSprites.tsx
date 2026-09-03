@@ -26,26 +26,30 @@ export const BottleSpriteRenderer: React.FC<BottleSpriteProps> = ({
     const validBlend = (blendMode === 'screen' || blendMode === 'color-dodge') ? blendMode : 'normal';
     
     return (
-      <div className={`relative flex items-center justify-center ${customClass}`}>
-        {/* Pink Outer Glow Halo radiating behind the bottle */}
+      <div
+        className={`relative flex items-center justify-center overflow-visible ${customClass}`}
+        style={{ overflow: 'visible' }}
+      >
+        {/* Dynamic Theme Outer Glow Aura radiating behind the bottle (Smooth vector radial gradient - Zero clipping) */}
         <div
-          className="absolute inset-x-8 inset-y-4 sm:inset-x-14 sm:inset-y-8 pointer-events-none -z-10 rounded-[48%]"
+          className="absolute -inset-14 sm:-inset-20 pointer-events-none -z-10 rounded-full transition-all duration-500 overflow-visible"
           style={{
-            background: 'radial-gradient(ellipse at center, rgba(255, 42, 133, 0.7) 10%, rgba(255, 0, 128, 0.35) 48%, transparent 75%)',
-            filter: 'blur(36px)',
-            boxShadow: '0 0 60px rgba(255, 42, 133, 0.5), 0 0 120px rgba(255, 0, 128, 0.3)',
+            background: `radial-gradient(ellipse 52% 52% at 50% 50%, ${themeColors.secondary}73 0%, ${themeColors.primary}47 28%, ${themeColors.secondary}1a 48%, transparent 68%)`,
+            mixBlendMode: 'screen',
           }}
         />
 
         <img
           src={customSprite.dataUrl}
           alt={customSprite.name || 'Custom Bottle'}
-          className="w-full h-full object-contain pointer-events-none scale-110 sm:scale-120 md:scale-130 transition-transform"
+          className="w-full h-full object-contain pointer-events-none scale-110 sm:scale-120 md:scale-130 transition-all duration-500"
           style={{
             transform: (!customSprite.originalDataUrl && customSprite.rotationOffset)
               ? `rotate(${customSprite.rotationOffset}deg)`
               : undefined,
             mixBlendMode: validBlend !== 'normal' ? (validBlend as any) : undefined,
+            filter: `drop-shadow(0 0 6px ${themeColors.secondary}cc) drop-shadow(0 0 14px ${themeColors.primary}77)`,
+            overflow: 'visible',
           }}
         />
       </div>
@@ -54,14 +58,13 @@ export const BottleSpriteRenderer: React.FC<BottleSpriteProps> = ({
 
   const builtinClass = className || 'h-[min(90vw,85vh)] w-auto max-h-[820px] max-w-[min(90vw,480px)] scale-105 sm:scale-115';
 
-  // Common Pink Outer Glow Halo for built-in bottles
+  // Common Dynamic Outer Glow Halo for built-in bottles matching active theme (Smooth vector radial gradient - Zero clipping)
   const BuiltinOuterGlow = () => (
     <div
-      className="absolute inset-x-6 inset-y-3 sm:inset-x-10 sm:inset-y-6 pointer-events-none -z-10 rounded-[48%]"
+      className="absolute -inset-14 sm:-inset-20 pointer-events-none -z-10 rounded-full transition-all duration-500 overflow-visible"
       style={{
-        background: 'radial-gradient(ellipse at center, rgba(255, 42, 133, 0.7) 12%, rgba(255, 0, 128, 0.35) 48%, transparent 75%)',
-        filter: 'blur(36px)',
-        boxShadow: '0 0 60px rgba(255, 42, 133, 0.5), 0 0 120px rgba(255, 0, 128, 0.3)',
+        background: `radial-gradient(ellipse 52% 52% at 50% 50%, ${themeColors.secondary}73 0%, ${themeColors.primary}47 28%, ${themeColors.secondary}1a 48%, transparent 68%)`,
+        mixBlendMode: 'screen',
       }}
     />
   );
@@ -69,11 +72,18 @@ export const BottleSpriteRenderer: React.FC<BottleSpriteProps> = ({
   // 1. Classic Neon Bottle
   if (styleType === 'classic_bottle') {
     return (
-      <div className={`relative flex items-center justify-center ${builtinClass}`}>
+      <div
+        className={`relative flex items-center justify-center overflow-visible ${builtinClass}`}
+        style={{ overflow: 'visible' }}
+      >
         <BuiltinOuterGlow />
         <svg
           viewBox="0 0 100 240"
-          className="w-full h-full pointer-events-none"
+          className="w-full h-full pointer-events-none transition-all duration-500 overflow-visible"
+          style={{
+            overflow: 'visible',
+            filter: `drop-shadow(0 0 8px ${themeColors.secondary}cc) drop-shadow(0 0 16px ${themeColors.primary}77)`,
+          }}
           xmlns="http://www.w3.org/2000/svg"
         >
           <defs>
@@ -123,11 +133,18 @@ export const BottleSpriteRenderer: React.FC<BottleSpriteProps> = ({
 
   // 2. Retro Soda Bottle (Cleaned, no label)
   return (
-    <div className={`relative flex items-center justify-center ${builtinClass}`}>
+    <div
+      className={`relative flex items-center justify-center overflow-visible ${builtinClass}`}
+      style={{ overflow: 'visible' }}
+    >
       <BuiltinOuterGlow />
       <svg
         viewBox="0 0 100 240"
-        className="w-full h-full pointer-events-none"
+        className="w-full h-full pointer-events-none transition-all duration-500 overflow-visible"
+        style={{
+          overflow: 'visible',
+          filter: `drop-shadow(0 0 8px ${themeColors.secondary}cc) drop-shadow(0 0 16px ${themeColors.primary}77)`,
+        }}
         xmlns="http://www.w3.org/2000/svg"
       >
         <defs>

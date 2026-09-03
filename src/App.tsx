@@ -4,7 +4,7 @@
  */
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { AppSettings, AppStats, CustomBottleSprite, ScreenView, TouchPlayer } from './types';
+import { AppSettings, AppStats, CustomBottleSprite, ScreenView, TouchPlayer, ThemeId } from './types';
 import { THEMES } from './lib/themes';
 import { getSettings, saveSettings, getStats, getAllCustomSprites, saveCustomSprite } from './lib/db';
 import { SoundEngine } from './lib/audio';
@@ -54,18 +54,23 @@ export default function App() {
       setSettings(loadedSettings);
       setStats(loadedStats);
 
-      // Auto-upgrade any existing custom sprites to ensure transparency & correct sizing
+      // Auto-upgrade any existing custom sprites to ensure zero-clipping transparent safety padding
       const upgradedSprites = await Promise.all(
         loadedSprites.map(async (sprite) => {
           if (!sprite.originalDataUrl) {
             sprite.originalDataUrl = sprite.dataUrl;
-            if (sprite.blendMode && sprite.blendMode !== 'normal') {
+          }
+          if ((sprite as any).cleanEdgeVersion !== 2) {
+            try {
               sprite.dataUrl = await processSpriteImage(
                 sprite.originalDataUrl,
-                sprite.blendMode,
+                sprite.blendMode || 'normal',
                 sprite.rotationOffset || 0
               );
+              (sprite as any).cleanEdgeVersion = 2;
               await saveCustomSprite(sprite);
+            } catch (err) {
+              console.error('Error upgrading sprite:', err);
             }
           }
           return sprite;
@@ -125,52 +130,55 @@ export default function App() {
 
   const currentTheme = THEMES[settings.theme] || THEMES['cyber-neon'];
 
+  // Quick theme cycle for header action & instant switching
+  const handleCycleTheme = useCallback(() => {
+    const themeList: ThemeId[] = ['cyber-neon', 'synthwave', 'solar-flare', 'midnight-aurora'];
+    const currentIndex = themeList.indexOf(settings.theme);
+    const nextIndex = (currentIndex + 1) % themeList.length;
+    const nextTheme = themeList[nextIndex];
+    handleUpdateSettings({ theme: nextTheme });
+    SoundEngine.playButtonClick();
+  }, [settings.theme, handleUpdateSettings]);
+
   return (
     <main
-      className="relative w-screen h-screen overflow-hidden select-none touch-none font-sans bg-[#080516]"
+      className="relative w-screen h-screen overflow-hidden select-none touch-none font-sans transition-colors duration-500"
+      style={{ backgroundColor: currentTheme.bgBase }}
     >
       {/* 1. Main Hub Background: Static Nightclub Atmosphere + 60FPS Upward DJ Lasers & Blurred Bottom Half */}
-      {currentView === 'hub' && <PartyBackground />}
+      {currentView === 'hub' && <PartyBackground theme={settings.theme} />}
 
       {/* 2. Active Gameplay Backgrounds (Finger Roulette & Spin Bottle only) */}
       {currentView !== 'hub' && (
         <>
           {/* Dynamic Moving Animated Neon Gradient */}
-          <div className="absolute inset-0 pointer-events-none z-0 moving-gradient-layer opacity-75" />
+          <div className="absolute inset-0 pointer-events-none z-0 moving-gradient-layer opacity-40" />
 
-          {/* Sweeping Dynamic Laser Beams */}
+          {/* Sweeping Dynamic Ambient Theme Auras (Full viewport, smooth radial falloff - Zero clipping) */}
           <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden">
             <div
-              className="absolute -top-1/4 -left-1/4 w-[150%] h-[90px] bg-gradient-to-r from-transparent via-cyan-400 to-transparent blur-md animate-laser-sweep1 pointer-events-none"
-              style={{ mixBlendMode: 'screen' }}
-            />
-            <div
-              className="absolute -bottom-1/4 -right-1/4 w-[150%] h-[80px] bg-gradient-to-r from-transparent via-pink-500 to-transparent blur-md animate-laser-sweep2 pointer-events-none"
-              style={{ mixBlendMode: 'screen' }}
-            />
-            <div
-              className="absolute w-96 h-96 rounded-full blur-3xl opacity-35 pointer-events-none -top-10 -left-10 animate-orb-drift1"
+              className="absolute inset-0 pointer-events-none transition-all duration-700"
               style={{
-                backgroundColor: currentTheme.primary,
+                background: `radial-gradient(ellipse 85% 60% at 20% 25%, ${currentTheme.primary}18 0%, transparent 68%)`,
                 mixBlendMode: 'screen',
               }}
             />
             <div
-              className="absolute w-96 h-96 rounded-full blur-3xl opacity-30 pointer-events-none -bottom-10 -right-10 animate-orb-drift2"
+              className="absolute inset-0 pointer-events-none transition-all duration-700"
               style={{
-                backgroundColor: currentTheme.accent,
+                background: `radial-gradient(ellipse 85% 60% at 80% 75%, ${currentTheme.secondary}16 0%, transparent 68%)`,
                 mixBlendMode: 'screen',
               }}
             />
           </div>
 
-          {/* Subtle Cyber Digital Grid */}
+          {/* Subtle Cyber Digital Grid (Soft, anti-glare, non-harsh) */}
           <div
-            className="absolute inset-0 pointer-events-none opacity-20 z-0"
+            className="absolute inset-0 pointer-events-none opacity-10 z-0"
             style={{
               backgroundImage: `
-                linear-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255, 255, 255, 0.1) 1px, transparent 1px)
+                linear-gradient(rgba(255, 255, 255, 0.08) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.08) 1px, transparent 1px)
               `,
               backgroundSize: '40px 40px',
             }}
@@ -201,6 +209,7 @@ export default function App() {
         onOpenSettings={() => setIsSettingsOpen(true)}
         onToggleSound={handleToggleSound}
         onToggleHaptics={handleToggleHaptics}
+        onCycleTheme={handleCycleTheme}
       />
 
       {/* Screen Views */}

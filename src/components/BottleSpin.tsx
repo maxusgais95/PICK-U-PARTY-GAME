@@ -204,25 +204,30 @@ export const BottleSpin: React.FC<BottleSpinProps> = ({
         isLocked ? 'cursor-not-allowed' : 'cursor-grab active:cursor-grabbing'
       }`}
     >
-      {/* Ambient Neon Pink Spotlight Aura */}
+      {/* Ambient Neon Spotlight Aura (Full viewport, smooth shader radial gradient - Zero clipping) */}
       <div
-        className="absolute w-[32rem] h-[32rem] sm:w-[42rem] sm:h-[42rem] rounded-full blur-3xl pointer-events-none opacity-30"
+        className="absolute inset-0 pointer-events-none transition-all duration-500"
         style={{
-          background: 'radial-gradient(circle, rgba(255, 42, 133, 0.8) 0%, rgba(255, 0, 128, 0.35) 45%, transparent 75%)',
+          background: `radial-gradient(ellipse 70% 60% at 50% 50%, ${currentTheme.secondary}26 0%, ${currentTheme.primary}18 35%, transparent 72%)`,
+          mixBlendMode: 'screen',
         }}
       />
 
       {/* Rotating Large Bottle Container - Raw 60fps transform without CSS transition lag */}
       <div
-        className="relative flex items-center justify-center origin-center select-none"
+        className="relative flex items-center justify-center origin-center select-none overflow-visible"
         style={{
           transform: `rotate(${angle}deg)`,
           transformOrigin: '50% 50%',
           willChange: 'transform',
+          overflow: 'visible',
         }}
       >
         {/* Subtle pointing bounce effect along the bottle's pointing axis at result phase */}
-        <div className={`relative flex items-center justify-center ${isPointingBounce ? 'animate-bottle-point' : ''}`}>
+        <div
+          className={`relative flex items-center justify-center overflow-visible ${isPointingBounce ? 'animate-bottle-point' : ''}`}
+          style={{ overflow: 'visible' }}
+        >
           <BottleSpriteRenderer
             styleType={settings.bottleStyle}
             customSprite={customSprite}

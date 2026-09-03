@@ -322,7 +322,11 @@ export const FingerRoulette: React.FC<FingerRouletteProps> = ({
           {/* Row 1: Players */}
           <div className="flex items-center justify-between gap-2.5">
             <span
-              className="text-[10px] font-black uppercase tracking-wider pl-1 flex items-center gap-1 text-pink-400 drop-shadow-[0_0_6px_rgba(255,42,133,0.5)]"
+              className="text-[10px] font-black uppercase tracking-wider pl-1 flex items-center gap-1 transition-colors duration-300"
+              style={{
+                color: currentTheme.secondary,
+                filter: `drop-shadow(0 0 6px ${currentTheme.secondary}88)`,
+              }}
             >
               <Users className="w-3 h-3" /> Players:
             </span>
@@ -340,9 +344,17 @@ export const FingerRoulette: React.FC<FingerRouletteProps> = ({
                       onUpdateSettings({ minPlayers: cnt, targetCount: newTarget });
                       resetRound();
                     }}
-                    className={`pill-count-btn w-8 h-7 text-[11px] font-black ${
-                      isSelected ? 'pill-count-selected-pink' : ''
-                    }`}
+                    className="pill-count-btn w-8 h-7 text-[11px] font-black transition-all duration-300"
+                    style={
+                      isSelected
+                        ? {
+                            backgroundColor: currentTheme.secondary,
+                            borderColor: currentTheme.secondary,
+                            color: '#ffffff',
+                            boxShadow: `0 0 16px ${currentTheme.secondary}dd`,
+                          }
+                        : {}
+                    }
                   >
                     <span>{cnt}P</span>
                   </button>
@@ -353,8 +365,14 @@ export const FingerRoulette: React.FC<FingerRouletteProps> = ({
 
           {/* Row 2: Target (Losers) */}
           <div className="flex items-center justify-between gap-2.5 pt-1.5 border-t border-white/10">
-            <span className="text-[10px] font-black uppercase tracking-wider text-pink-400 pl-1 flex items-center gap-1 drop-shadow-[0_0_6px_rgba(255,42,133,0.5)]">
-              <Target className="w-3 h-3 text-pink-400" /> Target:
+            <span
+              className="text-[10px] font-black uppercase tracking-wider pl-1 flex items-center gap-1 transition-colors duration-300"
+              style={{
+                color: currentTheme.secondary,
+                filter: `drop-shadow(0 0 6px ${currentTheme.secondary}88)`,
+              }}
+            >
+              <Target className="w-3 h-3" /> Target:
             </span>
             <div className="flex items-center gap-1.5">
               {targetOptions.map((tgt) => {
@@ -369,9 +387,17 @@ export const FingerRoulette: React.FC<FingerRouletteProps> = ({
                       onUpdateSettings({ targetCount: tgt });
                       resetRound();
                     }}
-                    className={`pill-count-btn w-8 h-7 text-[11px] font-black ${
-                      isSelected ? 'pill-count-selected-pink' : ''
-                    }`}
+                    className="pill-count-btn w-8 h-7 text-[11px] font-black transition-all duration-300"
+                    style={
+                      isSelected
+                        ? {
+                            backgroundColor: currentTheme.secondary,
+                            borderColor: currentTheme.secondary,
+                            color: '#ffffff',
+                            boxShadow: `0 0 16px ${currentTheme.secondary}dd`,
+                          }
+                        : {}
+                    }
                   >
                     <span>{tgt}</span>
                   </button>

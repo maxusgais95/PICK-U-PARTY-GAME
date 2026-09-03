@@ -17,7 +17,7 @@ import {
   Zap,
   Sparkles,
 } from 'lucide-react';
-import { SpinBottleIcon } from './SpinBottleIcon';
+import { ChampagneBottleIcon } from './ChampagneBottleIcon';
 import {
   AppSettings,
   AppStats,
@@ -176,14 +176,14 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               setActiveTab('game');
             }}
             style={{
-              backgroundColor: activeTab === 'game' ? 'rgba(0, 212, 255, 0.25)' : 'transparent',
-              color: activeTab === 'game' ? '#00d4ff' : '#9ca3af',
-              borderColor: activeTab === 'game' ? '#00d4ff' : 'transparent',
-              boxShadow: activeTab === 'game' ? '0 0 10px rgba(0, 212, 255, 0.4)' : 'none',
+              backgroundColor: activeTab === 'game' ? `${currentTheme.primary}33` : 'transparent',
+              color: activeTab === 'game' ? currentTheme.primary : '#9ca3af',
+              borderColor: activeTab === 'game' ? currentTheme.primary : 'transparent',
+              boxShadow: activeTab === 'game' ? `0 0 12px ${currentTheme.primary}55` : 'none',
             }}
             className="py-2 rounded-xl text-[11px] sm:text-xs font-black uppercase tracking-wider transition-all flex flex-col sm:flex-row items-center justify-center gap-1 border cursor-pointer"
           >
-            <Sliders className="w-3.5 h-3.5" />
+            <Sliders className="w-3.5 h-3.5 text-white shrink-0" />
             <span>Rules</span>
           </button>
 
@@ -193,14 +193,14 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               setActiveTab('bottle');
             }}
             style={{
-              backgroundColor: activeTab === 'bottle' ? 'rgba(255, 42, 133, 0.25)' : 'transparent',
-              color: activeTab === 'bottle' ? '#ff2a85' : '#9ca3af',
-              borderColor: activeTab === 'bottle' ? '#ff2a85' : 'transparent',
-              boxShadow: activeTab === 'bottle' ? '0 0 10px rgba(255, 42, 133, 0.4)' : 'none',
+              backgroundColor: activeTab === 'bottle' ? `${currentTheme.secondary}33` : 'transparent',
+              color: activeTab === 'bottle' ? currentTheme.secondary : '#9ca3af',
+              borderColor: activeTab === 'bottle' ? currentTheme.secondary : 'transparent',
+              boxShadow: activeTab === 'bottle' ? `0 0 12px ${currentTheme.secondary}55` : 'none',
             }}
             className="py-2 rounded-xl text-[11px] sm:text-xs font-black uppercase tracking-wider transition-all flex flex-col sm:flex-row items-center justify-center gap-1 border cursor-pointer"
           >
-            <SpinBottleIcon className="w-3.5 h-3.5" glow={false} />
+            <ChampagneBottleIcon className="w-3.5 h-3.5 text-white fill-white shrink-0" />
             <span>Bottle</span>
           </button>
 
@@ -210,14 +210,14 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               setActiveTab('palette');
             }}
             style={{
-              backgroundColor: activeTab === 'palette' ? 'rgba(168, 85, 247, 0.25)' : 'transparent',
-              color: activeTab === 'palette' ? '#c084fc' : '#9ca3af',
-              borderColor: activeTab === 'palette' ? '#c084fc' : 'transparent',
-              boxShadow: activeTab === 'palette' ? '0 0 10px rgba(168, 85, 247, 0.4)' : 'none',
+              backgroundColor: activeTab === 'palette' ? `${currentTheme.accent}33` : 'transparent',
+              color: activeTab === 'palette' ? currentTheme.accent : '#9ca3af',
+              borderColor: activeTab === 'palette' ? currentTheme.accent : 'transparent',
+              boxShadow: activeTab === 'palette' ? `0 0 12px ${currentTheme.accent}55` : 'none',
             }}
             className="py-2 rounded-xl text-[11px] sm:text-xs font-black uppercase tracking-wider transition-all flex flex-col sm:flex-row items-center justify-center gap-1 border cursor-pointer"
           >
-            <Palette className="w-3.5 h-3.5" />
+            <Palette className="w-3.5 h-3.5 text-white shrink-0" />
             <span>Palette</span>
           </button>
 
@@ -227,14 +227,14 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               setActiveTab('stats');
             }}
             style={{
-              backgroundColor: activeTab === 'stats' ? 'rgba(255, 110, 40, 0.25)' : 'transparent',
-              color: activeTab === 'stats' ? '#ff6e28' : '#9ca3af',
-              borderColor: activeTab === 'stats' ? '#ff6e28' : 'transparent',
-              boxShadow: activeTab === 'stats' ? '0 0 10px rgba(255, 110, 40, 0.4)' : 'none',
+              backgroundColor: activeTab === 'stats' ? `${currentTheme.primary}33` : 'transparent',
+              color: activeTab === 'stats' ? currentTheme.primary : '#9ca3af',
+              borderColor: activeTab === 'stats' ? currentTheme.primary : 'transparent',
+              boxShadow: activeTab === 'stats' ? `0 0 12px ${currentTheme.primary}55` : 'none',
             }}
             className="py-2 rounded-xl text-[11px] sm:text-xs font-black uppercase tracking-wider transition-all flex flex-col sm:flex-row items-center justify-center gap-1 border cursor-pointer"
           >
-            <BarChart2 className="w-3.5 h-3.5" />
+            <BarChart2 className="w-3.5 h-3.5 text-white shrink-0" />
             <span>Stats</span>
           </button>
         </div>
@@ -633,7 +633,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 </p>
 
                 <div className="grid grid-cols-1 gap-2.5 pt-1 w-full min-w-0">
-                  {(['cyber-neon', 'synthwave'] as const).map((thmId) => {
+                  {(['cyber-neon', 'synthwave', 'solar-flare', 'midnight-aurora'] as const).map((thmId) => {
                     const thm = THEMES[thmId];
                     const isSelected = settings.theme === thmId;
                     return (
@@ -657,7 +657,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                               className="w-3.5 h-3.5 rounded-full shrink-0"
                               style={{ backgroundColor: thm.primary, boxShadow: `0 0 8px ${thm.primary}` }}
                             />
-                            <span className="text-sm font-black text-white tracking-wide truncate">{thm.name}</span>
+                            <div className="flex flex-col min-w-0">
+                              <span className="text-sm font-black text-white tracking-wide truncate">{thm.name}</span>
+                              <span className="text-[10px] text-gray-400 truncate">{thm.tagline}</span>
+                            </div>
                           </div>
                           {isSelected && (
                             <div className="flex items-center gap-1 text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-white/15 shrink-0 ml-2" style={{ color: thm.primary }}>
@@ -667,13 +670,18 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                           )}
                         </div>
 
-                        {/* Theme Color Swatches */}
+                        {/* Theme Core Swatches & Button Gradient Preview */}
                         <div className="flex items-center gap-2 w-full min-w-0">
                           <div className="flex items-center gap-1.5 flex-1 min-w-0">
-                            <div className="flex-1 h-3.5 rounded-md min-w-0" style={{ backgroundColor: thm.primary }} title="Primary" />
-                            <div className="flex-1 h-3.5 rounded-md min-w-0" style={{ backgroundColor: thm.secondary }} title="Secondary" />
-                            <div className="flex-1 h-3.5 rounded-md min-w-0" style={{ backgroundColor: thm.accent }} title="Accent" />
+                            <div className="flex-1 h-3 rounded-md min-w-0" style={{ backgroundColor: thm.primary }} title="Primary" />
+                            <div className="flex-1 h-3 rounded-md min-w-0" style={{ backgroundColor: thm.secondary }} title="Secondary" />
+                            <div className="flex-1 h-3 rounded-md min-w-0" style={{ backgroundColor: thm.accent }} title="Accent" />
                           </div>
+                          <div
+                            className="h-3 w-16 rounded-md shrink-0 opacity-80 border border-white/20"
+                            style={{ background: thm.btnRouletteGrad }}
+                            title="Button Gradient"
+                          />
                         </div>
 
                         {/* Touch Finger Rings Preview */}

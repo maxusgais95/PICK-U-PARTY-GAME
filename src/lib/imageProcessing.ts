@@ -30,9 +30,11 @@ export async function processSpriteImage(
         const width = isSwapped ? img.naturalHeight : img.naturalWidth;
         const height = isSwapped ? img.naturalWidth : img.naturalHeight;
 
+        // Generous transparent safety padding so pixels never touch canvas boundaries
+        const pad = 24;
         const canvas = document.createElement('canvas');
-        canvas.width = Math.max(1, width);
-        canvas.height = Math.max(1, height);
+        canvas.width = Math.max(1, width + pad * 2);
+        canvas.height = Math.max(1, height + pad * 2);
         const ctx = canvas.getContext('2d', { willReadFrequently: true });
 
         if (!ctx) {
@@ -40,25 +42,31 @@ export async function processSpriteImage(
           return;
         }
 
-        // Draw image onto canvas with physical rotation baked in
+        // Draw image onto canvas centered with physical rotation baked in
         ctx.save();
         ctx.translate(canvas.width / 2, canvas.height / 2);
         ctx.rotate((normRot * Math.PI) / 180);
         ctx.drawImage(img, -img.naturalWidth / 2, -img.naturalHeight / 2);
         ctx.restore();
 
-        // If normal blend mode, return baked rotation PNG
-        if (blendMode === 'normal') {
-          resolve(canvas.toDataURL('image/png'));
-          return;
-        }
-
         const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
         const data = imgData.data;
-        const len = data.length;
+        const cWidth = canvas.width;
+        const cHeight = canvas.height;
 
-        // Process pixel alpha keying based on requested blend mode ('screen' or 'color-dodge')
+        // Ensure the outer 2-pixel border is 100% transparent to prevent any rectangular edge artifacts
+        for (let y = 0; y < cHeight; y++) {
+          for (let x = 0; x < cWidth; x++) {
+            if (x < 2 || x >= cWidth - 2 || y < 2 || y >= cHeight - 2) {
+              const idx = (y * cWidth + x) * 4;
+              data[idx + 3] = 0;
+            }
+          }
+        }
+
+        // Process pixel alpha keying if blend mode is 'screen' or 'color-dodge'
         if (blendMode === 'screen' || blendMode === 'color-dodge') {
+          const len = data.length;
           // Drop black/dark background automatically
           for (let i = 0; i < len; i += 4) {
             const a = data[i + 3];

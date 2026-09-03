@@ -4,7 +4,7 @@
  */
 
 import React from 'react';
-import { Volume2, VolumeX, Settings, Home, Smartphone, Maximize, Minimize } from 'lucide-react';
+import { Volume2, VolumeX, Settings, Home, Smartphone, Maximize, Minimize, Palette } from 'lucide-react';
 import { AppSettings, ScreenView } from '../types';
 import { THEMES } from '../lib/themes';
 import { SoundEngine } from '../lib/audio';
@@ -16,6 +16,7 @@ interface HeaderProps {
   onOpenSettings: () => void;
   onToggleSound: () => void;
   onToggleHaptics: () => void;
+  onCycleTheme?: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -25,6 +26,7 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenSettings,
   onToggleSound,
   onToggleHaptics,
+  onCycleTheme,
 }) => {
   const [isFullscreen, setIsFullscreen] = React.useState<boolean>(false);
   const [supportsFullscreen, setSupportsFullscreen] = React.useState<boolean>(true);
@@ -90,9 +92,7 @@ export const Header: React.FC<HeaderProps> = ({
           if (promise && typeof promise.then === 'function') {
             promise
               .then(() => setIsFullscreen(true))
-              .catch(() => {
-                // Fullscreen might be blocked by iframe permissions or user agent policies
-              });
+              .catch(() => {});
           } else {
             setIsFullscreen(true);
           }
@@ -135,95 +135,156 @@ export const Header: React.FC<HeaderProps> = ({
               onNavigate('hub');
             }}
             aria-label="Return to Hub"
-            className="bubble-toggle-btn group"
+            className="bubble-toggle-btn group transition-all duration-300"
             style={{
-              boxShadow: '0 8px 20px -2px rgba(0, 212, 255, 0.5), inset 0 2px 3px rgba(255,255,255,0.8), inset 0 -2px 4px rgba(0,0,0,0.8)',
+              boxShadow: `0 8px 20px -2px ${currentTheme.primary}77, inset 0 2px 3px rgba(255,255,255,0.8), inset 0 -2px 4px rgba(0,0,0,0.8)`,
+              borderColor: `${currentTheme.primary}88`,
             }}
           >
-            <Home className="w-5 h-5 text-cyan-300 drop-shadow-[0_0_8px_rgba(0,212,255,0.9)] stroke-[2.2] relative z-10" />
+            <Home
+              className="w-5 h-5 stroke-[2.4] relative z-10 transition-colors duration-300"
+              style={{
+                color: currentTheme.primary,
+                filter: `drop-shadow(0 0 8px ${currentTheme.primary})`,
+              }}
+            />
           </button>
         )}
 
-        {/* Audio Button - Pink Bubble Neon (as seen in IMG_0610) */}
+        {/* Audio Button - Dynamic Theme Tint */}
         <button
           onClick={() => {
             SoundEngine.playButtonClick();
             onToggleSound();
           }}
           aria-label={settings.soundEnabled ? 'Mute Sound' : 'Enable Sound'}
-          className="bubble-toggle-btn group"
+          className="bubble-toggle-btn group transition-all duration-300"
           style={{
             boxShadow: settings.soundEnabled
-              ? '0 8px 24px -2px rgba(255, 20, 147, 0.65), 0 0 12px rgba(255, 20, 147, 0.35), inset 0 2px 3px rgba(255,255,255,0.8), inset 0 -2px 4px rgba(0,0,0,0.8)'
+              ? `0 8px 24px -2px ${currentTheme.secondary}aa, 0 0 12px ${currentTheme.secondary}66, inset 0 2px 3px rgba(255,255,255,0.8), inset 0 -2px 4px rgba(0,0,0,0.8)`
               : '0 4px 12px rgba(0,0,0,0.6), inset 0 2px 3px rgba(255,255,255,0.4), inset 0 -2px 4px rgba(0,0,0,0.8)',
-            borderColor: settings.soundEnabled ? 'rgba(255, 100, 180, 0.55)' : 'rgba(255, 255, 255, 0.2)',
+            borderColor: settings.soundEnabled ? `${currentTheme.secondary}88` : 'rgba(255, 255, 255, 0.2)',
           }}
         >
           {settings.soundEnabled ? (
-            <Volume2 className="w-5 h-5 text-[#ff2a85] drop-shadow-[0_0_10px_#ff007f] stroke-[2.4] relative z-10" />
+            <Volume2
+              className="w-5 h-5 stroke-[2.4] relative z-10 transition-colors duration-300"
+              style={{
+                color: currentTheme.secondary,
+                filter: `drop-shadow(0 0 10px ${currentTheme.secondary})`,
+              }}
+            />
           ) : (
             <VolumeX className="w-5 h-5 text-gray-400 stroke-[2] relative z-10" />
           )}
         </button>
 
-        {/* Haptics Button - Orange Bubble Neon (as seen in IMG_0610) */}
+        {/* Haptics Button - Dynamic Theme Tint */}
         <button
           onClick={() => {
             SoundEngine.playButtonClick();
             onToggleHaptics();
           }}
           aria-label={settings.hapticsEnabled ? 'Disable Haptics' : 'Enable Haptics'}
-          className="bubble-toggle-btn group"
+          className="bubble-toggle-btn group transition-all duration-300"
           style={{
             boxShadow: settings.hapticsEnabled
-              ? '0 8px 24px -2px rgba(255, 110, 40, 0.65), 0 0 12px rgba(255, 110, 40, 0.35), inset 0 2px 3px rgba(255,255,255,0.8), inset 0 -2px 4px rgba(0,0,0,0.8)'
+              ? `0 8px 24px -2px ${currentTheme.accent}aa, 0 0 12px ${currentTheme.accent}66, inset 0 2px 3px rgba(255,255,255,0.8), inset 0 -2px 4px rgba(0,0,0,0.8)`
               : '0 4px 12px rgba(0,0,0,0.6), inset 0 2px 3px rgba(255,255,255,0.4), inset 0 -2px 4px rgba(0,0,0,0.8)',
-            borderColor: settings.hapticsEnabled ? 'rgba(255, 160, 80, 0.55)' : 'rgba(255, 255, 255, 0.2)',
+            borderColor: settings.hapticsEnabled ? `${currentTheme.accent}88` : 'rgba(255, 255, 255, 0.2)',
           }}
         >
           <Smartphone
-            className={`w-5 h-5 stroke-[2.4] relative z-10 transition-all ${
+            className="w-5 h-5 stroke-[2.4] relative z-10 transition-all duration-300"
+            style={
               settings.hapticsEnabled
-                ? 'text-[#ff6e28] drop-shadow-[0_0_10px_#ff6e28]'
-                : 'text-gray-400'
-            }`}
+                ? {
+                    color: currentTheme.accent,
+                    filter: `drop-shadow(0 0 10px ${currentTheme.accent})`,
+                  }
+                : { color: '#9ca3af' }
+            }
           />
         </button>
       </div>
 
       {/* Right Action Buttons */}
       <div className="flex items-center gap-2.5 pointer-events-auto">
+        {/* Quick Theme Cycle Button (Allows instant theme testing on the fly) */}
+        {onCycleTheme && (
+          <button
+            onClick={() => {
+              SoundEngine.playButtonClick();
+              onCycleTheme();
+            }}
+            aria-label={`Current Theme: ${currentTheme.name}. Tap to switch`}
+            title={`Current Theme: ${currentTheme.name}. Tap to switch`}
+            className="bubble-toggle-btn group transition-all duration-300"
+            style={{
+              boxShadow: `0 8px 20px -2px ${currentTheme.primary}77, 0 0 10px ${currentTheme.secondary}55, inset 0 2px 3px rgba(255,255,255,0.8), inset 0 -2px 4px rgba(0,0,0,0.8)`,
+              borderColor: `${currentTheme.secondary}88`,
+            }}
+          >
+            <Palette
+              className="w-5 h-5 stroke-[2.4] relative z-10 transition-colors duration-300"
+              style={{
+                color: currentTheme.primary,
+                filter: `drop-shadow(0 0 8px ${currentTheme.primary})`,
+              }}
+            />
+          </button>
+        )}
+
         {supportsFullscreen && (
           <button
             onClick={toggleFullscreen}
             aria-label="Toggle Fullscreen"
-            className="bubble-toggle-btn group"
+            className="bubble-toggle-btn group transition-all duration-300"
             style={{
-              boxShadow: '0 8px 20px -2px rgba(168, 85, 247, 0.45), inset 0 2px 3px rgba(255,255,255,0.8), inset 0 -2px 4px rgba(0,0,0,0.8)',
+              boxShadow: `0 8px 20px -2px ${currentTheme.accent}77, inset 0 2px 3px rgba(255,255,255,0.8), inset 0 -2px 4px rgba(0,0,0,0.8)`,
+              borderColor: `${currentTheme.accent}66`,
             }}
           >
             {isFullscreen ? (
-              <Minimize className="w-5 h-5 text-purple-300 drop-shadow-[0_0_8px_rgba(168,85,247,0.8)] stroke-[2.2] relative z-10" />
+              <Minimize
+                className="w-5 h-5 stroke-[2.2] relative z-10 transition-colors duration-300"
+                style={{
+                  color: currentTheme.accent,
+                  filter: `drop-shadow(0 0 8px ${currentTheme.accent})`,
+                }}
+              />
             ) : (
-              <Maximize className="w-5 h-5 text-purple-300 drop-shadow-[0_0_8px_rgba(168,85,247,0.8)] stroke-[2.2] relative z-10" />
+              <Maximize
+                className="w-5 h-5 stroke-[2.2] relative z-10 transition-colors duration-300"
+                style={{
+                  color: currentTheme.accent,
+                  filter: `drop-shadow(0 0 8px ${currentTheme.accent})`,
+                }}
+              />
             )}
           </button>
         )}
 
-        {/* Settings Button - Orange / Amber Bubble Neon (as seen in IMG_0610) */}
+        {/* Settings Button - Dynamic Theme Tint */}
         <button
           onClick={() => {
             SoundEngine.playButtonClick();
             onOpenSettings();
           }}
           aria-label="Open Settings"
-          className="bubble-toggle-btn group"
+          className="bubble-toggle-btn group transition-all duration-300"
           style={{
-            boxShadow: '0 8px 24px -2px rgba(255, 120, 40, 0.65), 0 0 12px rgba(255, 120, 40, 0.35), inset 0 2px 3px rgba(255,255,255,0.8), inset 0 -2px 4px rgba(0,0,0,0.8)',
-            borderColor: 'rgba(255, 160, 80, 0.55)',
+            boxShadow: `0 8px 24px -2px ${currentTheme.secondary}aa, 0 0 12px ${currentTheme.secondary}66, inset 0 2px 3px rgba(255,255,255,0.8), inset 0 -2px 4px rgba(0,0,0,0.8)`,
+            borderColor: `${currentTheme.secondary}88`,
           }}
         >
-          <Settings className="w-5 h-5 text-[#ff7700] drop-shadow-[0_0_10px_#ff7700] stroke-[2.4] relative z-10" />
+          <Settings
+            className="w-5 h-5 stroke-[2.4] relative z-10 transition-colors duration-300"
+            style={{
+              color: currentTheme.secondary,
+              filter: `drop-shadow(0 0 10px ${currentTheme.secondary})`,
+            }}
+          />
         </button>
       </div>
     </header>
