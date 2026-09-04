@@ -616,3 +616,22 @@
 .animate-bottle-point {
   animation: bottlePointingBounce 0.95s cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
+
+@keyframes hologramSweep {
+  0% {
+    transform: translateY(-20%);
+    opacity: 0.3;
+  }
+  50% {
+    transform: translateY(115vh);
+    opacity: 0.9;
+  }
+  100% {
+    transform: translateY(-20%);
+    opacity: 0.3;
+  }
+}
+
+.animate-hologram-sweep {
+  animation: hologramSweep 3.6s ease-in-out infinite;
+}

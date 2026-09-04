@@ -21,7 +21,7 @@ export const BottleSpriteRenderer: React.FC<BottleSpriteProps> = ({
 }) => {
   // If custom uploaded sprite exists and selected
   if (styleType === 'custom' && customSprite && customSprite.dataUrl) {
-    const customClass = className || 'w-[min(90vw,85vh)] h-[min(90vw,85vh)] max-w-[740px] max-h-[880px]';
+    const customClass = className || 'w-[min(93vw,88vh)] h-[min(93vw,88vh)] max-w-[762px] max-h-[906px]';
     const blendMode = customSprite.blendMode || 'normal';
     const validBlend = (blendMode === 'screen' || blendMode === 'color-dodge') ? blendMode : 'normal';
     
@@ -42,7 +42,7 @@ export const BottleSpriteRenderer: React.FC<BottleSpriteProps> = ({
         <img
           src={customSprite.dataUrl}
           alt={customSprite.name || 'Custom Bottle'}
-          className="w-full h-full object-contain pointer-events-none scale-110 sm:scale-120 md:scale-130 transition-all duration-500"
+          className="w-full h-full object-contain pointer-events-none scale-[1.13] sm:scale-[1.24] md:scale-[1.34] transition-all duration-500"
           style={{
             transform: (!customSprite.originalDataUrl && customSprite.rotationOffset)
               ? `rotate(${customSprite.rotationOffset}deg)`
@@ -56,7 +56,7 @@ export const BottleSpriteRenderer: React.FC<BottleSpriteProps> = ({
     );
   }
 
-  const builtinClass = className || 'h-[min(90vw,85vh)] w-auto max-h-[820px] max-w-[min(90vw,480px)] scale-105 sm:scale-115';
+  const builtinClass = className || 'h-[min(93vw,88vh)] w-auto max-h-[845px] max-w-[min(93vw,495px)] scale-[1.08] sm:scale-[1.18]';
 
   // Common Dynamic Outer Glow Halo for built-in bottles matching active theme (Smooth vector radial gradient - Zero clipping)
   const BuiltinOuterGlow = () => (

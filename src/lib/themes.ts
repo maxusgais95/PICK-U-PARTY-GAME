@@ -34,7 +34,7 @@ export const THEMES: Record<ThemeId, ThemeColors> = {
       { gradient: 'linear-gradient(135deg, #ff2a85, #ff0055)', glow: 'rgba(255, 42, 133, 0.85)', text: '#ffffff', border: '#ff2a85', solid: '#ff2a85' },
       { gradient: 'linear-gradient(135deg, #ffaa00, #ff5500)', glow: 'rgba(255, 170, 0, 0.85)', text: '#030712', border: '#ffaa00', solid: '#ffaa00' },
       { gradient: 'linear-gradient(135deg, #a855f7, #6366f1)', glow: 'rgba(168, 85, 247, 0.85)', text: '#ffffff', border: '#a855f7', solid: '#a855f7' },
-      { gradient: 'linear-gradient(135deg, #00f59b, #00b4d8)', glow: 'rgba(0, 245, 155, 0.85)', text: '#030712', border: '#00f59b', solid: '#00f59b' },
+      { gradient: 'linear-gradient(135deg, #00ff66, #00cc44)', glow: 'rgba(0, 255, 102, 0.85)', text: '#030712', border: '#00ff66', solid: '#00ff66' },
       { gradient: 'linear-gradient(135deg, #ff6363, #ff1f71)', glow: 'rgba(255, 99, 99, 0.85)', text: '#ffffff', border: '#ff6363', solid: '#ff6363' },
       { gradient: 'linear-gradient(135deg, #ffd000, #ff8800)', glow: 'rgba(255, 208, 0, 0.85)', text: '#030712', border: '#ffd000', solid: '#ffd000' },
       { gradient: 'linear-gradient(135deg, #38bdf8, #818cf8)', glow: 'rgba(56, 189, 248, 0.85)', text: '#030712', border: '#38bdf8', solid: '#38bdf8' },

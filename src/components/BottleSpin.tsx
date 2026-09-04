@@ -204,11 +204,11 @@ export const BottleSpin: React.FC<BottleSpinProps> = ({
         isLocked ? 'cursor-not-allowed' : 'cursor-grab active:cursor-grabbing'
       }`}
     >
-      {/* Ambient Neon Spotlight Aura (Full viewport, smooth shader radial gradient - Zero clipping) */}
+      {/* Ambient Neon Spotlight Aura (Subtle soft ambient presence - comfortable and glare-free) */}
       <div
         className="absolute inset-0 pointer-events-none transition-all duration-500"
         style={{
-          background: `radial-gradient(ellipse 70% 60% at 50% 50%, ${currentTheme.secondary}26 0%, ${currentTheme.primary}18 35%, transparent 72%)`,
+          background: `radial-gradient(ellipse 65% 55% at 50% 50%, ${currentTheme.secondary}0d 0%, ${currentTheme.primary}08 40%, transparent 70%)`,
           mixBlendMode: 'screen',
         }}
       />
@@ -234,8 +234,8 @@ export const BottleSpin: React.FC<BottleSpinProps> = ({
             themeColors={currentTheme}
             className={
               settings.bottleStyle === 'custom'
-                ? 'w-[min(90vw,85vh)] h-[min(90vw,85vh)] max-w-[740px] max-h-[880px]'
-                : 'h-[min(90vw,85vh)] w-auto max-h-[820px] max-w-[min(90vw,480px)]'
+                ? 'w-[min(93vw,88vh)] h-[min(93vw,88vh)] max-w-[762px] max-h-[906px]'
+                : 'h-[min(93vw,88vh)] w-auto max-h-[845px] max-w-[min(93vw,495px)]'
             }
           />
         </div>

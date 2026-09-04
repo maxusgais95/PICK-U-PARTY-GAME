@@ -16,6 +16,8 @@ import { FingerRoulette } from './components/FingerRoulette';
 import { BottleSpin } from './components/BottleSpin';
 import { SettingsModal } from './components/SettingsModal';
 import { PartyBackground } from './components/PartyBackground';
+import { FingerGameBackground } from './components/FingerGameBackground';
+import { SpinBottleBackground } from './components/SpinBottleBackground';
 
 export default function App() {
   const [currentView, setCurrentView] = useState<ScreenView>('hub');
@@ -148,42 +150,16 @@ export default function App() {
       {/* 1. Main Hub Background: Static Nightclub Atmosphere + 60FPS Upward DJ Lasers & Blurred Bottom Half */}
       {currentView === 'hub' && <PartyBackground theme={settings.theme} />}
 
-      {/* 2. Active Gameplay Backgrounds (Finger Roulette & Spin Bottle only) */}
-      {currentView !== 'hub' && (
-        <>
-          {/* Dynamic Moving Animated Neon Gradient */}
-          <div className="absolute inset-0 pointer-events-none z-0 moving-gradient-layer opacity-40" />
+      {/* 2. Finger Roulette Gameplay Background: Subtle Tile Line Grid, Holographic Biometric Target Rings & Scanning Blade */}
+      {currentView === 'roulette' && <FingerGameBackground theme={settings.theme} />}
 
-          {/* Sweeping Dynamic Ambient Theme Auras (Full viewport, smooth radial falloff - Zero clipping) */}
-          <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden">
-            <div
-              className="absolute inset-0 pointer-events-none transition-all duration-700"
-              style={{
-                background: `radial-gradient(ellipse 85% 60% at 20% 25%, ${currentTheme.primary}18 0%, transparent 68%)`,
-                mixBlendMode: 'screen',
-              }}
-            />
-            <div
-              className="absolute inset-0 pointer-events-none transition-all duration-700"
-              style={{
-                background: `radial-gradient(ellipse 85% 60% at 80% 75%, ${currentTheme.secondary}16 0%, transparent 68%)`,
-                mixBlendMode: 'screen',
-              }}
-            />
-          </div>
-
-          {/* Subtle Cyber Digital Grid (Soft, anti-glare, non-harsh) */}
-          <div
-            className="absolute inset-0 pointer-events-none opacity-10 z-0"
-            style={{
-              backgroundImage: `
-                linear-gradient(rgba(255, 255, 255, 0.08) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255, 255, 255, 0.08) 1px, transparent 1px)
-              `,
-              backgroundSize: '40px 40px',
-            }}
-          />
-        </>
+      {/* 3. Spin Bottle Gameplay Background: Top-Down Glass Table with Club Vibes Moving Light Beam Reflections */}
+      {currentView === 'bottle' && (
+        <SpinBottleBackground
+          theme={settings.theme}
+          isSpinning={isBottleSpinning}
+          spinSpeed={bottleSpinSpeed}
+        />
       )}
 
       {/* 3. 60FPS Background Particle & Shockwave Canvas */}

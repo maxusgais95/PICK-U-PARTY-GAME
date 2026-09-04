@@ -313,16 +313,18 @@ export const FingerRoulette: React.FC<FingerRouletteProps> = ({
       onPointerDown={handlePointerDown}
       className="relative w-full h-full select-none touch-none overflow-hidden"
     >
-      {/* Top Floating Controls: Player Count & Target Count in 2 distinct rows */}
+      {/* Bottom Floating Controls: Player Count & Target Count Dock */}
       {onUpdateSettings && (
         <div
-          className="absolute top-[max(4.2rem,calc(env(safe-area-inset-top)+3.2rem))] left-1/2 -translate-x-1/2 z-30 flex flex-col gap-2 p-2.5 rounded-2xl glass-panel shadow-2xl min-w-[260px]"
+          className={`absolute bottom-[max(1.2rem,calc(env(safe-area-inset-bottom)+0.8rem))] left-1/2 -translate-x-1/2 z-30 flex flex-col gap-2 p-2.5 sm:px-3.5 sm:py-2.5 rounded-2xl glass-panel shadow-2xl min-w-[270px] max-w-[92vw] transition-all duration-300 border border-white/15 ${
+            touches.size > 0 || gameState === 'countdown' ? 'opacity-35 hover:opacity-100' : 'opacity-100'
+          }`}
           data-interactive="true"
         >
           {/* Row 1: Players */}
           <div className="flex items-center justify-between gap-2.5">
             <span
-              className="text-[10px] font-black uppercase tracking-wider pl-1 flex items-center gap-1 transition-colors duration-300"
+              className="text-[10px] font-black uppercase tracking-wider pl-1 flex items-center gap-1 transition-colors duration-300 select-none"
               style={{
                 color: currentTheme.secondary,
                 filter: `drop-shadow(0 0 6px ${currentTheme.secondary}88)`,
@@ -366,7 +368,7 @@ export const FingerRoulette: React.FC<FingerRouletteProps> = ({
           {/* Row 2: Target (Losers) */}
           <div className="flex items-center justify-between gap-2.5 pt-1.5 border-t border-white/10">
             <span
-              className="text-[10px] font-black uppercase tracking-wider pl-1 flex items-center gap-1 transition-colors duration-300"
+              className="text-[10px] font-black uppercase tracking-wider pl-1 flex items-center gap-1 transition-colors duration-300 select-none"
               style={{
                 color: currentTheme.secondary,
                 filter: `drop-shadow(0 0 6px ${currentTheme.secondary}88)`,
