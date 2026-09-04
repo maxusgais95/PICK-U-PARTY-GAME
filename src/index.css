@@ -635,3 +635,136 @@
 .animate-hologram-sweep {
   animation: hologramSweep 3.6s ease-in-out infinite;
 }
+
+@keyframes laserScanFromTop {
+  0% {
+    transform: translate3d(0, -20vh, 0);
+    opacity: 0;
+  }
+  3% {
+    opacity: 1;
+  }
+  22.5% {
+    transform: translate3d(0, 50vh, 0);
+    opacity: 1;
+  }
+  42% {
+    transform: translate3d(0, 120vh, 0);
+    opacity: 1;
+  }
+  45% {
+    transform: translate3d(0, 125vh, 0);
+    opacity: 0;
+  }
+  45.01%, 100% {
+    transform: translate3d(0, -20vh, 0);
+    opacity: 0;
+  }
+}
+
+@keyframes laserScanFromBottom {
+  0% {
+    transform: translate3d(0, 120vh, 0);
+    opacity: 0;
+  }
+  3% {
+    opacity: 1;
+  }
+  22.5% {
+    transform: translate3d(0, 50vh, 0);
+    opacity: 1;
+  }
+  42% {
+    transform: translate3d(0, -20vh, 0);
+    opacity: 1;
+  }
+  45% {
+    transform: translate3d(0, -25vh, 0);
+    opacity: 0;
+  }
+  45.01%, 100% {
+    transform: translate3d(0, 120vh, 0);
+    opacity: 0;
+  }
+}
+
+@keyframes laserScanFromLeft {
+  0%, 49.99% {
+    transform: translate3d(-20vw, 0, 0);
+    opacity: 0;
+  }
+  50% {
+    transform: translate3d(-20vw, 0, 0);
+    opacity: 0;
+  }
+  53% {
+    opacity: 1;
+  }
+  72.5% {
+    transform: translate3d(50vw, 0, 0);
+    opacity: 1;
+  }
+  92% {
+    transform: translate3d(120vw, 0, 0);
+    opacity: 1;
+  }
+  95% {
+    transform: translate3d(125vw, 0, 0);
+    opacity: 0;
+  }
+  95.01%, 100% {
+    transform: translate3d(-20vw, 0, 0);
+    opacity: 0;
+  }
+}
+
+@keyframes laserScanFromRight {
+  0%, 49.99% {
+    transform: translate3d(120vw, 0, 0);
+    opacity: 0;
+  }
+  50% {
+    transform: translate3d(120vw, 0, 0);
+    opacity: 0;
+  }
+  53% {
+    opacity: 1;
+  }
+  72.5% {
+    transform: translate3d(50vw, 0, 0);
+    opacity: 1;
+  }
+  92% {
+    transform: translate3d(-20vw, 0, 0);
+    opacity: 1;
+  }
+  95% {
+    transform: translate3d(-25vw, 0, 0);
+    opacity: 0;
+  }
+  95.01%, 100% {
+    transform: translate3d(120vw, 0, 0);
+    opacity: 0;
+  }
+}
+
+.animate-laser-scan-top {
+  animation: laserScanFromTop 4.2s linear infinite;
+  will-change: transform, opacity;
+}
+
+.animate-laser-scan-bottom {
+  animation: laserScanFromBottom 4.2s linear infinite;
+  will-change: transform, opacity;
+}
+
+.animate-laser-scan-left {
+  animation: laserScanFromLeft 4.2s linear infinite;
+  will-change: transform, opacity;
+}
+
+.animate-laser-scan-right {
+  animation: laserScanFromRight 4.2s linear infinite;
+  will-change: transform, opacity;
+}
+

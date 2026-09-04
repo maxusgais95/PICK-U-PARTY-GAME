@@ -151,7 +151,13 @@ export default function App() {
       {currentView === 'hub' && <PartyBackground theme={settings.theme} />}
 
       {/* 2. Finger Roulette Gameplay Background: Subtle Tile Line Grid, Holographic Biometric Target Rings & Scanning Blade */}
-      {currentView === 'roulette' && <FingerGameBackground theme={settings.theme} />}
+      {currentView === 'roulette' && (
+        <FingerGameBackground
+          theme={settings.theme}
+          activeFingersCount={currentTouches.length}
+          touches={currentTouches}
+        />
+      )}
 
       {/* 3. Spin Bottle Gameplay Background: Top-Down Glass Table with Club Vibes Moving Light Beam Reflections */}
       {currentView === 'bottle' && (

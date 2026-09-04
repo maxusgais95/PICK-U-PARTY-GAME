@@ -32,10 +32,17 @@ export const BackgroundCanvas: React.FC<BackgroundCanvasProps> = ({
   const shockwavesRef = useRef<Shockwave[]>([]);
   const animFrameRef = useRef<number | null>(null);
 
+  const themeRef = useRef<ThemeId>(theme);
+  themeRef.current = theme;
+  const touchesRef = useRef<TouchPlayer[]>(touches);
+  touchesRef.current = touches;
+  const showTeamLinesRef = useRef<boolean>(showTeamLines);
+  showTeamLinesRef.current = showTeamLines;
+
   // Trigger public shockwave helper
   useEffect(() => {
     const handleAddShockwave = (e: CustomEvent<{ x: number; y: number; color?: string; maxRadius?: number }>) => {
-      const themeColors = THEMES[theme] || THEMES['cyber-neon'];
+      const themeColors = THEMES[themeRef.current] || THEMES['cyber-neon'];
       shockwavesRef.current.push({
         x: e.detail.x,
         y: e.detail.y,
@@ -51,7 +58,7 @@ export const BackgroundCanvas: React.FC<BackgroundCanvasProps> = ({
     return () => {
       window.removeEventListener('app-shockwave' as any, handleAddShockwave);
     };
-  }, [theme]);
+  }, []);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -59,9 +66,12 @@ export const BackgroundCanvas: React.FC<BackgroundCanvasProps> = ({
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
+    let width = window.innerWidth;
+    let height = window.innerHeight;
+
     const handleResize = () => {
-      const width = window.innerWidth;
-      const height = window.innerHeight;
+      width = window.innerWidth;
+      height = window.innerHeight;
       const dpr = Math.min(window.devicePixelRatio || 1, 2);
       canvas.width = width * dpr;
       canvas.height = height * dpr;
@@ -70,25 +80,41 @@ export const BackgroundCanvas: React.FC<BackgroundCanvasProps> = ({
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     };
 
-    window.addEventListener('resize', handleResize);
+    window.addEventListener('resize', handleResize, { passive: true });
     handleResize();
 
-    const render = () => {
-      const width = window.innerWidth;
-      const height = window.innerHeight;
-      const themeColors = THEMES[theme] || THEMES['cyber-neon'];
+    let wasIdle = false;
 
+    const render = () => {
+      const currentTouches = touchesRef.current;
+      const currentShowTeam = showTeamLinesRef.current;
+      const currentThemeId = themeRef.current;
+      const themeColors = THEMES[currentThemeId] || THEMES['cyber-neon'];
+
+      const hasTouches = currentTouches.length > 0;
+      const hasShockwaves = shockwavesRef.current.length > 0;
+
+      if (!hasTouches && !hasShockwaves) {
+        if (!wasIdle) {
+          ctx.clearRect(0, 0, width, height);
+          wasIdle = true;
+        }
+        animFrameRef.current = requestAnimationFrame(render);
+        return;
+      }
+
+      wasIdle = false;
       ctx.clearRect(0, 0, width, height);
 
       // 1. Draw Dynamic Connecting Lines Between Touches
-      if (touches.length > 1) {
+      if (currentTouches.length > 1) {
         ctx.save();
-        if (showTeamLines) {
+        if (currentShowTeam) {
           // Connect players of the SAME team with thick glowing laser cords
-          for (let i = 0; i < touches.length; i++) {
-            for (let j = i + 1; j < touches.length; j++) {
-              const t1 = touches[i];
-              const t2 = touches[j];
+          for (let i = 0; i < currentTouches.length; i++) {
+            for (let j = i + 1; j < currentTouches.length; j++) {
+              const t1 = currentTouches[i];
+              const t2 = currentTouches[j];
               if (t1.teamIndex !== undefined && t2.teamIndex !== undefined && t1.teamIndex === t2.teamIndex) {
                 const teamPalette = themeColors.teamPalettes[t1.teamIndex % themeColors.teamPalettes.length];
                 ctx.strokeStyle = teamPalette.solid;
@@ -110,10 +136,10 @@ export const BackgroundCanvas: React.FC<BackgroundCanvasProps> = ({
           ctx.lineWidth = 1.5;
           ctx.globalAlpha = 0.35;
           ctx.beginPath();
-          for (let i = 0; i < touches.length; i++) {
-            for (let j = i + 1; j < touches.length; j++) {
-              ctx.moveTo(touches[i].x, touches[i].y);
-              ctx.lineTo(touches[j].x, touches[j].y);
+          for (let i = 0; i < currentTouches.length; i++) {
+            for (let j = i + 1; j < currentTouches.length; j++) {
+              ctx.moveTo(currentTouches[i].x, currentTouches[i].y);
+              ctx.lineTo(currentTouches[j].x, currentTouches[j].y);
             }
           }
           ctx.stroke();
@@ -153,7 +179,7 @@ export const BackgroundCanvas: React.FC<BackgroundCanvasProps> = ({
       window.removeEventListener('resize', handleResize);
       if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
     };
-  }, [theme, touches, showTeamLines]);
+  }, []);
 
   return (
     <canvas
