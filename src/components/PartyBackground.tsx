@@ -56,7 +56,7 @@ export const PartyBackground: React.FC<PartyBackgroundProps> = ({
       className={`absolute inset-0 pointer-events-none overflow-hidden z-0 transition-colors duration-500 ${className}`}
       style={{ backgroundColor: currentTheme.bgBase }}
     >
-      {/* 1. Background Video from src/assets/videos/Neon Party DJ Animated.mp4 (Pure video, crystal clear DJ performance area) */}
+      {/* 1. Part (Pure video, crystal clear DJ performance area) */}
       <video
         ref={videoRef}
         src={neonPartyVideo}
@@ -67,9 +67,10 @@ export const PartyBackground: React.FC<PartyBackgroundProps> = ({
         playsInline
         disablePictureInPicture
         controls={false}
+        data-buffer="0.2"
         className="absolute inset-0 w-full h-full object-cover object-center pointer-events-none z-0"
         style={{
-          filter: 'contrast(1.06) brightness(1.04) saturate(1.18)',
+          filter: 'contrast(1.0) brightness(1.0) saturate(1.0)',
         }}
       />
 
