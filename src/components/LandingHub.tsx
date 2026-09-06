@@ -9,6 +9,7 @@ import { TitlePartyParticles } from './TitlePartyParticles';
 import pickuPartyLogo from '../assets/images/PICK\'U PARTY Logo.png';
 import { AppSettings } from '../types';
 import { SoundEngine, Haptics } from '../lib/audio';
+import { PWAInstallButton } from './PWAInstallButton';
 
 interface LandingHubProps {
   settings: AppSettings;
@@ -251,8 +252,9 @@ export const LandingHub: React.FC<LandingHubProps> = ({
         </div>
       </div>
 
-      {/* Footer Version Notes: v1.2.089 */}
-      <div className="shrink-0 mt-1 mb-0.5 text-center select-none">
+      {/* Footer Version Notes: v1.2.090 & PWA Install Button */}
+      <div className="shrink-0 mt-1 mb-0.5 flex flex-col items-center gap-1.5 select-none">
+        <PWAInstallButton variant="compact" />
         <button
           type="button"
           onClick={() => {
@@ -260,9 +262,9 @@ export const LandingHub: React.FC<LandingHubProps> = ({
             Haptics.buttonClick();
             if (onOpenVersionNotes) onOpenVersionNotes();
           }}
-          className="text-[10px] sm:text-[11px] text-gray-400/80 hover:text-white transition-colors tracking-wide cursor-pointer focus:outline-none py-1"
+          className="text-[10px] sm:text-[11px] text-gray-400/80 hover:text-white transition-colors tracking-wide cursor-pointer focus:outline-none py-0.5"
         >
-          Version notes: v1.2.089
+          Version notes: v1.2.090
         </button>
       </div>
     </div>
