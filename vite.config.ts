@@ -60,7 +60,7 @@ export default defineConfig(() => {
             },
             {
               src: './app-icon.jpeg',
-              sizes: '2048x2048',
+              sizes: '1024x1024',
               type: 'image/jpeg',
               purpose: 'any',
             },

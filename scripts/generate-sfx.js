@@ -91,7 +91,7 @@ function generateButtonClick() {
   return { left, right };
 }
 
-// 2. Multi-Touch Chimes (C Major Pentatonic notes: C4 to E5)
+// 2. Multi-Touch Chimes (Juicy Neon Pop + Luminous Crystal Bloom)
 const PENTATONIC_FREQS = [
   261.63, // C4
   293.66, // D4
@@ -104,48 +104,68 @@ const PENTATONIC_FREQS = [
 ];
 
 function generateTouchDown(freq, index = 0) {
-  const duration = 0.45;
+  const duration = 0.48;
   const numSamples = Math.floor(SAMPLE_RATE * duration);
   const left = new Float32Array(numSamples);
   const right = new Float32Array(numSamples);
-  const pan = -0.35 + (index / 7) * 0.7; // Stereo spread based on index
+  const pan = -0.4 + (index / 7) * 0.8; // Stereo spread based on finger index
 
   for (let i = 0; i < numSamples; i++) {
     const t = i / SAMPLE_RATE;
-    const attack = Math.min(1, t / 0.003);
-    const decay = Math.exp(-t * 7.5);
-    const bellDecay = Math.exp(-t * 14);
 
-    // Fundamental + glass overtones (modes of a resonant cylinder)
-    const f0 = Math.sin(2 * Math.PI * freq * t) * 0.65;
-    const f1 = Math.sin(2 * Math.PI * (freq * 2.76) * t) * 0.28 * bellDecay;
-    const f2 = Math.sin(2 * Math.PI * (freq * 5.40) * t) * 0.15 * bellDecay;
-    const f3 = Math.sin(2 * Math.PI * (freq * 2.00) * t + 0.5) * 0.2; // Warm octave
-    const sparkle = Math.sin(2 * Math.PI * (freq * 8.0) * t) * 0.08 * Math.exp(-t * 28);
+    // --- Layer 1: Juicy Tactile Pop Transient (Bubble / Cyber Waterdrop Snap) ---
+    // Pitch drops swiftly from 2.5x down to fundamental over ~18ms
+    const popPitchEnv = Math.exp(-t * 110);
+    const instFreq = freq * (1.0 + 1.5 * popPitchEnv);
+    const popEnv = Math.exp(-t * 36);
+    let pop = Math.sin(2 * Math.PI * instFreq * t) * 0.85 * popEnv;
+    pop = Math.tanh(pop * 1.6); // Warm saturation for punchy rounded presence
 
-    const s = (f0 + f1 + f2 + f3 + sparkle) * attack * decay;
+    // --- Layer 2: Neon Glass Bell & Shimmer Overtones ---
+    const bellAttack = Math.min(1, t / 0.0025);
+    const bellDecay = Math.exp(-t * 6.5);
+    const harmonicDecay = Math.exp(-t * 13.0);
 
-    // Stereo panning with phase shimmer
-    left[i] = s * (0.5 - pan * 0.4);
-    right[i] = s * (0.5 + pan * 0.4);
+    const f0 = Math.sin(2 * Math.PI * freq * t) * 0.58;
+    const f1 = Math.sin(2 * Math.PI * (freq * 2.76) * t) * 0.32 * harmonicDecay;
+    const f2 = Math.sin(2 * Math.PI * (freq * 2.00) * t) * 0.24;
+    const f3 = Math.sin(2 * Math.PI * (freq * 4.02) * t) * 0.12 * harmonicDecay;
+
+    // --- Layer 3: High Electric Plasma Sparkle ---
+    const sparkleEnv = Math.exp(-t * 40);
+    const sparkleFreq = freq * 5.8 + 240 * Math.sin(2 * Math.PI * 16 * t);
+    const sparkle = Math.sin(2 * Math.PI * sparkleFreq * t) * 0.16 * sparkleEnv;
+
+    // --- Layer 4: Warm Tactile Sub Body (for punchy mobile speaker presence) ---
+    const subEnv = Math.exp(-t * 38);
+    const sub = Math.sin(2 * Math.PI * (freq * 0.5) * t) * 0.32 * subEnv;
+
+    const core = pop + (f0 + f1 + f2 + f3) * bellAttack * bellDecay + sparkle + sub;
+
+    // Subtle stereo chorus spread
+    const chorus = Math.sin(2 * Math.PI * 0.8 * t) * 0.06;
+    left[i] = core * (0.5 - pan * 0.38 - chorus);
+    right[i] = core * (0.5 + pan * 0.38 + chorus);
   }
   return { left, right };
 }
 
-// 3. Touch Up (Crisp, delicate release)
+// 3. Touch Up (Crisp, bubbly, satisfying glass release)
 function generateTouchUp() {
-  const duration = 0.06;
+  const duration = 0.08;
   const numSamples = Math.floor(SAMPLE_RATE * duration);
   const left = new Float32Array(numSamples);
   const right = new Float32Array(numSamples);
 
   for (let i = 0; i < numSamples; i++) {
     const t = i / SAMPLE_RATE;
-    const env = Math.exp(-t * 80);
-    const freq = 620 * Math.exp(-t * 22);
-    const s = Math.sin(2 * Math.PI * freq * t) * env * Math.min(1, t / 0.001);
-    left[i] = s * 0.85;
-    right[i] = s * 0.85;
+    const env = Math.exp(-t * 65);
+    // Upward micro-pitch blip gives an uplifting bubbly release
+    const freq = 460 + 360 * (1 - Math.exp(-t * 70));
+    const harmonic = Math.sin(2 * Math.PI * freq * 2 * t) * 0.22;
+    const s = (Math.sin(2 * Math.PI * freq * t) * 0.72 + harmonic) * env * Math.min(1, t / 0.001);
+    left[i] = s * 0.88;
+    right[i] = s * 0.88;
   }
   return { left, right };
 }
@@ -394,6 +414,8 @@ for (let i = 0; i < 4; i++) {
 
 console.log(`Generating ${sounds.length} high-bitrate studio audio files (44.1kHz 16-bit PCM)...`);
 
+const validFileNames = new Set(sounds.map((s) => s.name));
+
 for (const sound of sounds) {
   const { left, right } = sound.gen();
   const wavBuffer = createWavBuffer(left, right);
@@ -402,4 +424,26 @@ for (const sound of sounds) {
   console.log(`✓ Generated ${sound.name} (${(wavBuffer.length / 1024).toFixed(1)} KB)`);
 }
 
-console.log('All high-bitrate audio files generated successfully!');
+// Clean up any orphaned files in OUT_DIR that do not belong to the active sound registry
+let cleanedCount = 0;
+const currentFiles = fs.readdirSync(OUT_DIR);
+for (const file of currentFiles) {
+  if (!validFileNames.has(file)) {
+    const orphanPath = path.join(OUT_DIR, file);
+    try {
+      if (fs.statSync(orphanPath).isFile()) {
+        fs.unlinkSync(orphanPath);
+        cleanedCount++;
+        console.log(`🗑️ Cleaned orphaned sound file: ${file}`);
+      }
+    } catch (e) {
+      console.warn(`Failed to clean orphan ${file}:`, e);
+    }
+  }
+}
+
+if (cleanedCount > 0) {
+  console.log(`Pruned ${cleanedCount} orphaned files to preserve PWA caching limits.`);
+}
+
+console.log('All high-bitrate audio files generated and directory sanitized successfully!');
