@@ -49,7 +49,7 @@ export const VersionNotesModal: React.FC<VersionNotesModalProps> = ({ isOpen, on
         {/* Badge & Version */}
         <div className="mt-4 flex items-center justify-between">
           <span className="px-3 py-1 rounded-full text-xs font-black tracking-wider bg-cyan-500/20 text-cyan-300 border border-cyan-400/40 shadow-[0_0_10px_rgba(6,182,212,0.3)]">
-            v1.2.089
+            v1.2.090
           </span>
           <span className="text-[11px] text-gray-400 font-medium">Latest Release</span>
         </div>

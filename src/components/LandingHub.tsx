@@ -77,7 +77,7 @@ export const LandingHub: React.FC<LandingHubProps> = ({
 
         {/* Subtitle (Bigger subject matching reference image) */}
         <p className="text-[13px] sm:text-[15px] md:text-base font-semibold tracking-normal sm:tracking-wide text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.95)] drop-shadow-[0_0_10px_rgba(0,0,0,0.8)] mt-1 mb-0 select-none">
-          Select game mode and have fun with your friends
+          Select a game mode and have fun with your friends
         </p>
       </div>
 
