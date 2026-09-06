@@ -4,7 +4,8 @@
  */
 
 import React from 'react';
-import { Sparkles, X, Smartphone, Maximize2, Palette, Flame } from 'lucide-react';
+import { Sparkles, X, Smartphone, Maximize2, Palette, Flame, Image as ImageIcon } from 'lucide-react';
+import pickuPartyIcon from '../assets/images/PICK\'U PARTY Icon.jpeg';
 import { SoundEngine, Haptics } from '../lib/audio';
 
 interface VersionNotesModalProps {
@@ -23,10 +24,14 @@ export const VersionNotesModal: React.FC<VersionNotesModalProps> = ({ isOpen, on
       >
         {/* Header */}
         <div className="flex items-center justify-between pb-3 border-b border-white/10">
-          <div className="flex items-center gap-2">
-            <Sparkles className="w-5 h-5 text-cyan-400 drop-shadow-[0_0_8px_#00f0ff]" />
+          <div className="flex items-center gap-2.5">
+            <img
+              src={pickuPartyIcon}
+              alt="PICK'U PARTY Icon"
+              className="w-7 h-7 rounded-lg object-cover border border-cyan-400/40 shadow-[0_0_10px_rgba(6,182,212,0.4)]"
+            />
             <h2 className="text-base font-extrabold uppercase tracking-wider text-white">
-              Version Notes
+              PICK'U PARTY
             </h2>
           </div>
           <button
@@ -44,7 +49,7 @@ export const VersionNotesModal: React.FC<VersionNotesModalProps> = ({ isOpen, on
         {/* Badge & Version */}
         <div className="mt-4 flex items-center justify-between">
           <span className="px-3 py-1 rounded-full text-xs font-black tracking-wider bg-cyan-500/20 text-cyan-300 border border-cyan-400/40 shadow-[0_0_10px_rgba(6,182,212,0.3)]">
-            v1.2.084
+            v1.2.085
           </span>
           <span className="text-[11px] text-gray-400 font-medium">Latest Release</span>
         </div>
@@ -54,24 +59,24 @@ export const VersionNotesModal: React.FC<VersionNotesModalProps> = ({ isOpen, on
           <div className="flex items-start gap-2.5 p-2.5 rounded-xl bg-white/5 border border-white/10">
             <Sparkles className="w-4 h-4 text-cyan-400 shrink-0 mt-0.5" />
             <div>
-              <p className="font-bold text-white">Animated Title: Gradient & Pulse</p>
-              <p className="text-[11px] text-gray-400">PICK'U PARTY title now features an energetic club pulse animation and continuously moving spectrum gradient fill.</p>
+              <p className="font-bold text-white">Official Logo Title in Game</p>
+              <p className="text-[11px] text-gray-400">Integrated PICK'U PARTY Logo.jpg as the main title header with party bass pulse, neon screen blending, and interactive particles.</p>
             </div>
           </div>
 
           <div className="flex items-start gap-2.5 p-2.5 rounded-xl bg-white/5 border border-white/10">
             <Flame className="w-4 h-4 text-fuchsia-400 shrink-0 mt-0.5" />
             <div>
-              <p className="font-bold text-white">Title Party Particles & Tap Burst</p>
-              <p className="text-[11px] text-gray-400">Added ambient floating neon sparkles, diamonds, and twinkling stars around the title, plus an interactive tap confetti burst.</p>
+              <p className="font-bold text-white">Official App Icon Integration</p>
+              <p className="text-[11px] text-gray-400">Integrated PICK'U PARTY Icon.jpeg across app manifest, browser favicons, iOS home screen icons, and in-game brand headers.</p>
             </div>
           </div>
 
           <div className="flex items-start gap-2.5 p-2.5 rounded-xl bg-white/5 border border-white/10">
             <Smartphone className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
             <div>
-              <p className="font-bold text-white">Settings "Done" Button Style</p>
-              <p className="text-[11px] text-gray-400">Updated the Done button in Settings to match the modern pill gradient style with neon cyan-fuchsia glow and haptic click.</p>
+              <p className="font-bold text-white">Animated Title Gradient & Pulse</p>
+              <p className="text-[11px] text-gray-400">PICK'U PARTY title features energetic pulse animations, ambient sparkles, and interactive tap confetti bursts.</p>
             </div>
           </div>
         </div>

@@ -281,7 +281,7 @@ export default function App() {
         onRefreshStats={refreshStats}
       />
 
-      {/* Version Notes Modal (v1.2.084) */}
+      {/* Version Notes Modal (v1.2.085) */}
       <VersionNotesModal
         isOpen={isVersionNotesOpen}
         onClose={() => setIsVersionNotesOpen(false)}

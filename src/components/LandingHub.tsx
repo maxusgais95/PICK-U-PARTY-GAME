@@ -5,7 +5,7 @@
 
 import React, { useState } from 'react';
 import { NeonFingerTouchIcon, NeonTiltedBottleIcon, NeonBombIcon } from './NeonHubIcons';
-import { TitlePartyParticles } from './TitlePartyParticles';
+import pickuPartyLogo from '../assets/images/PICK\'U PARTY Logo.png';
 import { AppSettings } from '../types';
 import { SoundEngine, Haptics } from '../lib/audio';
 
@@ -23,12 +23,10 @@ export const LandingHub: React.FC<LandingHubProps> = ({
   onOpenVersionNotes,
 }) => {
   const [toastMessage, setToastMessage] = useState<string | null>(null);
-  const [titleBurstTrigger, setTitleBurstTrigger] = useState(0);
 
   const handleTitleClick = () => {
     SoundEngine.playButtonClick();
     Haptics.buttonClick();
-    setTitleBurstTrigger((prev) => prev + 1);
   };
 
   const handleKaboomClick = (e: React.MouseEvent) => {
@@ -59,59 +57,23 @@ export const LandingHub: React.FC<LandingHubProps> = ({
           className="relative w-full max-w-[370px] sm:max-w-[430px] md:max-w-[470px] flex items-center justify-center cursor-pointer group"
           title="Tap to party!"
         >
-          {/* Ambient & Tap-Burst Party Particles */}
-          <TitlePartyParticles burstTrigger={titleBurstTrigger} />
+          {/* Ambient Pink-Purple Outer Backlight Glow */}
+          <div
+            className="absolute -inset-x-8 -inset-y-4 rounded-full pointer-events-none -z-10 blur-2xl opacity-85 animate-pulse"
+            style={{
+              background: 'radial-gradient(ellipse at center, rgba(236, 72, 153, 0.55) 0%, rgba(168, 85, 247, 0.45) 48%, rgba(147, 51, 234, 0) 78%)',
+            }}
+          />
 
-          <svg
-            viewBox="0 0 490 72"
-            className="w-full h-auto overflow-visible select-none animate-title-pulse"
-            aria-label="PICK'U PARTY"
-          >
-            <defs>
-              {/* Seamless, continuously moving spectrum linear gradient */}
-              <linearGradient id="partyTitleSpectrum" x1="0%" y1="0%" x2="200%" y2="0%">
-                <animate attributeName="x1" from="0%" to="-100%" dur="5.5s" repeatCount="indefinite" />
-                <animate attributeName="x2" from="200%" to="100%" dur="5.5s" repeatCount="indefinite" />
-                {/* Cycle 1 (0% - 50%) */}
-                <stop offset="0%" stopColor="#38bdf8" />
-                <stop offset="6.25%" stopColor="#60a5fa" />
-                <stop offset="12.5%" stopColor="#818cf8" />
-                <stop offset="18.75%" stopColor="#c084fc" />
-                <stop offset="25%" stopColor="#ec4899" />
-                <stop offset="31.25%" stopColor="#f43f5e" />
-                <stop offset="37.5%" stopColor="#f97316" />
-                <stop offset="43.75%" stopColor="#fbbf24" />
-                <stop offset="50%" stopColor="#38bdf8" />
-                {/* Cycle 2 (50% - 100%) */}
-                <stop offset="56.25%" stopColor="#60a5fa" />
-                <stop offset="62.5%" stopColor="#818cf8" />
-                <stop offset="68.75%" stopColor="#c084fc" />
-                <stop offset="75%" stopColor="#ec4899" />
-                <stop offset="81.25%" stopColor="#f43f5e" />
-                <stop offset="87.5%" stopColor="#f97316" />
-                <stop offset="93.75%" stopColor="#fbbf24" />
-                <stop offset="100%" stopColor="#38bdf8" />
-              </linearGradient>
-            </defs>
-            <text
-              x="50%"
-              y="52%"
-              textAnchor="middle"
-              dominantBaseline="central"
-              fontFamily="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
-              fontWeight="900"
-              fontSize="48"
-              letterSpacing="1.5"
-              fill="url(#partyTitleSpectrum)"
-              stroke="#ffffff"
-              strokeWidth="5.5"
-              strokeLinejoin="round"
-              strokeLinecap="round"
-              paintOrder="stroke fill"
-            >
-              PICK'U PARTY
-            </text>
-          </svg>
+          {/* Official PICK'U PARTY Logo with party pulse and glow */}
+          <img
+            src={pickuPartyLogo}
+            alt="PICK'U PARTY"
+            className="w-full h-auto max-h-[72px] sm:max-h-[85px] md:max-h-[96px] object-contain select-none pointer-events-none animate-title-pulse"
+            style={{
+              mixBlendMode: 'screen',
+            }}
+          />
         </div>
 
         {/* Subtitle (Bigger subject matching reference image) */}
@@ -291,7 +253,7 @@ export const LandingHub: React.FC<LandingHubProps> = ({
         </div>
       </div>
 
-      {/* Footer Version Notes: v1.2.084 */}
+      {/* Footer Version Notes: v1.2.085 */}
       <div className="shrink-0 mt-1 mb-0.5 text-center select-none">
         <button
           type="button"
@@ -302,7 +264,7 @@ export const LandingHub: React.FC<LandingHubProps> = ({
           }}
           className="text-[10px] sm:text-[11px] text-gray-400/80 hover:text-white transition-colors tracking-wide cursor-pointer focus:outline-none py-1"
         >
-          Version notes: v1.2.084
+          Version notes: v1.2.085
         </button>
       </div>
     </div>
