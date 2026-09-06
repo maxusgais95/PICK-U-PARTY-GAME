@@ -49,7 +49,7 @@ export const VersionNotesModal: React.FC<VersionNotesModalProps> = ({ isOpen, on
         {/* Badge & Version */}
         <div className="mt-4 flex items-center justify-between">
           <span className="px-3 py-1 rounded-full text-xs font-black tracking-wider bg-cyan-500/20 text-cyan-300 border border-cyan-400/40 shadow-[0_0_10px_rgba(6,182,212,0.3)]">
-            v1.2.085
+            v1.2.086
           </span>
           <span className="text-[11px] text-gray-400 font-medium">Latest Release</span>
         </div>
@@ -59,24 +59,24 @@ export const VersionNotesModal: React.FC<VersionNotesModalProps> = ({ isOpen, on
           <div className="flex items-start gap-2.5 p-2.5 rounded-xl bg-white/5 border border-white/10">
             <Sparkles className="w-4 h-4 text-cyan-400 shrink-0 mt-0.5" />
             <div>
-              <p className="font-bold text-white">Official Logo Title in Game</p>
-              <p className="text-[11px] text-gray-400">Integrated PICK'U PARTY Logo.jpg as the main title header with party bass pulse, neon screen blending, and interactive particles.</p>
+              <p className="font-bold text-white">Translucent Glass Game Panels</p>
+              <p className="text-[11px] text-gray-400">Reduced panel darkness to reveal the vibrant neon DJ party video and stage lighting passing behind each game mode card.</p>
             </div>
           </div>
 
           <div className="flex items-start gap-2.5 p-2.5 rounded-xl bg-white/5 border border-white/10">
             <Flame className="w-4 h-4 text-fuchsia-400 shrink-0 mt-0.5" />
             <div>
-              <p className="font-bold text-white">Official App Icon Integration</p>
-              <p className="text-[11px] text-gray-400">Integrated PICK'U PARTY Icon.jpeg across app manifest, browser favicons, iOS home screen icons, and in-game brand headers.</p>
+              <p className="font-bold text-white">Centered Title Vertical Spacing</p>
+              <p className="text-[11px] text-gray-400">Shifted the PICK'U PARTY logo title and subtitle description down 10% for spacious top headroom and balanced visual hierarchy.</p>
             </div>
           </div>
 
           <div className="flex items-start gap-2.5 p-2.5 rounded-xl bg-white/5 border border-white/10">
             <Smartphone className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
             <div>
-              <p className="font-bold text-white">Animated Title Gradient & Pulse</p>
-              <p className="text-[11px] text-gray-400">PICK'U PARTY title features energetic pulse animations, ambient sparkles, and interactive tap confetti bursts.</p>
+              <p className="font-bold text-white">Official Transparent RGBA Logo</p>
+              <p className="text-[11px] text-gray-400">PICK'U PARTY official brand logo with alpha transparency, screen blend, and bass pulse animations.</p>
             </div>
           </div>
         </div>

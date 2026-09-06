@@ -79,11 +79,11 @@ export const PartyBackground: React.FC<PartyBackgroundProps> = ({
         style={{ background: currentTheme.bgGrad }}
       />
 
-      {/* 3. Bottom-only vignette for game mode cards contrast — upper DJ region is 100% crystal clear */}
+      {/* 3. Bottom vignette for game mode cards contrast — softened to reveal background video behind translucent panels */}
       <div
         className="absolute inset-x-0 bottom-0 h-[46%] pointer-events-none z-10"
         style={{
-          background: 'linear-gradient(to top, rgba(5, 6, 20, 0.92) 0%, rgba(5, 6, 20, 0.6) 50%, rgba(5, 6, 20, 0) 100%)',
+          background: 'linear-gradient(to top, rgba(5, 6, 20, 0.58) 0%, rgba(5, 6, 20, 0.28) 50%, rgba(5, 6, 20, 0) 100%)',
         }}
       />
 

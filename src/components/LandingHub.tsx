@@ -5,6 +5,7 @@
 
 import React, { useState } from 'react';
 import { NeonFingerTouchIcon, NeonTiltedBottleIcon, NeonBombIcon } from './NeonHubIcons';
+import { TitlePartyParticles } from './TitlePartyParticles';
 import pickuPartyLogo from '../assets/images/PICK\'U PARTY Logo.png';
 import { AppSettings } from '../types';
 import { SoundEngine, Haptics } from '../lib/audio';
@@ -23,10 +24,12 @@ export const LandingHub: React.FC<LandingHubProps> = ({
   onOpenVersionNotes,
 }) => {
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [titleBurstTrigger, setTitleBurstTrigger] = useState(0);
 
   const handleTitleClick = () => {
     SoundEngine.playButtonClick();
     Haptics.buttonClick();
+    setTitleBurstTrigger((prev) => prev + 1);
   };
 
   const handleKaboomClick = (e: React.MouseEvent) => {
@@ -50,20 +53,15 @@ export const LandingHub: React.FC<LandingHubProps> = ({
         </div>
       )}
 
-      {/* Header Title: PICK'U PARTY (Bigger, animated moving spectrum gradient, pulse animation, glowing particles) */}
-      <div className="text-center mt-[1.5vh] sm:mt-[2.2vh] mb-0 flex flex-col items-center select-none relative z-20 shrink-0 w-full px-2">
+      {/* Header Title: PICK'U PARTY (Moved down 10% for balanced vertical framing) */}
+      <div className="text-center mt-[11.5vh] sm:mt-[12.2vh] mb-0 flex flex-col items-center select-none relative z-20 shrink-0 w-full px-2">
         <div
           onClick={handleTitleClick}
           className="relative w-full max-w-[370px] sm:max-w-[430px] md:max-w-[470px] flex items-center justify-center cursor-pointer group"
           title="Tap to party!"
         >
-          {/* Ambient Pink-Purple Outer Backlight Glow */}
-          <div
-            className="absolute -inset-x-8 -inset-y-4 rounded-full pointer-events-none -z-10 blur-2xl opacity-85 animate-pulse"
-            style={{
-              background: 'radial-gradient(ellipse at center, rgba(236, 72, 153, 0.55) 0%, rgba(168, 85, 247, 0.45) 48%, rgba(147, 51, 234, 0) 78%)',
-            }}
-          />
+          {/* Ambient & Tap-Burst Party Particles */}
+          <TitlePartyParticles burstTrigger={titleBurstTrigger} />
 
           {/* Official PICK'U PARTY Logo with party pulse and glow */}
           <img
@@ -91,7 +89,7 @@ export const LandingHub: React.FC<LandingHubProps> = ({
             Haptics.buttonClick();
             onSelectRoulette();
           }}
-          className="relative rounded-[20px] sm:rounded-[22px] py-2.5 px-3.5 sm:py-3 sm:px-4 bg-black/40 backdrop-blur-md border-[1.5px] border-cyan-400 shadow-[0_0_18px_rgba(6,182,212,0.4),inset_0_0_10px_rgba(6,182,212,0.12)] flex flex-col items-center text-center cursor-pointer active:scale-[0.985] transition-all group hover:border-cyan-300"
+          className="relative rounded-[20px] sm:rounded-[22px] py-2.5 px-3.5 sm:py-3 sm:px-4 bg-black/20 backdrop-blur-[3px] border-[1.5px] border-cyan-400 shadow-[0_0_18px_rgba(6,182,212,0.4),inset_0_0_10px_rgba(6,182,212,0.12)] flex flex-col items-center text-center cursor-pointer active:scale-[0.985] transition-all group hover:border-cyan-300"
         >
           {/* Glowing Touch Icon */}
           <NeonFingerTouchIcon className="w-10 h-7 sm:w-11 sm:h-7.5 mb-0.5" />
@@ -150,7 +148,7 @@ export const LandingHub: React.FC<LandingHubProps> = ({
             Haptics.buttonClick();
             onSelectBottle();
           }}
-          className="relative rounded-[20px] sm:rounded-[22px] py-2.5 px-3.5 sm:py-3 sm:px-4 bg-black/40 backdrop-blur-md border-[1.5px] border-pink-500 shadow-[0_0_18px_rgba(236,72,153,0.4),inset_0_0_10px_rgba(236,72,153,0.12)] flex flex-col items-center text-center cursor-pointer active:scale-[0.985] transition-all group hover:border-pink-400"
+          className="relative rounded-[20px] sm:rounded-[22px] py-2.5 px-3.5 sm:py-3 sm:px-4 bg-black/20 backdrop-blur-[3px] border-[1.5px] border-pink-500 shadow-[0_0_18px_rgba(236,72,153,0.4),inset_0_0_10px_rgba(236,72,153,0.12)] flex flex-col items-center text-center cursor-pointer active:scale-[0.985] transition-all group hover:border-pink-400"
         >
           {/* Glowing Tilted Bottle with Sparkles */}
           <NeonTiltedBottleIcon className="w-10 h-7 sm:w-11 sm:h-7.5 mb-0.5" />
@@ -205,7 +203,7 @@ export const LandingHub: React.FC<LandingHubProps> = ({
         {/* Card 3: KABOOM */}
         <div
           onClick={handleKaboomClick}
-          className="relative rounded-[20px] sm:rounded-[22px] py-2.5 px-3.5 sm:py-3 sm:px-4 bg-black/40 backdrop-blur-md border-[1.5px] border-orange-500 shadow-[0_0_18px_rgba(249,115,22,0.4),inset_0_0_10px_rgba(249,115,22,0.12)] flex flex-col items-center text-center cursor-pointer active:scale-[0.985] transition-all group hover:border-orange-400"
+          className="relative rounded-[20px] sm:rounded-[22px] py-2.5 px-3.5 sm:py-3 sm:px-4 bg-black/20 backdrop-blur-[3px] border-[1.5px] border-orange-500 shadow-[0_0_18px_rgba(249,115,22,0.4),inset_0_0_10px_rgba(249,115,22,0.12)] flex flex-col items-center text-center cursor-pointer active:scale-[0.985] transition-all group hover:border-orange-400"
         >
           {/* Glowing Bomb Icon with Lit Spark Fuse */}
           <NeonBombIcon className="w-10 h-7 sm:w-11 sm:h-7.5 mb-0.5" />
@@ -253,7 +251,7 @@ export const LandingHub: React.FC<LandingHubProps> = ({
         </div>
       </div>
 
-      {/* Footer Version Notes: v1.2.085 */}
+      {/* Footer Version Notes: v1.2.086 */}
       <div className="shrink-0 mt-1 mb-0.5 text-center select-none">
         <button
           type="button"
@@ -264,7 +262,7 @@ export const LandingHub: React.FC<LandingHubProps> = ({
           }}
           className="text-[10px] sm:text-[11px] text-gray-400/80 hover:text-white transition-colors tracking-wide cursor-pointer focus:outline-none py-1"
         >
-          Version notes: v1.2.085
+          Version notes: v1.2.086
         </button>
       </div>
     </div>
