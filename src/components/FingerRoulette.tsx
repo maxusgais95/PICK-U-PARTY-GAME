@@ -86,6 +86,7 @@ export const FingerRoulette: React.FC<FingerRouletteProps> = ({
   const [countdownNum, setCountdownNum] = useState<number>(settings.countdownSeconds);
   const [touches, setTouches] = useState<Map<string | number, TouchPlayer>>(new Map());
 
+  const containerRef = useRef<HTMLDivElement | null>(null);
   const touchesRef = useRef<Map<string | number, TouchPlayer>>(new Map());
   const indicatorRefs = useRef<Map<string | number, HTMLDivElement>>(new Map());
   const moveRafPendingRef = useRef<boolean>(false);
@@ -94,6 +95,16 @@ export const FingerRoulette: React.FC<FingerRouletteProps> = ({
   const resolvedAtRef = useRef<number>(0);
   const gameStateRef = useRef<'waiting' | 'countdown' | 'resolved'>('waiting');
   gameStateRef.current = gameState;
+
+  // Accurately translate viewport client coordinates to container-relative coordinates
+  const getRelativeCoords = (clientX: number, clientY: number) => {
+    if (!containerRef.current) return { x: clientX, y: clientY };
+    const rect = containerRef.current.getBoundingClientRect();
+    return {
+      x: clientX - rect.left,
+      y: clientY - rect.top,
+    };
+  };
 
   // Available color indices pool cycling through holographic palettes
   const availableColorsRef = useRef<number[]>([...INITIAL_COLOR_INDICES]);
@@ -163,19 +174,18 @@ export const FingerRoulette: React.FC<FingerRouletteProps> = ({
       return;
     }
 
-    // Shuffle touches randomly
-    const shuffled: TouchPlayer[] = [...touchList];
-    for (let i = shuffled.length - 1; i > 0; i--) {
+    // Pick targetCount random indices without mutating map insertion order
+    const targetCount = Math.max(1, Math.min(settings.targetCount, touchList.length - 1));
+    const indices = touchList.map((_, i) => i);
+    for (let i = indices.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
-      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+      [indices[i], indices[j]] = [indices[j], indices[i]];
     }
+    const targetIndices = new Set(indices.slice(0, targetCount));
 
     const updatedMap = new Map<string | number, TouchPlayer>();
-    // Maximum targets allowed is player count - 1
-    const targetCount = Math.max(1, Math.min(settings.targetCount, shuffled.length - 1));
-
-    shuffled.forEach((touch, index) => {
-      const isTarget = index < targetCount;
+    touchList.forEach((touch, index) => {
+      const isTarget = targetIndices.has(index);
       const updated = { ...touch, isTarget };
       updatedMap.set(touch.id, updated);
 
@@ -257,10 +267,11 @@ export const FingerRoulette: React.FC<FingerRouletteProps> = ({
         availableColorsRef.current = [...INITIAL_COLOR_INDICES];
       }
       const colorIdx = availableColorsRef.current.shift()!;
+      const { x, y } = getRelativeCoords(t.clientX, t.clientY);
       const playerObj: TouchPlayer = {
         id: t.identifier,
-        x: t.clientX,
-        y: t.clientY,
+        x,
+        y,
         colorIndex: colorIdx,
         playerLabel: `P${colorIdx + 1}`,
       };
@@ -289,13 +300,14 @@ export const FingerRoulette: React.FC<FingerRouletteProps> = ({
       const t = e.changedTouches[i];
       const existing = touchesRef.current.get(t.identifier);
       if (existing) {
-        existing.x = t.clientX;
-        existing.y = t.clientY;
+        const { x, y } = getRelativeCoords(t.clientX, t.clientY);
+        existing.x = x;
+        existing.y = y;
         hasMoved = true;
         // Direct GPU translation instantly under the user's finger (0ms delay)
         const el = indicatorRefs.current.get(t.identifier);
         if (el) {
-          el.style.transform = `translate3d(${t.clientX}px, ${t.clientY}px, 0) translate(-50%, -50%)`;
+          el.style.transform = `translate3d(${x}px, ${y}px, 0) translate(-50%, -50%)`;
         }
       }
     }
@@ -305,6 +317,7 @@ export const FingerRoulette: React.FC<FingerRouletteProps> = ({
       moveRafPendingRef.current = true;
       requestAnimationFrame(() => {
         moveRafPendingRef.current = false;
+        setTouches(new Map(touchesRef.current));
         notifyTouches(touchesRef.current);
       });
     }
@@ -359,10 +372,11 @@ export const FingerRoulette: React.FC<FingerRouletteProps> = ({
       availableColorsRef.current = [...INITIAL_COLOR_INDICES];
     }
     const colorIdx = availableColorsRef.current.shift()!;
+    const { x, y } = getRelativeCoords(e.clientX, e.clientY);
     const playerObj: TouchPlayer = {
       id,
-      x: e.clientX,
-      y: e.clientY,
+      x,
+      y,
       colorIndex: colorIdx,
       playerLabel: `P${colorIdx + 1}`,
     };
@@ -380,6 +394,7 @@ export const FingerRoulette: React.FC<FingerRouletteProps> = ({
 
   return (
     <div
+      ref={containerRef}
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
@@ -387,11 +402,30 @@ export const FingerRoulette: React.FC<FingerRouletteProps> = ({
       onPointerDown={handlePointerDown}
       className="relative w-full h-full select-none touch-none overflow-hidden"
     >
+      {/* Game Resolved Banner Notice */}
+      {gameState === 'resolved' && (
+        <div className="absolute top-[max(4.6rem,calc(env(safe-area-inset-top)+4.2rem))] left-1/2 -translate-x-1/2 z-40 flex flex-col items-center pointer-events-none select-none animate-fadeIn">
+          <div className="px-4 py-1.5 rounded-full bg-black/75 backdrop-blur-md border border-rose-500/80 shadow-[0_0_24px_rgba(244,63,94,0.5)] flex items-center gap-2">
+            <span className="w-2.5 h-2.5 rounded-full bg-rose-500 animate-ping" />
+            <span className="text-xs sm:text-sm font-black uppercase tracking-wider text-white">
+              {settings.targetCount > 1 ? `${settings.targetCount} Losers Picked!` : 'Loser Picked!'}
+            </span>
+          </div>
+          <span className="text-[11px] font-bold text-gray-200/90 mt-1.5 drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)]">
+            {isResultLocked ? 'Revealing outcome...' : 'Tap anywhere to play again'}
+          </span>
+        </div>
+      )}
+
       {/* Bottom Floating Controls: Player Count & Target Count Dock (Moved slightly up) */}
       {onUpdateSettings && (
         <div
           className={`absolute bottom-[max(2.6rem,calc(env(safe-area-inset-bottom)+2.2rem))] left-1/2 -translate-x-1/2 z-30 flex flex-col gap-2 p-2.5 sm:px-3.5 sm:py-2.5 rounded-2xl glass-panel shadow-2xl min-w-[270px] max-w-[92vw] transition-all duration-300 border border-white/15 ${
-            touches.size > 0 || gameState === 'countdown' ? 'opacity-35 hover:opacity-100' : 'opacity-100'
+            gameState === 'resolved'
+              ? 'opacity-0 pointer-events-none scale-95'
+              : touches.size > 0 || gameState === 'countdown'
+              ? 'opacity-35 hover:opacity-100'
+              : 'opacity-100'
           }`}
           data-interactive="true"
         >
@@ -520,6 +554,7 @@ export const FingerRoulette: React.FC<FingerRouletteProps> = ({
             badgeContent = 'LOSER';
           } else {
             isSafeDim = true;
+            badgeContent = 'SAFE';
           }
         }
 
@@ -535,8 +570,8 @@ export const FingerRoulette: React.FC<FingerRouletteProps> = ({
             }}
             className={`absolute top-0 left-0 w-20 h-20 pointer-events-none z-30 flex items-center justify-center will-change-transform ${
               isSafeDim
-                ? 'opacity-20 scale-75 transition-opacity transition-transform duration-300'
-                : 'opacity-100 scale-100'
+                ? 'opacity-35 transition-opacity duration-300'
+                : 'opacity-100'
             }`}
             style={{
               transform: `translate3d(${player.x}px, ${player.y}px, 0) translate(-50%, -50%)`,
@@ -616,17 +651,33 @@ export const FingerRoulette: React.FC<FingerRouletteProps> = ({
             >
               {/* Center Holographic Pip Badge */}
               <div
-                className={`relative z-10 w-7 h-7 rounded-full flex items-center justify-center font-black ${
+                className={`relative z-10 w-8 h-8 rounded-full flex items-center justify-center font-black ${
                   isLoser
-                    ? 'text-[9px] px-1 bg-white text-black font-extrabold shadow-xl'
-                    : 'text-[10px] bg-black/60 text-white border border-white/20'
-                } tracking-wider uppercase backdrop-blur-md`}
+                    ? 'bg-white text-rose-600 border border-rose-400 shadow-[0_0_16px_#ffffff]'
+                    : isSafeDim
+                    ? 'bg-black/70 text-emerald-300 border border-emerald-400/50'
+                    : 'bg-black/60 text-white border border-white/20'
+                } uppercase backdrop-blur-md`}
                 style={{
-                  boxShadow: isLoser ? '0 0 14px #ffffff' : `0 0 8px ${palette.glow}`,
-                  textShadow: isLoser ? 'none' : `0 0 6px ${palette.primary}`,
+                  boxShadow: isLoser
+                    ? '0 0 16px #ffffff, 0 0 24px rgba(244,63,94,0.8)'
+                    : isSafeDim
+                    ? '0 0 10px rgba(16,185,129,0.5)'
+                    : `0 0 8px ${palette.glow}`,
                 }}
               >
-                {badgeContent}
+                {isLoser ? (
+                  <span className="text-[7.5px] font-black tracking-tighter">LOSER</span>
+                ) : isSafeDim ? (
+                  <span className="text-[7.5px] font-black tracking-tighter text-emerald-300">SAFE</span>
+                ) : (
+                  <span
+                    className="text-[10px] font-black tracking-wider"
+                    style={{ textShadow: `0 0 6px ${palette.primary}` }}
+                  >
+                    {badgeContent}
+                  </span>
+                )}
               </div>
             </div>
           </div>

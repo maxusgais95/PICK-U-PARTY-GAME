@@ -53,8 +53,8 @@ export const LandingHub: React.FC<LandingHubProps> = ({
         </div>
       )}
 
-      {/* Header Title: PICK'U PARTY (Moved down 10% for balanced vertical framing) */}
-      <div className="text-center mt-[11.5vh] sm:mt-[12.2vh] mb-0 flex flex-col items-center select-none relative z-20 shrink-0 w-full px-2">
+      {/* Header Title: PICK'U PARTY (Adjusted up 5% for balanced golden-ratio framing) */}
+      <div className="text-center mt-[6.5vh] sm:mt-[7.2vh] mb-0 flex flex-col items-center select-none relative z-20 shrink-0 w-full px-2">
         <div
           onClick={handleTitleClick}
           className="relative w-full max-w-[370px] sm:max-w-[430px] md:max-w-[470px] flex items-center justify-center cursor-pointer group"
@@ -251,7 +251,7 @@ export const LandingHub: React.FC<LandingHubProps> = ({
         </div>
       </div>
 
-      {/* Footer Version Notes: v1.2.086 */}
+      {/* Footer Version Notes: v1.2.089 */}
       <div className="shrink-0 mt-1 mb-0.5 text-center select-none">
         <button
           type="button"
@@ -262,7 +262,7 @@ export const LandingHub: React.FC<LandingHubProps> = ({
           }}
           className="text-[10px] sm:text-[11px] text-gray-400/80 hover:text-white transition-colors tracking-wide cursor-pointer focus:outline-none py-1"
         >
-          Version notes: v1.2.086
+          Version notes: v1.2.089
         </button>
       </div>
     </div>

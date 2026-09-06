@@ -49,7 +49,7 @@ export const VersionNotesModal: React.FC<VersionNotesModalProps> = ({ isOpen, on
         {/* Badge & Version */}
         <div className="mt-4 flex items-center justify-between">
           <span className="px-3 py-1 rounded-full text-xs font-black tracking-wider bg-cyan-500/20 text-cyan-300 border border-cyan-400/40 shadow-[0_0_10px_rgba(6,182,212,0.3)]">
-            v1.2.086
+            v1.2.089
           </span>
           <span className="text-[11px] text-gray-400 font-medium">Latest Release</span>
         </div>
@@ -59,16 +59,16 @@ export const VersionNotesModal: React.FC<VersionNotesModalProps> = ({ isOpen, on
           <div className="flex items-start gap-2.5 p-2.5 rounded-xl bg-white/5 border border-white/10">
             <Sparkles className="w-4 h-4 text-cyan-400 shrink-0 mt-0.5" />
             <div>
-              <p className="font-bold text-white">Translucent Glass Game Panels</p>
-              <p className="text-[11px] text-gray-400">Reduced panel darkness to reveal the vibrant neon DJ party video and stage lighting passing behind each game mode card.</p>
+              <p className="font-bold text-white">Fixed Touch Indicator Anchoring</p>
+              <p className="text-[11px] text-gray-400">Eliminated all position shifts and jitter by synchronizing state in real-time, removing translation transitions, and keeping rings pinned directly under each finger without pop-up indicators.</p>
             </div>
           </div>
 
           <div className="flex items-start gap-2.5 p-2.5 rounded-xl bg-white/5 border border-white/10">
             <Flame className="w-4 h-4 text-fuchsia-400 shrink-0 mt-0.5" />
             <div>
-              <p className="font-bold text-white">Centered Title Vertical Spacing</p>
-              <p className="text-[11px] text-gray-400">Shifted the PICK'U PARTY logo title and subtitle description down 10% for spacious top headroom and balanced visual hierarchy.</p>
+              <p className="font-bold text-white">Translucent Glass Game Panels</p>
+              <p className="text-[11px] text-gray-400">Reduced panel darkness to reveal the vibrant neon DJ party video and stage lighting passing behind each game mode card.</p>
             </div>
           </div>
 
