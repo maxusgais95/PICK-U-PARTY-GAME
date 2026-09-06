@@ -54,8 +54,8 @@ export const LandingHub: React.FC<LandingHubProps> = ({
         </div>
       )}
 
-      {/* Header Title: PICK'U PARTY (Adjusted up 5% for balanced golden-ratio framing) */}
-      <div className="text-center mt-[6.5vh] sm:mt-[7.2vh] mb-0 flex flex-col items-center select-none relative z-20 shrink-0 w-full px-2">
+      {/* Header Title: PICK'U PARTY (Shifted up for better vertical balance) */}
+      <div className="text-center mt-[2.2vh] sm:mt-[2.8vh] mb-0 flex flex-col items-center select-none relative z-20 shrink-0 w-full px-2">
         <div
           onClick={handleTitleClick}
           className="relative w-full max-w-[370px] sm:max-w-[430px] md:max-w-[470px] flex items-center justify-center cursor-pointer group"
@@ -81,8 +81,8 @@ export const LandingHub: React.FC<LandingHubProps> = ({
         </p>
       </div>
 
-      {/* Main Game Mode Cards (Compact height, full width, sitting slightly above version notes) */}
-      <div className="w-full max-w-sm flex flex-col gap-2 sm:gap-2.5 mt-auto mb-2 flex-initial justify-end">
+      {/* Main Game Mode Cards (Slightly increased height, moved slightly up) */}
+      <div className="w-full max-w-sm flex flex-col gap-2.5 sm:gap-3 mt-auto mb-3.5 sm:mb-4.5 flex-initial justify-end">
         {/* Card 1: FINGER ROULETTE */}
         <div
           onClick={() => {
@@ -90,10 +90,10 @@ export const LandingHub: React.FC<LandingHubProps> = ({
             Haptics.buttonClick();
             onSelectRoulette();
           }}
-          className="relative rounded-[20px] sm:rounded-[22px] py-2.5 px-3.5 sm:py-3 sm:px-4 bg-black/20 backdrop-blur-[3px] border-[1.5px] border-cyan-400 shadow-[0_0_18px_rgba(6,182,212,0.4),inset_0_0_10px_rgba(6,182,212,0.12)] flex flex-col items-center text-center cursor-pointer active:scale-[0.985] transition-all group hover:border-cyan-300"
+          className="relative rounded-[20px] sm:rounded-[22px] py-3 px-3.5 sm:py-3.5 sm:px-4 bg-black/20 backdrop-blur-[3px] border-[1.5px] border-cyan-400 shadow-[0_0_18px_rgba(6,182,212,0.4),inset_0_0_10px_rgba(6,182,212,0.12)] flex flex-col items-center text-center cursor-pointer active:scale-[0.985] transition-all group hover:border-cyan-300"
         >
           {/* Glowing Touch Icon */}
-          <NeonFingerTouchIcon className="w-10 h-7 sm:w-11 sm:h-7.5 mb-0.5" />
+          <NeonFingerTouchIcon className="w-11 h-8 sm:w-12 sm:h-8.5 mb-1" />
 
           {/* Heading */}
           <h2 className="text-xs sm:text-sm font-black tracking-wider text-white uppercase drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)] mt-0 mb-0 leading-tight">
@@ -101,7 +101,7 @@ export const LandingHub: React.FC<LandingHubProps> = ({
           </h2>
 
           {/* Subtitle */}
-          <p className="text-[10px] sm:text-[11px] text-white/75 font-normal mt-0.5 mb-1.5 sm:mb-2 leading-tight">
+          <p className="text-[10px] sm:text-[11px] text-white/75 font-normal mt-0.5 mb-2 sm:mb-2.5 leading-tight">
             Place your finger and have fun
           </p>
 
@@ -114,7 +114,7 @@ export const LandingHub: React.FC<LandingHubProps> = ({
               Haptics.buttonClick();
               onSelectRoulette();
             }}
-            className="relative w-full h-8 sm:h-8.5 rounded-full overflow-hidden flex items-center justify-center cursor-pointer shadow-[0_3px_16px_rgba(6,182,212,0.45)] active:scale-[0.98] transition-all border-[1.2px] border-white/70 select-none group"
+            className="relative w-full h-8.5 sm:h-9 rounded-full overflow-hidden flex items-center justify-center cursor-pointer shadow-[0_3px_16px_rgba(6,182,212,0.45)] active:scale-[0.98] transition-all border-[1.2px] border-white/70 select-none group"
             style={{
               background: 'linear-gradient(90deg, #00e5ff 0%, #06b6d4 30%, #a855f7 70%, #d946ef 100%)',
             }}
@@ -149,10 +149,10 @@ export const LandingHub: React.FC<LandingHubProps> = ({
             Haptics.buttonClick();
             onSelectBottle();
           }}
-          className="relative rounded-[20px] sm:rounded-[22px] py-2.5 px-3.5 sm:py-3 sm:px-4 bg-black/20 backdrop-blur-[3px] border-[1.5px] border-pink-500 shadow-[0_0_18px_rgba(236,72,153,0.4),inset_0_0_10px_rgba(236,72,153,0.12)] flex flex-col items-center text-center cursor-pointer active:scale-[0.985] transition-all group hover:border-pink-400"
+          className="relative rounded-[20px] sm:rounded-[22px] py-3 px-3.5 sm:py-3.5 sm:px-4 bg-black/20 backdrop-blur-[3px] border-[1.5px] border-pink-500 shadow-[0_0_18px_rgba(236,72,153,0.4),inset_0_0_10px_rgba(236,72,153,0.12)] flex flex-col items-center text-center cursor-pointer active:scale-[0.985] transition-all group hover:border-pink-400"
         >
           {/* Glowing Tilted Bottle with Sparkles */}
-          <NeonTiltedBottleIcon className="w-10 h-7 sm:w-11 sm:h-7.5 mb-0.5" />
+          <NeonTiltedBottleIcon className="w-11 h-8 sm:w-12 sm:h-8.5 mb-1" />
 
           {/* Heading */}
           <h2 className="text-xs sm:text-sm font-black tracking-wider text-white uppercase drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)] mt-0 mb-0 leading-tight">
@@ -160,7 +160,7 @@ export const LandingHub: React.FC<LandingHubProps> = ({
           </h2>
 
           {/* Subtitle */}
-          <p className="text-[10px] sm:text-[11px] text-white/75 font-normal mt-0.5 mb-1.5 sm:mb-2 leading-tight">
+          <p className="text-[10px] sm:text-[11px] text-white/75 font-normal mt-0.5 mb-2 sm:mb-2.5 leading-tight">
             Flick or tap to spin the bottle
           </p>
 
@@ -173,7 +173,7 @@ export const LandingHub: React.FC<LandingHubProps> = ({
               Haptics.buttonClick();
               onSelectBottle();
             }}
-            className="relative w-full h-8 sm:h-8.5 rounded-full overflow-hidden flex items-center justify-center cursor-pointer shadow-[0_3px_16px_rgba(236,72,153,0.45)] active:scale-[0.98] transition-all border-[1.2px] border-white/70 select-none group"
+            className="relative w-full h-8.5 sm:h-9 rounded-full overflow-hidden flex items-center justify-center cursor-pointer shadow-[0_3px_16px_rgba(236,72,153,0.45)] active:scale-[0.98] transition-all border-[1.2px] border-white/70 select-none group"
             style={{
               background: 'linear-gradient(90deg, #9333ea 0%, #a855f7 35%, #ec4899 75%, #f43f5e 100%)',
             }}
@@ -204,10 +204,10 @@ export const LandingHub: React.FC<LandingHubProps> = ({
         {/* Card 3: KABOOM */}
         <div
           onClick={handleKaboomClick}
-          className="relative rounded-[20px] sm:rounded-[22px] py-2.5 px-3.5 sm:py-3 sm:px-4 bg-black/20 backdrop-blur-[3px] border-[1.5px] border-orange-500 shadow-[0_0_18px_rgba(249,115,22,0.4),inset_0_0_10px_rgba(249,115,22,0.12)] flex flex-col items-center text-center cursor-pointer active:scale-[0.985] transition-all group hover:border-orange-400"
+          className="relative rounded-[20px] sm:rounded-[22px] py-3 px-3.5 sm:py-3.5 sm:px-4 bg-black/20 backdrop-blur-[3px] border-[1.5px] border-orange-500 shadow-[0_0_18px_rgba(249,115,22,0.4),inset_0_0_10px_rgba(249,115,22,0.12)] flex flex-col items-center text-center cursor-pointer active:scale-[0.985] transition-all group hover:border-orange-400"
         >
           {/* Glowing Bomb Icon with Lit Spark Fuse */}
-          <NeonBombIcon className="w-10 h-7 sm:w-11 sm:h-7.5 mb-0.5" />
+          <NeonBombIcon className="w-11 h-8 sm:w-12 sm:h-8.5 mb-1" />
 
           {/* Heading */}
           <h2 className="text-xs sm:text-sm font-black tracking-wider text-white uppercase drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)] mt-0 mb-0 leading-tight">
@@ -215,7 +215,7 @@ export const LandingHub: React.FC<LandingHubProps> = ({
           </h2>
 
           {/* Subtitle */}
-          <p className="text-[10px] sm:text-[11px] text-white/75 font-normal mt-0.5 mb-1.5 sm:mb-2 leading-tight">
+          <p className="text-[10px] sm:text-[11px] text-white/75 font-normal mt-0.5 mb-2 sm:mb-2.5 leading-tight">
             Avoid the bomb and don't get exploded
           </p>
 
@@ -223,7 +223,7 @@ export const LandingHub: React.FC<LandingHubProps> = ({
           <button
             type="button"
             onClick={handleKaboomClick}
-            className="relative w-full h-8 sm:h-8.5 rounded-full overflow-hidden flex items-center justify-center cursor-pointer shadow-[0_3px_16px_rgba(249,115,22,0.45)] active:scale-[0.98] transition-all border-[1.2px] border-white/70 select-none group"
+            className="relative w-full h-8.5 sm:h-9 rounded-full overflow-hidden flex items-center justify-center cursor-pointer shadow-[0_3px_16px_rgba(249,115,22,0.45)] active:scale-[0.98] transition-all border-[1.2px] border-white/70 select-none group"
             style={{
               background: 'linear-gradient(90deg, #ef4444 0%, #f97316 50%, #ff5500 100%)',
             }}
