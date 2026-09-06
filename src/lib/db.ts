@@ -12,8 +12,9 @@ const DEFAULT_SETTINGS: AppSettings = {
   minPlayers: 2,
   targetCount: 1,
   countdownSeconds: 5,
-  bottleStyle: 'classic_bottle',
+  bottleStyle: 'btl_e_001',
   selectedCustomSpriteId: null,
+  bottleBlendMode: 'color-dodge',
   bottleFriction: 0.992,
   theme: 'cyber-neon',
   soundEnabled: true,
@@ -23,8 +24,12 @@ const DEFAULT_SETTINGS: AppSettings = {
 
 function normalizeSettings(data: Partial<AppSettings>): AppSettings {
   const merged: AppSettings = { ...DEFAULT_SETTINGS, ...data };
-  if ((merged.bottleStyle as string) === 'laser_dart') {
-    merged.bottleStyle = 'classic_bottle';
+  const validStyles = ['btl_e_001', 'btl_e_002', 'btl_e_003', 'btl_e_004', 'custom'];
+  if (!validStyles.includes(merged.bottleStyle as string)) {
+    merged.bottleStyle = 'btl_e_001';
+  }
+  if (!merged.bottleBlendMode || !['normal', 'screen', 'color-dodge'].includes(merged.bottleBlendMode)) {
+    merged.bottleBlendMode = 'color-dodge';
   }
   if ((merged.theme as string) === 'emerald-matrix') {
     merged.theme = 'cyber-neon';

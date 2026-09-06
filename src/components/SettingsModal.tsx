@@ -12,7 +12,6 @@ import {
   BarChart2,
   Volume2,
   Check,
-  Palette,
   Smartphone,
   Zap,
   Sparkles,
@@ -29,6 +28,19 @@ import { THEMES } from '../lib/themes';
 import { SoundEngine, Haptics } from '../lib/audio';
 import { saveCustomSprite, deleteCustomSprite, saveStats } from '../lib/db';
 import { processSpriteImage } from '../lib/imageProcessing';
+import { BOTTLE_SKINS } from '../lib/bottleSkins';
+import { useTransparentImage } from '../lib/bottleAlphaCache';
+
+const BottlePresetThumbnail: React.FC<{ image: string; alt: string }> = ({ image, alt }) => {
+  const transparentSrc = useTransparentImage(image);
+  return (
+    <img
+      src={transparentSrc || image}
+      alt={alt}
+      className="max-h-full max-w-full object-contain pointer-events-none transition-transform duration-200 group-hover:scale-105 select-none"
+    />
+  );
+};
 
 interface SettingsModalProps {
   isOpen: boolean;
@@ -51,7 +63,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   onRefreshSprites,
   onRefreshStats,
 }) => {
-  const [activeTab, setActiveTab] = useState<'game' | 'bottle' | 'palette' | 'stats'>('game');
+  const [activeTab, setActiveTab] = useState<'game' | 'bottle' | 'stats'>('game');
   const [isUploading, setIsUploading] = useState<boolean>(false);
   const [uploadBlendMode, setUploadBlendMode] = useState<BottleBlendMode>('screen');
   const fileInputRef = useRef<HTMLInputElement | null>(null);
@@ -139,17 +151,12 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
     await deleteCustomSprite(id);
     if (settings.selectedCustomSpriteId === id) {
       onUpdateSettings({
-        bottleStyle: 'classic_bottle',
+        bottleStyle: 'btl_e_001',
         selectedCustomSpriteId: null,
       });
     }
     onRefreshSprites();
   };
-
-  const BUILTIN_STYLES: { id: BottleBuiltinStyle; name: string }[] = [
-    { id: 'classic_bottle', name: 'Classic Bottle' },
-    { id: 'retro_soda', name: 'Retro Soda' },
-  ];
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-xl animate-fadeIn">
@@ -168,8 +175,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
           </div>
         </div>
 
-        {/* Tab Navigation (Rules, Bottle, Palette, Stats) */}
-        <div className="grid grid-cols-4 gap-1 p-1.5 mx-3 sm:mx-4 mt-3 bg-white/5 rounded-2xl border border-white/10 shrink-0">
+        {/* Tab Navigation (Rules, Bottle, Stats) */}
+        <div className="grid grid-cols-3 gap-1.5 p-1.5 mx-3 sm:mx-4 mt-3 bg-white/5 rounded-2xl border border-white/10 shrink-0">
           <button
             onClick={() => {
               SoundEngine.playButtonClick();
@@ -181,7 +188,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               borderColor: activeTab === 'game' ? currentTheme.primary : 'transparent',
               boxShadow: activeTab === 'game' ? `0 0 12px ${currentTheme.primary}55` : 'none',
             }}
-            className="py-2 rounded-xl text-[11px] sm:text-xs font-black uppercase tracking-wider transition-all flex flex-col sm:flex-row items-center justify-center gap-1 border cursor-pointer"
+            className="py-2 rounded-xl text-[11px] sm:text-xs font-black uppercase tracking-wider transition-all flex flex-col sm:flex-row items-center justify-center gap-1.5 border cursor-pointer"
           >
             <Sliders className="w-3.5 h-3.5 text-white shrink-0" />
             <span>Rules</span>
@@ -198,27 +205,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               borderColor: activeTab === 'bottle' ? currentTheme.secondary : 'transparent',
               boxShadow: activeTab === 'bottle' ? `0 0 12px ${currentTheme.secondary}55` : 'none',
             }}
-            className="py-2 rounded-xl text-[11px] sm:text-xs font-black uppercase tracking-wider transition-all flex flex-col sm:flex-row items-center justify-center gap-1 border cursor-pointer"
+            className="py-2 rounded-xl text-[11px] sm:text-xs font-black uppercase tracking-wider transition-all flex flex-col sm:flex-row items-center justify-center gap-1.5 border cursor-pointer"
           >
             <ChampagneBottleIcon className="w-3.5 h-3.5 text-white fill-white shrink-0" />
             <span>Bottle</span>
-          </button>
-
-          <button
-            onClick={() => {
-              SoundEngine.playButtonClick();
-              setActiveTab('palette');
-            }}
-            style={{
-              backgroundColor: activeTab === 'palette' ? `${currentTheme.accent}33` : 'transparent',
-              color: activeTab === 'palette' ? currentTheme.accent : '#9ca3af',
-              borderColor: activeTab === 'palette' ? currentTheme.accent : 'transparent',
-              boxShadow: activeTab === 'palette' ? `0 0 12px ${currentTheme.accent}55` : 'none',
-            }}
-            className="py-2 rounded-xl text-[11px] sm:text-xs font-black uppercase tracking-wider transition-all flex flex-col sm:flex-row items-center justify-center gap-1 border cursor-pointer"
-          >
-            <Palette className="w-3.5 h-3.5 text-white shrink-0" />
-            <span>Palette</span>
           </button>
 
           <button
@@ -232,7 +222,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               borderColor: activeTab === 'stats' ? currentTheme.primary : 'transparent',
               boxShadow: activeTab === 'stats' ? `0 0 12px ${currentTheme.primary}55` : 'none',
             }}
-            className="py-2 rounded-xl text-[11px] sm:text-xs font-black uppercase tracking-wider transition-all flex flex-col sm:flex-row items-center justify-center gap-1 border cursor-pointer"
+            className="py-2 rounded-xl text-[11px] sm:text-xs font-black uppercase tracking-wider transition-all flex flex-col sm:flex-row items-center justify-center gap-1.5 border cursor-pointer"
           >
             <BarChart2 className="w-3.5 h-3.5 text-white shrink-0" />
             <span>Stats</span>
@@ -375,34 +365,51 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
           {/* TAB 2: BOTTLE SPRITES & UPLOAD */}
           {activeTab === 'bottle' && (
             <div data-scrollable="true" className="space-y-4 w-full min-w-0 scrollable-panel">
-              {/* Built-in Skins */}
+              {/* Bottle Presets (Btl_E_001 to Btl_E_004) */}
               <div className="w-full min-w-0">
-                <label className="block text-xs font-extrabold uppercase tracking-wider text-gray-400 mb-2">
-                  Bottle Style
-                </label>
-                <div className="grid grid-cols-1 gap-2 w-full min-w-0">
-                  {BUILTIN_STYLES.map((style) => {
-                    const isSelected = settings.bottleStyle === style.id;
+                <div className="flex items-center justify-between mb-2.5">
+                  <label className="text-xs font-extrabold uppercase tracking-wider text-gray-400">
+                    Bottle Presets
+                  </label>
+                </div>
+
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 w-full min-w-0">
+                  {BOTTLE_SKINS.map((skin) => {
+                    const isSelected = settings.bottleStyle === skin.id;
                     return (
                       <button
-                        key={style.id}
+                        key={skin.id}
                         type="button"
                         onClick={() => {
                           SoundEngine.playButtonClick();
                           onUpdateSettings({
-                            bottleStyle: style.id,
+                            bottleStyle: skin.id,
                             selectedCustomSpriteId: null,
                           });
                         }}
                         style={{
-                          backgroundColor: isSelected ? `${currentTheme.primary}22` : 'rgba(255, 255, 255, 0.05)',
-                          borderColor: isSelected ? currentTheme.primary : 'rgba(255, 255, 255, 0.1)',
-                          boxShadow: isSelected ? `0 0 12px ${currentTheme.primary}33` : 'none',
+                          backgroundColor: isSelected ? `${skin.accentColor}22` : 'rgba(255, 255, 255, 0.04)',
+                          borderColor: isSelected ? skin.accentColor : 'rgba(255, 255, 255, 0.12)',
                         }}
-                        className="p-3.5 rounded-2xl border text-left flex items-center justify-between transition-all cursor-pointer w-full min-w-0"
+                        className="p-1.5 rounded-2xl border text-left flex flex-col items-center justify-center transition-all cursor-pointer w-full min-w-0 group hover:border-white/30"
                       >
-                        <span className="text-xs font-bold text-white truncate">{style.name}</span>
-                        {isSelected && <Check className="w-4 h-4 shrink-0 ml-2" style={{ color: currentTheme.primary }} />}
+                        {/* Bottle Preview Box - Permanent Screen blend mode */}
+                        <div
+                          className="w-full h-28 rounded-xl flex items-center justify-center overflow-hidden relative p-1.5"
+                          style={{
+                            background: 'linear-gradient(135deg, rgba(20, 10, 35, 0.9) 0%, rgba(10, 5, 20, 0.95) 100%)',
+                          }}
+                        >
+                          <BottlePresetThumbnail image={skin.image} alt="Bottle preset" />
+                          {isSelected && (
+                            <div
+                              className="absolute top-1.5 right-1.5 w-5 h-5 rounded-full flex items-center justify-center shadow-md"
+                              style={{ backgroundColor: skin.accentColor }}
+                            >
+                              <Check className="w-3 h-3 text-black stroke-[3]" />
+                            </div>
+                          )}
+                        </div>
                       </button>
                     );
                   })}
@@ -617,96 +624,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             </div>
           )}
 
-          {/* TAB 3: COLOR PALETTE */}
-          {activeTab === 'palette' && (
-            <div className="space-y-3.5 w-full min-w-0">
-              <div className="p-3.5 rounded-2xl bg-white/5 border border-white/10 space-y-3 w-full min-w-0 overflow-hidden box-border">
-                <div className="flex items-center justify-between w-full min-w-0">
-                  <div className="flex items-center gap-2 text-xs font-extrabold uppercase tracking-wide text-white truncate">
-                    <Palette className="w-4 h-4 text-pink-400 shrink-0" />
-                    <span className="truncate">Color Palette & Themes</span>
-                  </div>
-                  <span className="text-[10px] text-gray-400 shrink-0 ml-1">Harmonized</span>
-                </div>
-                <p className="text-xs text-gray-300 leading-relaxed">
-                  Choose the ambient nightclub lighting, laser accents, and touch rings colorway:
-                </p>
-
-                <div className="grid grid-cols-1 gap-2.5 pt-1 w-full min-w-0">
-                  {(['cyber-neon', 'synthwave', 'solar-flare', 'midnight-aurora'] as const).map((thmId) => {
-                    const thm = THEMES[thmId];
-                    const isSelected = settings.theme === thmId;
-                    return (
-                      <button
-                        key={thmId}
-                        type="button"
-                        onClick={() => {
-                          SoundEngine.playButtonClick();
-                          onUpdateSettings({ theme: thmId });
-                        }}
-                        style={{
-                          backgroundColor: isSelected ? 'rgba(255, 255, 255, 0.12)' : 'rgba(255, 255, 255, 0.04)',
-                          borderColor: isSelected ? thm.primary : 'rgba(255, 255, 255, 0.12)',
-                          boxShadow: isSelected ? `0 0 16px ${thm.primary}66` : 'none',
-                        }}
-                        className="p-3.5 rounded-2xl border flex flex-col items-start gap-2.5 cursor-pointer transition-all active:scale-[0.98] w-full min-w-0 overflow-hidden text-left box-border"
-                      >
-                        <div className="flex items-center justify-between w-full min-w-0">
-                          <div className="flex items-center gap-2 min-w-0">
-                            <div
-                              className="w-3.5 h-3.5 rounded-full shrink-0"
-                              style={{ backgroundColor: thm.primary, boxShadow: `0 0 8px ${thm.primary}` }}
-                            />
-                            <div className="flex flex-col min-w-0">
-                              <span className="text-sm font-black text-white tracking-wide truncate">{thm.name}</span>
-                              <span className="text-[10px] text-gray-400 truncate">{thm.tagline}</span>
-                            </div>
-                          </div>
-                          {isSelected && (
-                            <div className="flex items-center gap-1 text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-white/15 shrink-0 ml-2" style={{ color: thm.primary }}>
-                              <Check className="w-3.5 h-3.5" />
-                              <span>Active</span>
-                            </div>
-                          )}
-                        </div>
-
-                        {/* Theme Core Swatches & Button Gradient Preview */}
-                        <div className="flex items-center gap-2 w-full min-w-0">
-                          <div className="flex items-center gap-1.5 flex-1 min-w-0">
-                            <div className="flex-1 h-3 rounded-md min-w-0" style={{ backgroundColor: thm.primary }} title="Primary" />
-                            <div className="flex-1 h-3 rounded-md min-w-0" style={{ backgroundColor: thm.secondary }} title="Secondary" />
-                            <div className="flex-1 h-3 rounded-md min-w-0" style={{ backgroundColor: thm.accent }} title="Accent" />
-                          </div>
-                          <div
-                            className="h-3 w-16 rounded-md shrink-0 opacity-80 border border-white/20"
-                            style={{ background: thm.btnRouletteGrad }}
-                            title="Button Gradient"
-                          />
-                        </div>
-
-                        {/* Touch Finger Rings Preview */}
-                        <div className="flex items-center gap-2 w-full min-w-0 pt-1.5 border-t border-white/10 flex-wrap">
-                          <span className="text-[10px] text-gray-400 font-medium shrink-0">Touch Rings:</span>
-                          <div className="flex items-center gap-1.5 flex-wrap min-w-0">
-                            {thm.playerPalettes.map((p, idx) => (
-                              <div
-                                key={idx}
-                                className="w-3 h-3 rounded-full shrink-0"
-                                style={{ backgroundColor: p.solid, boxShadow: `0 0 4px ${p.solid}` }}
-                                title={`P${idx + 1}`}
-                              />
-                            ))}
-                          </div>
-                        </div>
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* TAB 4: STATS */}
+          {/* TAB 3: STATS */}
           {activeTab === 'stats' && (
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-3">
@@ -757,13 +675,12 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
           <button
             onClick={() => {
               SoundEngine.playButtonClick();
+              Haptics.buttonClick();
               onClose();
             }}
-            className="gloss-jelly-btn btn-play-roulette"
+            className="w-full py-2.5 rounded-full font-bold uppercase tracking-wider text-xs bg-gradient-to-r from-cyan-500 to-fuchsia-500 text-white shadow-[0_0_20px_rgba(6,182,212,0.4)] active:scale-98 transition-all cursor-pointer"
           >
-            <span className="relative z-10 text-sm font-black tracking-widest text-black">
-              DONE
-            </span>
+            Done
           </button>
         </div>
       </div>

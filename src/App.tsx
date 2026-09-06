@@ -4,10 +4,10 @@
  */
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { AppSettings, AppStats, CustomBottleSprite, ScreenView, TouchPlayer, ThemeId } from './types';
+import { AppSettings, AppStats, CustomBottleSprite, ScreenView, TouchPlayer, BottleBuiltinStyle, ThemeId } from './types';
 import { THEMES } from './lib/themes';
 import { getSettings, saveSettings, getStats, getAllCustomSprites, saveCustomSprite } from './lib/db';
-import { SoundEngine } from './lib/audio';
+import { SoundEngine, Haptics } from './lib/audio';
 import { processSpriteImage } from './lib/imageProcessing';
 import { BackgroundCanvas } from './components/BackgroundCanvas';
 import { Header } from './components/Header';
@@ -18,16 +18,20 @@ import { SettingsModal } from './components/SettingsModal';
 import { PartyBackground } from './components/PartyBackground';
 import { FingerGameBackground } from './components/FingerGameBackground';
 import { SpinBottleBackground } from './components/SpinBottleBackground';
+import { VersionNotesModal } from './components/VersionNotesModal';
+import { LandscapeBlocker } from './components/LandscapeBlocker';
 
 export default function App() {
   const [currentView, setCurrentView] = useState<ScreenView>('hub');
   const [isSettingsOpen, setIsSettingsOpen] = useState<boolean>(false);
+  const [isVersionNotesOpen, setIsVersionNotesOpen] = useState<boolean>(false);
   const [settings, setSettings] = useState<AppSettings>({
     minPlayers: 2,
     targetCount: 1,
     countdownSeconds: 5,
-    bottleStyle: 'classic_bottle',
+    bottleStyle: 'btl_e_001',
     selectedCustomSpriteId: null,
+    bottleBlendMode: 'screen',
     bottleFriction: 0.992,
     theme: 'cyber-neon',
     soundEnabled: true,
@@ -53,10 +57,22 @@ export default function App() {
       const loadedSettings = await getSettings();
       const loadedStats = await getStats();
       const loadedSprites = await getAllCustomSprites();
+
+      // Ensure valid bottle style and screen blend mode
+      const validSkins = ['btl_e_001', 'btl_e_002', 'btl_e_003', 'btl_e_004'];
+      if (
+        !validSkins.includes(loadedSettings.bottleStyle) &&
+        loadedSettings.bottleStyle !== 'custom'
+      ) {
+        loadedSettings.bottleStyle = 'btl_e_001';
+      }
+      loadedSettings.bottleBlendMode = 'screen';
+      loadedSettings.theme = 'cyber-neon';
+
       setSettings(loadedSettings);
       setStats(loadedStats);
 
-      // Auto-upgrade any existing custom sprites to ensure zero-clipping transparent safety padding
+      // Auto-upgrade any existing custom sprites
       const upgradedSprites = await Promise.all(
         loadedSprites.map(async (sprite) => {
           if (!sprite.originalDataUrl) {
@@ -66,7 +82,7 @@ export default function App() {
             try {
               sprite.dataUrl = await processSpriteImage(
                 sprite.originalDataUrl,
-                sprite.blendMode || 'normal',
+                sprite.blendMode || 'color-dodge',
                 sprite.rotationOffset || 0
               );
               (sprite as any).cleanEdgeVersion = 2;
@@ -85,6 +101,7 @@ export default function App() {
         loadedSettings.soundVolume,
         loadedSettings.hapticsEnabled
       );
+      SoundEngine.preloadSounds();
     }
     loadDB();
   }, []);
@@ -130,43 +147,65 @@ export default function App() {
     return customSprites.find((s) => s.id === settings.selectedCustomSpriteId) || null;
   }, [settings.bottleStyle, settings.selectedCustomSpriteId, customSprites]);
 
-  const currentTheme = THEMES[settings.theme] || THEMES['cyber-neon'];
+  const currentTheme = THEMES['cyber-neon'];
 
-  // Quick theme cycle for header action & instant switching
-  const handleCycleTheme = useCallback(() => {
-    const themeList: ThemeId[] = ['cyber-neon', 'synthwave', 'solar-flare', 'midnight-aurora'];
-    const currentIndex = themeList.indexOf(settings.theme);
-    const nextIndex = (currentIndex + 1) % themeList.length;
-    const nextTheme = themeList[nextIndex];
-    handleUpdateSettings({ theme: nextTheme });
+  // Quick bottle sprite cycle for header action (only appears in bottle spinning game mode)
+  const handleCycleBottleSprite = useCallback(() => {
+    const presetIds: BottleBuiltinStyle[] = ['btl_e_001', 'btl_e_002', 'btl_e_003', 'btl_e_004'];
+
+    type SpriteOption = { style: BottleBuiltinStyle | 'custom'; spriteId: string | null };
+    const options: SpriteOption[] = presetIds.map((id) => ({ style: id, spriteId: null }));
+    customSprites.forEach((s) => {
+      options.push({ style: 'custom', spriteId: s.id });
+    });
+
+    const currentIndex = options.findIndex((opt) => {
+      if (opt.style === 'custom') {
+        return settings.bottleStyle === 'custom' && settings.selectedCustomSpriteId === opt.spriteId;
+      }
+      return settings.bottleStyle === opt.style;
+    });
+
+    const nextIndex = currentIndex === -1 ? 0 : (currentIndex + 1) % options.length;
+    const nextOpt = options[nextIndex];
+
+    handleUpdateSettings({
+      bottleStyle: nextOpt.style,
+      selectedCustomSpriteId: nextOpt.spriteId,
+    });
     SoundEngine.playButtonClick();
-  }, [settings.theme, handleUpdateSettings]);
+    Haptics.buttonClick();
+  }, [settings.bottleStyle, settings.selectedCustomSpriteId, customSprites, handleUpdateSettings]);
 
   return (
     <main
       className="relative w-screen h-screen overflow-hidden select-none touch-none font-sans transition-colors duration-500"
       style={{ backgroundColor: currentTheme.bgBase }}
     >
-      {/* 1. Main Hub Background: Static Nightclub Atmosphere + 60FPS Upward DJ Lasers & Blurred Bottom Half */}
-      {currentView === 'hub' && <PartyBackground theme={settings.theme} />}
+      {/* 1. Main Hub Background: Looping Neon Party DJ Background Video (Preloaded & Persistent for zero lag) */}
+      <div className={currentView === 'hub' ? 'contents' : 'hidden'}>
+        <PartyBackground theme={settings.theme} active={currentView === 'hub'} />
+      </div>
 
-      {/* 2. Finger Roulette Gameplay Background: Subtle Tile Line Grid, Holographic Biometric Target Rings & Scanning Blade */}
-      {currentView === 'roulette' && (
+      {/* 2. Finger Roulette Gameplay Background: Neon Grid Background Video with Dim Vignettes (Preloaded & Persistent) */}
+      <div className={currentView === 'roulette' ? 'contents' : 'hidden'}>
         <FingerGameBackground
           theme={settings.theme}
+          active={currentView === 'roulette'}
           activeFingersCount={currentTouches.length}
           touches={currentTouches}
         />
-      )}
+      </div>
 
-      {/* 3. Spin Bottle Gameplay Background: Top-Down Glass Table with Club Vibes Moving Light Beam Reflections */}
-      {currentView === 'bottle' && (
+      {/* 3. Spin Bottle Gameplay Background: Music Visualizer Spectrum with Table & Lights (Preloaded & Persistent) */}
+      <div className={currentView === 'bottle' ? 'contents' : 'hidden'}>
         <SpinBottleBackground
           theme={settings.theme}
+          active={currentView === 'bottle'}
           isSpinning={isBottleSpinning}
           spinSpeed={bottleSpinSpeed}
         />
-      )}
+      </div>
 
       {/* 3. 60FPS Background Particle & Shockwave Canvas */}
       <BackgroundCanvas
@@ -191,7 +230,8 @@ export default function App() {
         onOpenSettings={() => setIsSettingsOpen(true)}
         onToggleSound={handleToggleSound}
         onToggleHaptics={handleToggleHaptics}
-        onCycleTheme={handleCycleTheme}
+        onToggleBottleSprite={handleCycleBottleSprite}
+        onOpenVersionNotes={() => setIsVersionNotesOpen(true)}
       />
 
       {/* Screen Views */}
@@ -202,6 +242,7 @@ export default function App() {
             onSelectRoulette={() => setCurrentView('roulette')}
             onSelectBottle={() => setCurrentView('bottle')}
             onUpdateSettings={handleUpdateSettings}
+            onOpenVersionNotes={() => setIsVersionNotesOpen(true)}
           />
         )}
 
@@ -239,6 +280,15 @@ export default function App() {
         onRefreshSprites={refreshSprites}
         onRefreshStats={refreshStats}
       />
+
+      {/* Version Notes Modal (v1.2.084) */}
+      <VersionNotesModal
+        isOpen={isVersionNotesOpen}
+        onClose={() => setIsVersionNotesOpen(false)}
+      />
+
+      {/* Portrait-Only Guard: Landscape Blocker Overlay */}
+      <LandscapeBlocker />
     </main>
   );
 }

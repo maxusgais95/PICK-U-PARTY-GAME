@@ -11,7 +11,11 @@ export type ThemeId =
   | 'solar-flare'
   | 'midnight-aurora';
 
-export type BottleBuiltinStyle = 'classic_bottle' | 'retro_soda';
+export type BottleBuiltinStyle =
+  | 'btl_e_001'
+  | 'btl_e_002'
+  | 'btl_e_003'
+  | 'btl_e_004';
 
 export type BottleBlendMode = 'normal' | 'screen' | 'color-dodge';
 
@@ -88,6 +92,7 @@ export interface AppSettings {
   // Bottle
   bottleStyle: BottleBuiltinStyle | 'custom';
   selectedCustomSpriteId: string | null;
+  bottleBlendMode: BottleBlendMode;
   bottleFriction: number; // 0.985 standard
   
   // Theme & Appearance

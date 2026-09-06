@@ -75,22 +75,23 @@ export async function processSpriteImage(
             const r = data[i];
             const g = data[i + 1];
             const b = data[i + 2];
-            // Standard perceptual luminance
-            const lum = 0.299 * r + 0.587 * g + 0.114 * b;
+            const maxVal = Math.max(r, g, b);
 
-            // Smooth threshold keying for dark/black backgrounds
-            if (lum < 32) {
+            // Clean threshold keying for solid black background
+            if (maxVal <= 12) {
               data[i + 3] = 0;
-            } else if (lum < 105) {
-              const factor = (lum - 32) / 73;
-              data[i + 3] = Math.round(a * (factor * factor));
-            }
+            } else {
+              const alpha = Math.min(255, Math.round(((maxVal - 12) / (255 - 12)) * 255));
+              data[i + 3] = Math.min(a, alpha);
 
-            if (blendMode === 'color-dodge') {
-              // Neon vibrance boost for non-background pixels
-              data[i] = Math.min(255, Math.round(r * 1.2));
-              data[i + 1] = Math.min(255, Math.round(g * 1.2));
-              data[i + 2] = Math.min(255, Math.round(b * 1.2));
+              // Un-premultiply colors so the glow remains vibrant
+              const normAlpha = data[i + 3] / 255;
+              if (normAlpha > 0.04) {
+                const boost = blendMode === 'color-dodge' ? 1.15 : 1.0;
+                data[i] = Math.min(255, Math.round((r / normAlpha) * boost));
+                data[i + 1] = Math.min(255, Math.round((g / normAlpha) * boost));
+                data[i + 2] = Math.min(255, Math.round((b / normAlpha) * boost));
+              }
             }
           }
         }

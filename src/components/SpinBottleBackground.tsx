@@ -4,11 +4,13 @@
  */
 
 import React, { useEffect, useRef, useMemo, useState } from 'react';
+import spectrumVideo from '../assets/videos/Music Visualizer Spectrum Circle Animated.mp4';
 import { ThemeId } from '../types';
 import { THEMES } from '../lib/themes';
 
 interface SpinBottleBackgroundProps {
   theme: ThemeId;
+  active?: boolean;
   isSpinning?: boolean;
   spinSpeed?: number;
 }
@@ -43,16 +45,53 @@ interface OrbitingLight {
   flareRadius: number;
 }
 
+// Helper to calculate exact round table size instantly with zero layout jump or zoom
+function getInitialTableSize(): number {
+  if (typeof window === 'undefined') return 850;
+  const maxScreenDim = Math.max(window.innerWidth, window.innerHeight);
+  return Math.round(Math.min(Math.max(maxScreenDim * 1.15, 780), 1360));
+}
+
 export const SpinBottleBackground: React.FC<SpinBottleBackgroundProps> = ({
   theme,
+  active = true,
   isSpinning = false,
   spinSpeed = 0,
 }) => {
   const currentTheme = THEMES[theme] || THEMES['cyber-neon'];
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const videoRef = useRef<HTMLVideoElement | null>(null);
 
-  // Exact pixel diameter so width === height at all times (guaranteed 100% round)
-  const [tableSize, setTableSize] = useState<number>(850);
+  // Exact pixel diameter initialized synchronously to eliminate any initial resize zoom or lag
+  const [tableSize, setTableSize] = useState<number>(getInitialTableSize);
+
+  // Ensure animated spectrum background video auto-plays and auto-resumes reliably across mobile browsers, and pauses when inactive
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    video.muted = true;
+    video.playsInline = true;
+    video.setAttribute('playsinline', 'true');
+    video.setAttribute('webkit-playsinline', 'true');
+
+    if (active) {
+      const tryPlay = () => {
+        video.play().catch(() => {
+          const onInteract = () => {
+            video.play().catch(() => {});
+            window.removeEventListener('touchstart', onInteract);
+            window.removeEventListener('click', onInteract);
+          };
+          window.addEventListener('touchstart', onInteract, { once: true });
+          window.addEventListener('click', onInteract, { once: true });
+        });
+      };
+      tryPlay();
+    } else {
+      video.pause();
+    }
+  }, [active]);
 
   useEffect(() => {
     const handleResize = () => {
@@ -60,7 +99,6 @@ export const SpinBottleBackground: React.FC<SpinBottleBackgroundProps> = ({
       const size = Math.round(Math.min(Math.max(maxScreenDim * 1.15, 780), 1360));
       setTableSize(size);
     };
-    handleResize();
     window.addEventListener('resize', handleResize, { passive: true });
     return () => window.removeEventListener('resize', handleResize);
   }, []);
@@ -98,9 +136,12 @@ export const SpinBottleBackground: React.FC<SpinBottleBackgroundProps> = ({
   isSpinningRef.current = isSpinning;
   const spinSpeedRef = useRef(spinSpeed);
   spinSpeedRef.current = spinSpeed;
+  const tableSizeRef = useRef(tableSize);
+  tableSizeRef.current = tableSize;
 
   // Ultra-optimized, zero-lag 60FPS Orbiting Party Lights Engine with Soft Ambient Glow
   useEffect(() => {
+    if (!active) return;
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext('2d', { alpha: true });
@@ -108,16 +149,29 @@ export const SpinBottleBackground: React.FC<SpinBottleBackgroundProps> = ({
 
     let animId: number;
     let canvasSide = 0;
+    let dpr = 1;
 
     const resizeCanvas = () => {
       if (!canvas) return;
       const rect = canvas.getBoundingClientRect();
-      const dpr = Math.min(window.devicePixelRatio || 1, 1.25);
-      const side = Math.round(Math.min(rect.width, rect.height) * dpr);
-      canvasSide = canvas.width = canvas.height = Math.max(side, 100);
+      dpr = Math.min(window.devicePixelRatio || 1, 2);
+      const measuredSide = Math.min(rect.width, rect.height);
+      const effectiveSide = measuredSide > 50 ? measuredSide : tableSizeRef.current;
+      const side = Math.round(effectiveSide * dpr);
+      canvasSide = side;
+      canvas.width = side;
+      canvas.height = side;
     };
 
     resizeCanvas();
+    const ro = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        if (entry.contentRect.width > 50) {
+          resizeCanvas();
+        }
+      }
+    });
+    ro.observe(canvas);
     window.addEventListener('resize', resizeCanvas, { passive: true });
 
     // Concentric orbiting party light tracks:
@@ -238,6 +292,19 @@ export const SpinBottleBackground: React.FC<SpinBottleBackgroundProps> = ({
       // Total speed multiplier: starts at 1.0 (ambient), surges up to 6.5x, then decays gracefully
       const totalSpeedMult = 1.0 + currentSpinBoost;
 
+      // Dynamically accelerate animated video play speed during spin surge, decaying smoothly back to 1.0x
+      if (videoRef.current) {
+        const video = videoRef.current;
+        const dynamicRate = 1.0 + Math.min(currentSpinBoost * 0.45, 2.2);
+        if (Math.abs(video.playbackRate - dynamicRate) > 0.03) {
+          try {
+            video.playbackRate = dynamicRate;
+          } catch {
+            // Browser safety fallback
+          }
+        }
+      }
+
       const cx = canvasSide * 0.5;
       const cy = canvasSide * 0.5;
       const tableRadius = canvasSide * 0.49;
@@ -278,7 +345,7 @@ export const SpinBottleBackground: React.FC<SpinBottleBackgroundProps> = ({
         // =========================================================================
         const BLOOM_STEPS = 6;
         ctx.strokeStyle = c.stroke;
-        const bloomWidth = light.width * (2.8 + Math.min(currentSpinBoost * 0.25, 1.0));
+        const bloomWidth = light.width * (2.8 + Math.min(currentSpinBoost * 0.25, 1.0)) * dpr;
         for (let i = 0; i < BLOOM_STEPS; i++) {
           const t1 = i / BLOOM_STEPS;
           const t2 = (i + 1.04) / BLOOM_STEPS;
@@ -300,7 +367,8 @@ export const SpinBottleBackground: React.FC<SpinBottleBackgroundProps> = ({
         // PASS 2: VIBRANT NEON CORE RIBBON (Smoothly tapering from thin tail to head)
         // =========================================================================
         const CORE_STEPS = 9;
-        const maxCoreWidth = (light.width + Math.min(currentSpinBoost * 0.3, 1.5));
+        const maxCoreWidth = (light.width + Math.min(currentSpinBoost * 0.3, 1.5)) * dpr;
+        ctx.strokeStyle = c.stroke;
         for (let i = 0; i < CORE_STEPS; i++) {
           const t1 = i / CORE_STEPS;
           const t2 = (i + 1.04) / CORE_STEPS;
@@ -308,7 +376,7 @@ export const SpinBottleBackground: React.FC<SpinBottleBackgroundProps> = ({
           // Cubic smoothstep interpolation for seamless continuous flow
           const easeT = tMid * tMid * (3 - 2 * tMid);
           const coreAlpha = (0.04 + 0.86 * easeT) * beatGlow * energyGlow;
-          const coreWidth = 1.4 + (maxCoreWidth - 1.4) * easeT;
+          const coreWidth = 1.4 * dpr + (maxCoreWidth - 1.4 * dpr) * easeT;
 
           ctx.globalAlpha = Math.min(coreAlpha, 0.95);
           ctx.lineWidth = coreWidth;
@@ -327,7 +395,7 @@ export const SpinBottleBackground: React.FC<SpinBottleBackgroundProps> = ({
         const whitePortion = 0.22 + Math.min(currentSpinBoost * 0.04, 0.12);
         const aWhiteTail = isCW ? headAngle - trailLength * whitePortion : headAngle + trailLength * whitePortion;
         ctx.strokeStyle = '#ffffff';
-        ctx.lineWidth = 1.6 + Math.min(currentSpinBoost * 0.25, 0.8);
+        ctx.lineWidth = (1.6 + Math.min(currentSpinBoost * 0.25, 0.8)) * dpr;
         ctx.globalAlpha = Math.min(0.95, (0.65 + currentSpinBoost * 0.08) * beatGlow);
         ctx.beginPath();
         if (isCW) {
@@ -342,7 +410,7 @@ export const SpinBottleBackground: React.FC<SpinBottleBackgroundProps> = ({
         // =========================================================================
         const headX = cx + Math.cos(headAngle) * r;
         const headY = cy + Math.sin(headAngle) * r;
-        const flareRad = light.flareRadius * (1.15 + 0.2 * beat + Math.min(currentSpinBoost * 0.35, 1.6));
+        const flareRad = light.flareRadius * (1.15 + 0.2 * beat + Math.min(currentSpinBoost * 0.35, 1.6)) * dpr;
 
         const headGrad = ctx.createRadialGradient(headX, headY, 0, headX, headY, flareRad);
         headGrad.addColorStop(0, '#ffffff');
@@ -364,72 +432,108 @@ export const SpinBottleBackground: React.FC<SpinBottleBackgroundProps> = ({
     animId = requestAnimationFrame(render);
 
     return () => {
+      ro.disconnect();
       window.removeEventListener('resize', resizeCanvas);
       cancelAnimationFrame(animId);
+      if (videoRef.current) {
+        try {
+          videoRef.current.playbackRate = 1.0;
+        } catch {}
+      }
     };
-  }, []);
+  }, [active, tableSize]);
 
   return (
     <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden select-none flex items-center justify-center">
-      {/* 1. Ambient Club Atmosphere Glow */}
-      <div className="absolute inset-0 moving-gradient-layer opacity-40" />
-
-      {/* 2. Overhead VIP Club Lighting Wash (Soft, party vibe) */}
-      <div
-        className="absolute inset-0 transition-all duration-700 pointer-events-none"
+      {/* 1. Animated Video Background: Music Visualizer Spectrum Circle Animated.mp4 (Crystal clear, vivid neon) */}
+      <video
+        ref={videoRef}
+        src={spectrumVideo}
+        preload="auto"
+        autoPlay
+        loop
+        muted
+        playsInline
+        disablePictureInPicture
+        controls={false}
+        className="absolute inset-0 w-full h-full object-cover object-center pointer-events-none z-0"
         style={{
-          background: `radial-gradient(circle at 50% 50%, ${currentTheme.secondary}1c 0%, ${currentTheme.primary}10 45%, transparent 75%)`,
+          filter: 'contrast(1.06) brightness(1.12) saturate(1.22)',
         }}
       />
 
-      {/* 3. 100% Guaranteed Round VIP Party Lounge Table Container (Exact equal pixel width and height) */}
+      {/* 2. Crystal Clear Center: Only distant corners receive subtle gradient shading */}
       <div
-        className="relative shrink-0 flex items-center justify-center rounded-full pointer-events-none transition-all duration-500"
+        className="absolute inset-0 pointer-events-none z-[1]"
+        style={{
+          background:
+            'radial-gradient(ellipse at center, transparent 0%, transparent 62%, rgba(2, 4, 12, 0.42) 85%, rgba(2, 4, 12, 0.76) 100%)',
+        }}
+      />
+
+      {/* Edge gradient fades for top navigation bar and bottom controls */}
+      <div className="absolute inset-x-0 top-0 h-16 bg-gradient-to-b from-black/55 via-black/20 to-transparent pointer-events-none z-[2]" />
+      <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-black/55 via-black/20 to-transparent pointer-events-none z-[2]" />
+
+      {/* 3. Subtle Ambient Club Atmosphere Glow */}
+      <div className="absolute inset-0 moving-gradient-layer opacity-10 pointer-events-none z-[2]" />
+
+      {/* 4. Overhead VIP Club Lighting Wash */}
+      <div
+        className="absolute inset-0 transition-colors duration-500 pointer-events-none z-[2]"
+        style={{
+          background: `radial-gradient(circle at 50% 50%, ${currentTheme.secondary}08 0%, ${currentTheme.primary}05 45%, transparent 75%)`,
+        }}
+      />
+
+      {/* 5. Sheer Translucent Round VIP Party Lounge Table Container with Orbiting Lights & Circle Canvas */}
+      <div
+        className="relative shrink-0 flex items-center justify-center rounded-full pointer-events-none z-[3]"
         style={{
           width: `${tableSize}px`,
           height: `${tableSize}px`,
         }}
       >
-        {/* Vibrant Under-Table LED Party Glow Pool */}
+        {/* Soft Under-Table LED Party Glow Pool */}
         <div
-          className="absolute -inset-10 sm:-inset-16 rounded-full pointer-events-none transition-all duration-700"
+          className="absolute -inset-10 sm:-inset-16 rounded-full pointer-events-none transition-colors duration-500 opacity-25"
           style={{
-            background: `radial-gradient(circle at 50% 50%, ${currentTheme.secondary}26 35%, ${currentTheme.primary}18 58%, transparent 78%)`,
+            background: `radial-gradient(circle at 50% 50%, ${currentTheme.secondary}15 35%, ${currentTheme.primary}08 58%, transparent 78%)`,
             mixBlendMode: 'screen',
           }}
         />
 
         {/* Outer Circular Neon Party Edge Rim */}
         <div
-          className="absolute inset-0 rounded-full pointer-events-none transition-all duration-500"
+          className="absolute inset-0 rounded-full pointer-events-none transition-colors duration-500"
           style={{
-            border: `2.5px solid ${currentTheme.primary}99`,
+            border: `1.5px solid ${currentTheme.primary}45`,
             boxShadow: `
-              0 25px 80px -15px rgba(0, 0, 0, 0.95),
-              0 0 35px ${currentTheme.primary}33,
-              inset 0 0 25px ${currentTheme.secondary}22
+              0 25px 80px -15px rgba(0, 0, 0, 0.9),
+              0 0 16px ${currentTheme.primary}18,
+              inset 0 0 12px ${currentTheme.secondary}12
             `,
           }}
         />
 
         {/* Secondary Concentric Neon Party Track */}
         <div
-          className="absolute inset-[4px] rounded-full pointer-events-none transition-all duration-500"
+          className="absolute inset-[4px] rounded-full pointer-events-none transition-colors duration-500"
           style={{
-            border: `1.5px solid rgba(255, 255, 255, 0.35)`,
-            boxShadow: `0 0 14px ${currentTheme.secondary}35`,
+            border: `1px solid rgba(255, 255, 255, 0.20)`,
+            boxShadow: `0 0 10px ${currentTheme.secondary}15`,
           }}
         />
 
-        {/* Perfectly Round Polished Smoked Acrylic Table Surface */}
+        {/* Crystal Clear Sheer Glass Table Surface (Spectrum visualizer video is 100% visible through table) */}
         <div
-          className="absolute inset-[8px] rounded-full overflow-hidden pointer-events-none backdrop-blur-[6px] transition-all duration-500"
+          className="absolute inset-[8px] rounded-full overflow-hidden pointer-events-none transition-colors duration-500"
           style={{
-            background: `radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.08) 0%, rgba(24, 18, 48, 0.72) 35%, rgba(12, 9, 25, 0.92) 70%, rgba(4, 3, 10, 0.98) 100%)`,
+            background: `radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.02) 0%, rgba(10, 8, 25, 0.05) 55%, rgba(4, 3, 12, 0.22) 100%)`,
           }}
         >
-          {/* Circular VIP Seating Spot Indicators (Party Lounge Dots) */}
-          <div className="absolute inset-0 pointer-events-none opacity-55">
+          {/* Circular VIP Seating Spot Indicators (Party Lounge Dots - Dimmed) */}
+          <div className="absolute inset-0 pointer-events-none opacity-30">
             {[0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330].map((deg) => (
               <div
                 key={deg}
@@ -437,17 +541,17 @@ export const SpinBottleBackground: React.FC<SpinBottleBackgroundProps> = ({
                 style={{ transform: `rotate(${deg}deg)` }}
               >
                 <div
-                  className="w-2 h-2 rounded-full mx-auto"
+                  className="w-1.5 h-1.5 rounded-full mx-auto"
                   style={{
                     backgroundColor: deg % 90 === 0 ? '#ffffff' : currentTheme.primary,
-                    boxShadow: `0 0 10px ${deg % 90 === 0 ? '#ffffff' : currentTheme.primary}`,
+                    boxShadow: `0 0 8px ${deg % 90 === 0 ? '#ffffff' : currentTheme.primary}`,
                   }}
                 />
                 <div
-                  className="w-2 h-2 rounded-full mx-auto"
+                  className="w-1.5 h-1.5 rounded-full mx-auto"
                   style={{
                     backgroundColor: deg % 90 === 0 ? '#ffffff' : currentTheme.primary,
-                    boxShadow: `0 0 10px ${deg % 90 === 0 ? '#ffffff' : currentTheme.primary}`,
+                    boxShadow: `0 0 8px ${deg % 90 === 0 ? '#ffffff' : currentTheme.primary}`,
                   }}
                 />
               </div>
@@ -456,28 +560,27 @@ export const SpinBottleBackground: React.FC<SpinBottleBackgroundProps> = ({
 
           {/* Ring 1 Luminous Party Groove (Matches trackRatio 0.90) */}
           <div
-            className="absolute inset-[6%] rounded-full pointer-events-none transition-all duration-500"
+            className="absolute inset-[6%] rounded-full pointer-events-none transition-colors duration-500"
             style={{
-              border: `1.5px solid ${currentTheme.primary}44`,
-              boxShadow: `0 0 15px ${currentTheme.primary}20, inset 0 0 15px ${currentTheme.secondary}15`,
+              border: `1px solid ${currentTheme.primary}25`,
+              boxShadow: `0 0 10px ${currentTheme.primary}12`,
             }}
           />
 
           {/* Ring 2 Mid-Outer Concentric Party Track (Matches trackRatio 0.72) */}
           <div
-            className="absolute inset-[15%] rounded-full pointer-events-none transition-all duration-500"
+            className="absolute inset-[15%] rounded-full pointer-events-none transition-colors duration-500"
             style={{
-              border: `1.5px solid ${currentTheme.secondary}38`,
-              boxShadow: `0 0 12px ${currentTheme.secondary}18`,
+              border: `1px solid ${currentTheme.secondary}20`,
+              boxShadow: `0 0 8px ${currentTheme.secondary}12`,
             }}
           />
 
           {/* Ring 3 Mid-Inner Groove Track (Matches trackRatio 0.54) */}
           <div
-            className="absolute inset-[24%] rounded-full pointer-events-none transition-all duration-500"
+            className="absolute inset-[24%] rounded-full pointer-events-none transition-colors duration-500"
             style={{
-              border: `1.5px solid ${currentTheme.primary}35`,
-              boxShadow: `0 0 10px ${currentTheme.primary}16`,
+              border: `1px solid ${currentTheme.primary}18`,
             }}
           />
 
@@ -485,19 +588,19 @@ export const SpinBottleBackground: React.FC<SpinBottleBackgroundProps> = ({
           <div
             className="absolute inset-[33%] rounded-full pointer-events-none"
             style={{
-              border: `1px dashed rgba(255, 255, 255, 0.28)`,
+              border: `1px dashed rgba(255, 255, 255, 0.18)`,
             }}
           />
 
-          {/* Center Bottle Service Coaster Medallion (Sleek Party Turntable Disc) */}
+          {/* Center Bottle Service Coaster Medallion (Ultra-Sheer Crystal Disc) */}
           <div
-            className="absolute inset-[41%] rounded-full pointer-events-none flex items-center justify-center transition-all duration-500"
+            className="absolute inset-[41%] rounded-full pointer-events-none flex items-center justify-center transition-colors duration-500"
             style={{
-              border: `2px solid ${currentTheme.primary}55`,
-              background: `radial-gradient(circle at 50% 50%, ${currentTheme.secondary}20 0%, rgba(18, 14, 38, 0.85) 55%, rgba(5, 4, 12, 0.95) 100%)`,
+              border: `1.5px solid ${currentTheme.primary}30`,
+              background: `radial-gradient(circle at 50% 50%, ${currentTheme.secondary}08 0%, rgba(20, 15, 35, 0.12) 65%, rgba(10, 8, 20, 0.20) 100%)`,
               boxShadow: `
-                0 0 30px ${currentTheme.primary}30,
-                inset 0 0 20px rgba(0, 0, 0, 0.9)
+                0 0 16px ${currentTheme.primary}15,
+                inset 0 0 10px ${currentTheme.secondary}12
               `,
             }}
           >
@@ -529,10 +632,9 @@ export const SpinBottleBackground: React.FC<SpinBottleBackgroundProps> = ({
 
           {/* Clean Glass Party Glare Sheen (Subtle, elegant) */}
           <div
-            className="absolute inset-0 pointer-events-none opacity-30"
+            className="absolute inset-0 pointer-events-none opacity-20"
             style={{
-              background: `linear-gradient(135deg, transparent 35%, rgba(255, 255, 255, 0.15) 50%, transparent 65%)`,
-              mixBlendMode: 'overlay',
+              background: `linear-gradient(135deg, transparent 35%, rgba(255, 255, 255, 0.12) 50%, transparent 65%)`,
             }}
           />
         </div>

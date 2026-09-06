@@ -4,19 +4,21 @@
  */
 
 import React from 'react';
-import { Volume2, VolumeX, Settings, Home, Smartphone, Maximize, Minimize, Palette } from 'lucide-react';
+import { Volume2, VolumeX, Settings, Home, Calendar, Maximize, Minimize } from 'lucide-react';
+import { ChampagneBottleIcon } from './ChampagneBottleIcon';
 import { AppSettings, ScreenView } from '../types';
 import { THEMES } from '../lib/themes';
-import { SoundEngine } from '../lib/audio';
+import { SoundEngine, Haptics } from '../lib/audio';
 
 interface HeaderProps {
   currentView: ScreenView;
   settings: AppSettings;
   onNavigate: (view: ScreenView) => void;
-  onOpenSettings: () => void;
+  onOpenSettings: (tab?: 'game' | 'bottle' | 'stats') => void;
   onToggleSound: () => void;
   onToggleHaptics: () => void;
-  onCycleTheme?: () => void;
+  onToggleBottleSprite?: () => void;
+  onOpenVersionNotes?: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -26,7 +28,8 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenSettings,
   onToggleSound,
   onToggleHaptics,
-  onCycleTheme,
+  onToggleBottleSprite,
+  onOpenVersionNotes,
 }) => {
   const [isFullscreen, setIsFullscreen] = React.useState<boolean>(false);
   const [supportsFullscreen, setSupportsFullscreen] = React.useState<boolean>(true);
@@ -69,6 +72,7 @@ export const Header: React.FC<HeaderProps> = ({
 
   const toggleFullscreen = () => {
     SoundEngine.playButtonClick();
+    Haptics.buttonClick();
     const doc = document as any;
     const docEl = document.documentElement as any;
 
@@ -90,15 +94,11 @@ export const Header: React.FC<HeaderProps> = ({
         try {
           const promise = requestMethod.call(docEl);
           if (promise && typeof promise.then === 'function') {
-            promise
-              .then(() => setIsFullscreen(true))
-              .catch(() => {});
+            promise.then(() => setIsFullscreen(true)).catch(() => {});
           } else {
             setIsFullscreen(true);
           }
-        } catch {
-          // Ignore error gracefully
-        }
+        } catch {}
       }
     } else {
       const exitMethod =
@@ -111,180 +111,117 @@ export const Header: React.FC<HeaderProps> = ({
         try {
           const promise = exitMethod.call(doc);
           if (promise && typeof promise.then === 'function') {
-            promise
-              .then(() => setIsFullscreen(false))
-              .catch(() => {});
+            promise.then(() => setIsFullscreen(false)).catch(() => {});
           } else {
             setIsFullscreen(false);
           }
-        } catch {
-          // Ignore error gracefully
-        }
+        } catch {}
       }
     }
   };
 
   return (
-    <header className="absolute top-0 left-0 right-0 z-40 flex items-center justify-between px-4 pt-[max(1.5rem,calc(env(safe-area-inset-top)+0.8rem))] pb-2 pointer-events-none">
-      {/* Left Action Buttons */}
+    <header className="absolute top-0 left-0 right-0 z-40 flex items-center justify-between px-4 pt-[max(1rem,calc(env(safe-area-inset-top)+0.6rem))] pb-2 pointer-events-none">
+      {/* Left Action Buttons (Squircle Neon Glass matching IMG_0687.jpeg) */}
       <div className="flex items-center gap-2.5 pointer-events-auto">
-        {currentView !== 'hub' && (
+        {currentView !== 'hub' ? (
           <button
             onClick={() => {
               SoundEngine.playButtonClick();
+              Haptics.buttonClick();
               onNavigate('hub');
             }}
             aria-label="Return to Hub"
-            className="bubble-toggle-btn group transition-all duration-300"
-            style={{
-              boxShadow: `0 8px 20px -2px ${currentTheme.primary}77, inset 0 2px 3px rgba(255,255,255,0.8), inset 0 -2px 4px rgba(0,0,0,0.8)`,
-              borderColor: `${currentTheme.primary}88`,
-            }}
+            className="w-11 h-11 sm:w-12 sm:h-12 rounded-[18px] bg-black/40 backdrop-blur-md border border-purple-400/40 shadow-[0_0_15px_rgba(168,85,247,0.3)] flex items-center justify-center text-purple-300 hover:border-purple-300 active:scale-95 transition-all"
           >
-            <Home
-              className="w-5 h-5 stroke-[2.4] relative z-10 transition-colors duration-300"
-              style={{
-                color: currentTheme.primary,
-                filter: `drop-shadow(0 0 8px ${currentTheme.primary})`,
-              }}
-            />
+            <Home className="w-5 h-5 stroke-[2.2] text-cyan-300 drop-shadow-[0_0_8px_rgba(6,182,212,0.8)]" />
           </button>
-        )}
+        ) : null}
 
-        {/* Audio Button - Dynamic Theme Tint */}
+        {/* Audio Toggle Button */}
         <button
           onClick={() => {
             SoundEngine.playButtonClick();
+            Haptics.buttonClick();
             onToggleSound();
           }}
           aria-label={settings.soundEnabled ? 'Mute Sound' : 'Enable Sound'}
-          className="bubble-toggle-btn group transition-all duration-300"
-          style={{
-            boxShadow: settings.soundEnabled
-              ? `0 8px 24px -2px ${currentTheme.secondary}aa, 0 0 12px ${currentTheme.secondary}66, inset 0 2px 3px rgba(255,255,255,0.8), inset 0 -2px 4px rgba(0,0,0,0.8)`
-              : '0 4px 12px rgba(0,0,0,0.6), inset 0 2px 3px rgba(255,255,255,0.4), inset 0 -2px 4px rgba(0,0,0,0.8)',
-            borderColor: settings.soundEnabled ? `${currentTheme.secondary}88` : 'rgba(255, 255, 255, 0.2)',
-          }}
+          className={`w-11 h-11 sm:w-12 sm:h-12 rounded-[18px] bg-black/40 backdrop-blur-md border transition-all flex items-center justify-center active:scale-95 ${
+            settings.soundEnabled
+              ? 'border-purple-400/60 shadow-[0_0_15px_rgba(192,38,211,0.35)] text-pink-300'
+              : 'border-purple-900/40 text-gray-500 shadow-[0_2px_8px_rgba(0,0,0,0.5)]'
+          }`}
         >
           {settings.soundEnabled ? (
-            <Volume2
-              className="w-5 h-5 stroke-[2.4] relative z-10 transition-colors duration-300"
-              style={{
-                color: currentTheme.secondary,
-                filter: `drop-shadow(0 0 10px ${currentTheme.secondary})`,
-              }}
-            />
+            <Volume2 className="w-5 h-5 stroke-[2.2] drop-shadow-[0_0_8px_rgba(236,72,153,0.8)]" />
           ) : (
-            <VolumeX className="w-5 h-5 text-gray-400 stroke-[2] relative z-10" />
+            <VolumeX className="w-5 h-5 stroke-[2] opacity-80" />
           )}
         </button>
 
-        {/* Haptics Button - Dynamic Theme Tint */}
-        <button
-          onClick={() => {
-            SoundEngine.playButtonClick();
-            onToggleHaptics();
-          }}
-          aria-label={settings.hapticsEnabled ? 'Disable Haptics' : 'Enable Haptics'}
-          className="bubble-toggle-btn group transition-all duration-300"
-          style={{
-            boxShadow: settings.hapticsEnabled
-              ? `0 8px 24px -2px ${currentTheme.accent}aa, 0 0 12px ${currentTheme.accent}66, inset 0 2px 3px rgba(255,255,255,0.8), inset 0 -2px 4px rgba(0,0,0,0.8)`
-              : '0 4px 12px rgba(0,0,0,0.6), inset 0 2px 3px rgba(255,255,255,0.4), inset 0 -2px 4px rgba(0,0,0,0.8)',
-            borderColor: settings.hapticsEnabled ? `${currentTheme.accent}88` : 'rgba(255, 255, 255, 0.2)',
-          }}
-        >
-          <Smartphone
-            className="w-5 h-5 stroke-[2.4] relative z-10 transition-all duration-300"
-            style={
-              settings.hapticsEnabled
-                ? {
-                    color: currentTheme.accent,
-                    filter: `drop-shadow(0 0 10px ${currentTheme.accent})`,
-                  }
-                : { color: '#9ca3af' }
-            }
-          />
-        </button>
+        {/* Calendar / Version Notes & Stats Button - ONLY on main page (hub) */}
+        {currentView === 'hub' && (
+          <button
+            onClick={() => {
+              SoundEngine.playButtonClick();
+              Haptics.buttonClick();
+              if (onOpenVersionNotes) {
+                onOpenVersionNotes();
+              } else {
+                onOpenSettings('stats');
+              }
+            }}
+            aria-label="Version Notes & Game Stats"
+            className="w-11 h-11 sm:w-12 sm:h-12 rounded-[18px] bg-black/40 backdrop-blur-md border border-purple-400/40 shadow-[0_0_15px_rgba(168,85,247,0.3)] flex items-center justify-center text-purple-300 hover:border-purple-300 active:scale-95 transition-all"
+          >
+            <Calendar className="w-5 h-5 stroke-[2.2] drop-shadow-[0_0_8px_rgba(168,85,247,0.8)]" />
+          </button>
+        )}
       </div>
 
       {/* Right Action Buttons */}
       <div className="flex items-center gap-2.5 pointer-events-auto">
-        {/* Quick Theme Cycle Button (Allows instant theme testing on the fly) */}
-        {onCycleTheme && (
+        {/* Bottle Sprite Quick Switcher in Bottle Mode */}
+        {currentView === 'bottle' && onToggleBottleSprite && (
           <button
             onClick={() => {
               SoundEngine.playButtonClick();
-              onCycleTheme();
+              Haptics.buttonClick();
+              onToggleBottleSprite();
             }}
-            aria-label={`Current Theme: ${currentTheme.name}. Tap to switch`}
-            title={`Current Theme: ${currentTheme.name}. Tap to switch`}
-            className="bubble-toggle-btn group transition-all duration-300"
-            style={{
-              boxShadow: `0 8px 20px -2px ${currentTheme.primary}77, 0 0 10px ${currentTheme.secondary}55, inset 0 2px 3px rgba(255,255,255,0.8), inset 0 -2px 4px rgba(0,0,0,0.8)`,
-              borderColor: `${currentTheme.secondary}88`,
-            }}
+            aria-label="Switch Bottle Sprite"
+            className="w-11 h-11 sm:w-12 sm:h-12 rounded-[18px] bg-black/40 backdrop-blur-md border border-pink-400/50 shadow-[0_0_15px_rgba(236,72,153,0.35)] flex items-center justify-center text-pink-300 active:scale-95 transition-all"
           >
-            <Palette
-              className="w-5 h-5 stroke-[2.4] relative z-10 transition-colors duration-300"
-              style={{
-                color: currentTheme.primary,
-                filter: `drop-shadow(0 0 8px ${currentTheme.primary})`,
-              }}
-            />
+            <ChampagneBottleIcon className="w-5 h-5 text-pink-300 drop-shadow-[0_0_8px_rgba(236,72,153,0.8)]" />
           </button>
         )}
 
-        {supportsFullscreen && (
+        {/* Fullscreen Button (in game modes) */}
+        {currentView !== 'hub' && supportsFullscreen && (
           <button
             onClick={toggleFullscreen}
             aria-label="Toggle Fullscreen"
-            className="bubble-toggle-btn group transition-all duration-300"
-            style={{
-              boxShadow: `0 8px 20px -2px ${currentTheme.accent}77, inset 0 2px 3px rgba(255,255,255,0.8), inset 0 -2px 4px rgba(0,0,0,0.8)`,
-              borderColor: `${currentTheme.accent}66`,
-            }}
+            className="w-11 h-11 sm:w-12 sm:h-12 rounded-[18px] bg-black/40 backdrop-blur-md border border-cyan-400/40 shadow-[0_0_15px_rgba(6,182,212,0.3)] flex items-center justify-center text-cyan-300 active:scale-95 transition-all"
           >
             {isFullscreen ? (
-              <Minimize
-                className="w-5 h-5 stroke-[2.2] relative z-10 transition-colors duration-300"
-                style={{
-                  color: currentTheme.accent,
-                  filter: `drop-shadow(0 0 8px ${currentTheme.accent})`,
-                }}
-              />
+              <Minimize className="w-5 h-5 stroke-[2.2] drop-shadow-[0_0_8px_rgba(6,182,212,0.8)]" />
             ) : (
-              <Maximize
-                className="w-5 h-5 stroke-[2.2] relative z-10 transition-colors duration-300"
-                style={{
-                  color: currentTheme.accent,
-                  filter: `drop-shadow(0 0 8px ${currentTheme.accent})`,
-                }}
-              />
+              <Maximize className="w-5 h-5 stroke-[2.2] drop-shadow-[0_0_8px_rgba(6,182,212,0.8)]" />
             )}
           </button>
         )}
 
-        {/* Settings Button - Dynamic Theme Tint */}
+        {/* Settings Gear Button */}
         <button
           onClick={() => {
             SoundEngine.playButtonClick();
+            Haptics.buttonClick();
             onOpenSettings();
           }}
           aria-label="Open Settings"
-          className="bubble-toggle-btn group transition-all duration-300"
-          style={{
-            boxShadow: `0 8px 24px -2px ${currentTheme.secondary}aa, 0 0 12px ${currentTheme.secondary}66, inset 0 2px 3px rgba(255,255,255,0.8), inset 0 -2px 4px rgba(0,0,0,0.8)`,
-            borderColor: `${currentTheme.secondary}88`,
-          }}
+          className="w-11 h-11 sm:w-12 sm:h-12 rounded-[18px] bg-black/40 backdrop-blur-md border border-purple-400/40 shadow-[0_0_15px_rgba(168,85,247,0.3)] flex items-center justify-center text-purple-300 hover:border-purple-300 active:scale-95 transition-all"
         >
-          <Settings
-            className="w-5 h-5 stroke-[2.4] relative z-10 transition-colors duration-300"
-            style={{
-              color: currentTheme.secondary,
-              filter: `drop-shadow(0 0 10px ${currentTheme.secondary})`,
-            }}
-          />
+          <Settings className="w-5 h-5 stroke-[2.2] drop-shadow-[0_0_8px_rgba(168,85,247,0.8)]" />
         </button>
       </div>
     </header>
