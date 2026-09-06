@@ -4,7 +4,7 @@
  */
 
 import React, { useEffect, useRef } from 'react';
-import neonPartyVideo from '../assets/videos/Neon Party DJ Animated.mp4';
+import neonPartyVideo from '../assets/videos/Chibi DJ Party Loop Animation.mov' ;
 import { ThemeId } from '../types';
 import { THEMES } from '../lib/themes';
 
