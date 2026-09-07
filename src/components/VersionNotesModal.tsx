@@ -57,18 +57,18 @@ export const VersionNotesModal: React.FC<VersionNotesModalProps> = ({ isOpen, on
         {/* Change List */}
         <div className="mt-4 space-y-2.5 text-xs text-gray-200 max-h-[300px] overflow-y-auto pr-1">
           <div className="flex items-start gap-2.5 p-2.5 rounded-xl bg-white/5 border border-white/10">
-            <Sparkles className="w-4 h-4 text-cyan-400 shrink-0 mt-0.5" />
+            <ImageIcon className="w-4 h-4 text-cyan-400 shrink-0 mt-0.5" />
             <div>
-              <p className="font-bold text-white">Fixed Touch Indicator Anchoring</p>
-              <p className="text-[11px] text-gray-400">Eliminated all position shifts and jitter by synchronizing state in real-time, removing translation transitions, and keeping rings pinned directly under each finger without pop-up indicators.</p>
+              <p className="font-bold text-white">Thematic Game Mode Backgrounds</p>
+              <p className="text-[11px] text-gray-400">Integrated semi-transparent, half-faded thematic artwork for Finger Roulette, Spin the Bottle, and Kaboom mode panels.</p>
             </div>
           </div>
 
           <div className="flex items-start gap-2.5 p-2.5 rounded-xl bg-white/5 border border-white/10">
-            <Flame className="w-4 h-4 text-fuchsia-400 shrink-0 mt-0.5" />
+            <Sparkles className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
             <div>
-              <p className="font-bold text-white">Translucent Glass Game Panels</p>
-              <p className="text-[11px] text-gray-400">Reduced panel darkness to reveal the vibrant neon DJ party video and stage lighting passing behind each game mode card.</p>
+              <p className="font-bold text-white">Cleaned Orphaned Assets & Code</p>
+              <p className="text-[11px] text-gray-400">Purged unused heavy video and image files and deprecated components, keeping the bundle fast and lightweight.</p>
             </div>
           </div>
 
