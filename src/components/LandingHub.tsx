@@ -6,7 +6,7 @@
 import React, { useState } from 'react';
 import { NeonFingerTouchIcon, NeonTiltedBottleIcon, NeonBombIcon } from './NeonHubIcons';
 import { TitlePartyParticles } from './TitlePartyParticles';
-import pickuPartyLogo from '../assets/images/PICK\'U PARTY Logo.png';
+import pickuPartyLogo from '../assets/images/PICK\'U PARTY LOGO E01.png';
 import { AppSettings } from '../types';
 import { SoundEngine, Haptics } from '../lib/audio';
 import { PWAInstallButton } from './PWAInstallButton';

@@ -5,7 +5,7 @@
 
 import React from 'react';
 import { Sparkles, X, Smartphone, Maximize2, Palette, Flame, Image as ImageIcon } from 'lucide-react';
-import pickuPartyIcon from '../assets/images/PICK\'U PARTY Icon.jpeg';
+import pickuPartyIcon from '../assets/images/PICK\'U PARTY APP ICON.png';
 import { SoundEngine, Haptics } from '../lib/audio';
 
 interface VersionNotesModalProps {
